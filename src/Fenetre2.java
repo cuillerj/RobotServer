@@ -20,18 +20,18 @@ public class Fenetre2 extends JFrame{
 //	  private JButton boutonActualise = new JButton("Calcul");
 //	  private JButton boutonValide = new JButton("Valide");
 //	  private JButton boutonInit = new JButton("Initialise position");
-	 FenetreGraphique graph = new FenetreGraphique();
+	 static FenetreGraphique graph = new FenetreGraphique();
 	  private JPanel container = new JPanel();
 	//  private JPanel container2 = new JPanel();
-	  private JLabel label = new JLabel("Position du robot ");
+	  private static JLabel label = new JLabel("Position du robot ");
 	  
 	  private JFormattedTextField  posX= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private JFormattedTextField  posY = new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private JFormattedTextField  orient= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private JFormattedTextField  indScan= new JFormattedTextField(NumberFormat.getIntegerInstance());
-	  private JFormattedTextField  posXP= new JFormattedTextField(NumberFormat.getIntegerInstance());
-	  private JFormattedTextField  posYP= new JFormattedTextField(NumberFormat.getIntegerInstance());
-	  private JFormattedTextField  orientP= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  posXP= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  posYP= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  orientP= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	 // private JTextField move = new JTextField("0");
 	  private int compteur = 0;
 	//public int ang;
@@ -58,13 +58,13 @@ public class Fenetre2 extends JFrame{
 	    Font police = new Font("Tahoma", Font.BOLD, 16);
 	    posX.setFont(police);
 	    posX.setPreferredSize(new Dimension(50, 30));
-	    posX.setForeground(Color.BLUE);
+	    posX.setForeground(Color.DARK_GRAY);
 	    posY.setFont(police);
 	    posY.setPreferredSize(new Dimension(50, 30));
-	    posY.setForeground(Color.BLUE);
+	    posY.setForeground(Color.BLACK);
 	    orient.setFont(police);
 	    orient.setPreferredSize(new Dimension(50, 30));
-	    orient.setForeground(Color.BLUE);
+	    orient.setForeground(Color.GREEN);
 	    indScan.setFont(police);
 	    indScan.setPreferredSize(new Dimension(50, 30));
 	    indScan.setForeground(Color.RED);
@@ -73,28 +73,29 @@ public class Fenetre2 extends JFrame{
 	//    indScan.setLocation(300, 300);
 	    posXP.setFont(police);
 	    posXP.setPreferredSize(new Dimension(50, 30));
-	    posXP.setForeground(Color.BLUE);
+	    posXP.setForeground(Color.DARK_GRAY);
 	    String posXPS=""+RobotMainServer.posXG;
 	    posXP.setText(posXPS);
 	    posYP.setFont(police);
 	    posYP.setPreferredSize(new Dimension(50, 30));
-	    posYP.setForeground(Color.BLUE);
+	    posYP.setForeground(Color.BLACK);
 	    String posYPS=""+RobotMainServer.posYG;
 	    posYP.setText(posYPS);
 	    orientP.setFont(police);
 	    orientP.setPreferredSize(new Dimension(50, 30));
-	    orientP.setForeground(Color.BLUE);
+	    orientP.setForeground(Color.GREEN);
 	    String orientPS=""+RobotMainServer.orientG;
 	    orientP.setText(orientPS);
 	    container.add(label);
+	    top.add(orient);
 	    top.add(posX);
 	    top.add(label);
 	    top.add(posY);
-	    top.add(orient);
 	    top.add(indScan);
+	    top.add(orientP);
 	    top.add(posXP);
 	    top.add(posYP);
-	    top.add(orientP);
+
 	    container.add(top, BorderLayout.CENTER);
 //	    container.add(center, BorderLayout.CENTER);
 	//    south.add(boutonActualise);
@@ -108,10 +109,9 @@ public class Fenetre2 extends JFrame{
 	    container.add(label, BorderLayout.NORTH);
 	    this.setContentPane(container);
 	    this.setVisible(true);
-
 	    int posX1= Integer.parseInt(posXP.getText());
 	    int posY1= Integer.parseInt(posYP.getText());
-	  int orient1= Integer.parseInt(orientP.getText());
+	    int orient1= Integer.parseInt(orientP.getText());
   		PanneauGraphique.point(posX1,posY1,orient1);
   		graph.repaint();
 
@@ -136,15 +136,15 @@ public class Fenetre2 extends JFrame{
 		}
 
 	
-	public void SetcurrentPosX(String text) {
+	public static void SetcurrentPosX(String text) {
 		// TODO Auto-generated method stub
 	    posXP.setText(text);	
 	}
-	public void SetcurrentPosY(String text) {
+	public static void SetcurrentPosY(String text) {
 		// TODO Auto-generated method stub
 	    posYP.setText(text);	
 	}
-	public void SetcurrentOrientation(String text) {
+	public static void SetcurrentOrientation(String text) {
 		// TODO Auto-generated method stub
 	    orientP.setText(text);	
 	}
@@ -217,7 +217,7 @@ try { if (stmtI1 != null) stmtI1.close(); } catch (SQLException e) { e.printStac
 try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }}
 }
 	public void TargetLocation(long ang2,long mov2, int posX,int posY,long orient){
-		System.out.println("target location"+ang2+mov2+posX+posY+orient);
+		System.out.println("target location"+ang2+" "+mov2+" "+posX+" "+posY+" "+orient);
 	orient=(orient+ang2)%360;
 	String orientnext=""+orient;
 	SetnextOrientation(orientnext);
@@ -247,27 +247,30 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 	    	int posYP=Integer.parseInt(ss);
 	    	TargetLocation(ang2,mov2,posXP,posYP,orient);
 	}
-	public void ValidePosition() {
-	      label.setText("Init posX, posY, orientation");   
-		 	String ss =orient.getText();
-		      SetcurrentOrientation(ss);
-	//	 	System.out.println(ss);
-		  	int orientN=Integer.parseInt(ss);
-		    	ss =posX.getText();
-			      SetcurrentPosX(ss);
-		    	System.out.println(ss);
-		     int posXN=Integer.parseInt(ss);
-		    	ss =posY.getText();
-			      SetcurrentPosY(ss);
-		    	System.out.println(ss);
-		    	int posYN=Integer.parseInt(ss);
-		    	ss =indScan.getText();
-		    	ss=RobotMainServer.idscanG;
+	public static void ValidePosition(int posX2, int posY2, int alpha) {
+	      label.setText("posX, posY, orientation");   
+	//	 	String ss =orient.getText();
+	//	      SetcurrentOrientation(ss);
+			  	SetcurrentOrientation(String.valueOf(alpha));
+//		 	System.out.println(ss);
+//		  	int orientN=Integer.parseInt(ss);
+	//	    	ss =posX.getText();
+			//      SetcurrentPosX(ss);
+		  	SetcurrentPosX(String.valueOf(posX2));
+	//	    	System.out.println(ss);
+//		     int posXN=Integer.parseInt(ss);
+//		    	ss =posY.getText();
+//			      SetcurrentPosY(ss);
+				  	SetcurrentPosY(String.valueOf(posY2));
+//		    	System.out.println(ss);
+//		    	int posYN=Integer.parseInt(ss);
+		    	//ss =indScan.getText();
+		    	String ss=RobotMainServer.idscanG;
 		    	System.out.println(ss);
 		    	int indsN=Integer.parseInt(ss);
-	      InitPos initRobot = new InitPos();
-	      initRobot.InitRobot(posXN, posYN, orientN, indsN);
-	  		PanneauGraphique.point(posXN,posYN,orientN);
+//	      InitPos initRobot = new InitPos();
+//	      initRobot.InitRobot(posX2, posY2, alpha, indsN);
+	  		PanneauGraphique.point(posX2,posY2,alpha);
 	  		graph.repaint();
 
 }

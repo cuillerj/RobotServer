@@ -17,8 +17,13 @@ public class RobotMainServer
 	public static int posYG=0;
 	public static int orientG=0;
 	public static String idscanG="0";
+	static int posX;
+	static int posY;
+	static int alpha;
 	public static byte actStat=0x00;
 	public static String stationStatus="";
+	public static String ipRobot="192.168.1.133";  // 138 ou 133
+//	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
 public static void main(String args[]) throws Exception
@@ -43,9 +48,9 @@ public static void main(String args[]) throws Exception
 			int InpLen=0; // input datalength - lue dans la trame UDP
 			int trameNumber=0;
 			byte lastTrameNumber=0;
-		//	EchoRobot echo=new EchoRobot();
-//		echo.EchoRobot();
-			//echo.start();
+			EchoRobot echo=new EchoRobot();
+    	//	echo.EchoRobot();
+			echo.start();
 			//	EchoRobot echo=new EchoRobot();
 //			echo.EchoRobot();
 				//echo.start();
@@ -77,21 +82,23 @@ public static void main(String args[]) throws Exception
 	//			Type=sentence2[2];
 
 			 trameNumber=sentence2[7];
-//			 for (int i=0;i<50;i++)
-//			 {
-//				 hexaPrint(sentence2[i]);
+			 /*
+			 for (int i=0;i<50;i++)
+			 {
+				 hexaPrint(sentence2[i]);
 
-//			 }
-//			 System.out.println();
+			 }
+			 System.out.println();
+			 */
 				System.out.print(" ID " + ID+ " len "+InpLen+" ");
 		//			System.out.println("RECEIVED length: " + sentence2.length);
 //				System.out.println(" RECEIVED: " +sentence2[7]);
-				EchoRobot.pendingEcho=0;
+
 				int idx=Type;
 				if (sentence2[6]==0x01){ // scan -test InpLen contournement bug && ( InpLen==10)
 
 					System.out.print( " n°:"+trameNumber);
-					
+					EchoRobot.pendingEcho=0;
 	//			String FNam=FNamD+idx+".txt";  // modifie le nom du fichier log en ajoutant le type de la station emettrice
 			    java.util.Date today = new java.util.Date();
 			    //System.out.println(" - time:"+new java.sql.Timestamp(today.getTime()));
@@ -214,7 +221,7 @@ if (lastTrameNumber!=trameNumber)
 							actStat=0x02; 
 						}
 						if (actStat==0x02){ 
-							ihm2.ValidePosition();
+//							ihm2.ValidePosition();
 		//					PanneauGraphique.point(200+posXG/10,200+posYG/10);
 		//					graph.repaint();
 						}
@@ -251,37 +258,41 @@ if (lastTrameNumber!=trameNumber)
 					//
 					int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé
 					int oct1=(byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80);
-					int posX=256*oct0+oct1;
+					 posX=256*oct0+oct1;
 					if (sentence2[14]==0x2d)
 					{
 						posX=-posX;
 					}
 					oct0=(byte)(sentence2[18]&0x7F)-(byte)(sentence2[18]&0x80); // manip car byte consideré signé
 					oct1=(byte)(sentence2[19]&0x7F)-(byte)(sentence2[19]&0x80);
-					int posY=256*oct0+oct1;
+					 posY=256*oct0+oct1;
 					if (sentence2[17]==0x2d)
 					{
 						posY=-posY;
 					}
 					oct0=(byte)(sentence2[21]&0x7F)-(byte)(sentence2[21]&0x80); // manip car byte consideré signé
 					oct1=(byte)(sentence2[22]&0x7F)-(byte)(sentence2[22]&0x80);
-					int alpha=256*oct0+oct1;
+					 alpha=256*oct0+oct1;
 					if (sentence2[20]==0x2d)
 					{
 						alpha=-alpha;
 					}
+				ihm2.ValidePosition(posX,posY,alpha);
 					System.out.println("posX:"+posX+ " posY:"+posY+" angle:"+ alpha);
 				}
 				if (sentence2[6]==0x66){                    // scan en cours
+					EchoRobot.pendingEcho=0;
 					System.out.println("scan running");
 					ihm.MajRobotStat("scan running");
 
 				}
 				if (sentence2[6]==0x67){                    // scan en cours
+					EchoRobot.pendingEcho=0;
 					System.out.println("scan ended");
 					ihm.MajRobotStat("scan ended");
 				}
 				if (sentence2[6]==0x68){                    // scan en cours
+					EchoRobot.pendingEcho=0;
 					System.out.println("moving");
 					ihm.MajRobotStat("moving");
 					int ang=ihm.ang();
@@ -290,6 +301,7 @@ if (lastTrameNumber!=trameNumber)
 					actStat=0x02;   // move en cours
 				}
 				if (sentence2[6]==0x69){                    // scan en cours
+					EchoRobot.pendingEcho=0;
 					if (actStat==0x01){   // on a rate le statut moving
 						int ang=ihm.ang();
 						int mov=ihm.mov();
@@ -299,13 +311,15 @@ if (lastTrameNumber!=trameNumber)
 					System.out.println("move ended");
 					ihm.MajRobotStat("move ended");
 					if (actStat==0x02){ 
-						ihm2.ValidePosition();
+						ihm2.ValidePosition(posX,posY,alpha);
+						
 		//				PanneauGraphique.point(200+posXG/10,200+posYG/10);
 		//				graph.repaint();
 					}
 					actStat=0x03;
 				}
 				if (sentence2[6]==0x70){  // power info
+					EchoRobot.pendingEcho=0;
 				int power1=sentence2[7]*10;
 				if (power1<0)
 				{
@@ -361,6 +375,8 @@ while (rs.next()) {
   posYG = rs.getInt("posY");
   orientG = rs.getInt("orientation");
   System.out.println("x:"+posXG+" Y:"+posYG+" orient:"+orientG);
+  Fenetre2.ValidePosition(posXG, posYG, orientG);
+
 }
 rs.close();
 
@@ -423,7 +439,7 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 public static void  UpdateGraphRobotLocation() {
 	}
 
-static void hexaPrint(byte y)
+public static void hexaPrint(byte y)
 {
 
 		System.out.print("-" + String.format("%x", y));

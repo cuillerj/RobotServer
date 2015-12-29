@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 	    System.out.println("panneau Je suis exécutéex:"+posX+" Y;"+posY); 
 	    int center[]={this.getWidth()/2,this.getHeight()/2};
 	    System.out.println("center:"+center[0]+" "+center[1]);
-	    double radian=Math.toRadians(orient);
+	    double radian=-Math.toRadians(orient);
 	    double echelle=400/1000;  // 400cm pour 1000 pts
 //	    double deltaX=15+5*Math.cos(radian);
 //	    double deltaY=10+5*Math.sin(radian);
@@ -31,14 +31,14 @@ import javax.swing.JPanel;
 	    double gamma=radian+(Math.PI)*3/2-alpha;
 	    //double posXnRef=center[0]+posX*echelle;
 	    double posXnRef=center[0]+posX/4;
-	    double posYnRef=center[1]+posY/4;
+	    double posYnRef=center[1]-posY/4;
 	    int x0[]={ (int) (posXnRef+h*Math.cos(radian)),(int) (posXnRef+l*Math.sin(radian)),(int) (posXnRef+diag*Math.cos(gamma)),(int) (posXnRef+diag*Math.cos(beta)),(int) (posXnRef-l*Math.sin(radian))};
 	    int y0[]={ (int) (posYnRef+h*Math.sin(radian)),(int) (posYnRef-l*Math.cos(radian)),(int) (posYnRef+diag*Math.sin(gamma)),(int) (posYnRef+diag*Math.sin(beta)),(int) (posYnRef+l*Math.cos(radian))};
 	    g.fillPolygon(x0, y0,5);
 	    System.out.println("orientation:"+radian+" sinus:"+Math.sin(radian)+" cosinus:"+Math.cos(radian)+ " alpha:"+Math.toDegrees(alpha)+ " beta:"+Math.toDegrees(beta)+" gamma:"+Math.toDegrees(gamma));
 	    for (int i=0;i<=4;i++){
 //    	System.out.println((x0[i]-center[0])+","+(y0[i]-center[1]));
-    }
+	    }
 //	    int x[]={(int) (center[0]+posX-deltaX),(int) (center[0]+posX),(int) (center[0]+posX+deltaPx),(int) (center[0]+posX),(int) (center[0]+posX-deltaX)};
 //	    int y[]={(int) (center[1]+posY+deltaY),(int) (center[1]+posY+deltaY),(int) (center[1]+posY+deltaPy),(int) (center[1]+posY-deltaY),(int) (center[1]+posY-deltaY)};
 //	    for (int i=0;i<=4;i++){
@@ -60,7 +60,7 @@ import javax.swing.JPanel;
 	    
 	
 	  public static void point(int posXi,int posYi, int orienti){
-		    //Vous verrez cette phrase chaque fois que la méthode sera invoquée
+
 //		    System.out.println("point Je suis appele x:"+posXi+" Y;"+posYi);
 		    posX=posXi;
 		    posY=posYi;

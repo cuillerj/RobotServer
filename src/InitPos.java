@@ -28,7 +28,7 @@ public class InitPos {
 		Connection connI = null;
 		Statement stmtRI = null;
 		Statement stmtII = null;
-
+		  Fenetre2.ValidePosition(posX, posY, orien);
 		try {
 
 			Class.forName("com.mysql.jdbc.Driver").newInstance();

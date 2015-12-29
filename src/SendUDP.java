@@ -3,13 +3,13 @@ import java.net.*;
 
 
 public class SendUDP {
-	String ipRobot="192.168.1.133";  // 138 ou 133
+//	public String ipRobot="192.168.1.133";  // 138 ou 133
 	public void SendUDP() {
 		try{
 	//	  System.out.println("argument: " + args[0]);
 			  System.out.println("sendUDP" );
 	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(ipRobot);
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 	      String startCmde="c4x";
 	      sendData = startCmde.getBytes();
@@ -31,7 +31,7 @@ public class SendUDP {
 		try{
 	  System.out.println("stop" );
 	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(ipRobot);
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 	      String startCmde="c4s";
 	      sendData = startCmde.getBytes();
@@ -54,7 +54,7 @@ public class SendUDP {
 		try{
 			  System.out.println("start" );
 			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(ipRobot);
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] sendData = new byte[3];
 			      String startCmde="c4x";
 			      sendData = startCmde.getBytes();
@@ -77,7 +77,7 @@ public class SendUDP {
 		try{
 			  System.out.println("scan" );
 			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(ipRobot);
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] sendData = new byte[3];
 			      String startCmde="c4+";
 			      sendData = startCmde.getBytes();
@@ -93,15 +93,62 @@ public class SendUDP {
 			   
 			   finally{}
 				}
-	public void SendUDPInit() {
+	public void SendUDPInit(int posX,int posY,int orient) {
 		// TODO Auto-generated method stub
 		try{
 			  System.out.println("init" );
 			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(ipRobot);
-			      byte[] sendData = new byte[3];
-			      String startCmde="c4I";
-			      sendData = startCmde.getBytes();
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[25];
+//			      String startCmde="c4I";
+//			      sendData = startCmde.getBytes();
+    			 byte[] DataToSend = new byte[12];
+    			 DataToSend[0]=0x63;  // c
+    			 DataToSend[1]=0x34;  // 4
+    			 DataToSend[2]=0x49;   // I
+    			 if (posX<0)
+    			 {
+        			 DataToSend[3]=0x2d;  // posX signe
+    			 }
+    			 else
+    			 {
+        			 DataToSend[3]=0x2b;  // posX signe
+    			 }
+    			 if (posY<0)
+    			 {
+        			 DataToSend[6]=0x2d;  // posYsigne
+    			 }
+    			 else
+    			 {
+        			 DataToSend[6]=0x2b;  // posY signe
+    			 }
+    			 if (orient<0)
+    			 {
+        			 DataToSend[9]=0x2d;  // orient  negative
+    			 }
+    			 else
+    			 {
+        			 DataToSend[9]=0x2b;  //orient  positive
+    			 }
+    			 DataToSend[5]=(byte)Math.abs(posX);  // posX reste /256
+    			 posX=Math.abs(posX)/256;
+    			 DataToSend[4]=(byte)posX;  // posX/256
+    			 DataToSend[8]=(byte)Math.abs(posY);  // posY reste /256
+       			 posY=Math.abs(posY)/256;
+         		 DataToSend[7]=(byte)posY;  // posY/256
+    			 DataToSend[11]=(byte)Math.abs(orient);  // orientation /256
+       			 orient=Math.abs(orient)/256;
+    			 DataToSend[10]=(byte)orient;  // orientation /256
+
+    			
+    			 for (int i=0;i<12;i++)
+    			 {
+    				 RobotMainServer.hexaPrint(DataToSend[i]);
+
+    			 }
+    			 System.out.println();
+    			
+				  sendData = DataToSend;		
 			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 			      clientSocket.send(sendPacket);
 			      clientSocket.close();
@@ -118,7 +165,7 @@ public class SendUDP {
 		try{
 	  System.out.println("echo" );
 	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(ipRobot);
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 	      String startCmde="c4e";
 	      sendData = startCmde.getBytes();
@@ -139,7 +186,7 @@ public class SendUDP {
 			
 			  System.out.println("angle:"+angle+ " move:"+move );
 			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(ipRobot);
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] cmde = new byte[15];
 			      byte[] sendData = new byte[15];
 			      cmde[0]=0x63;

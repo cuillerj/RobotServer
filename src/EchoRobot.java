@@ -12,7 +12,7 @@ while (true){
 	try{
 
 	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName("192.168.1.138");
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 	      String startCmde="c4e";
 	      sendData = startCmde.getBytes();
@@ -29,10 +29,11 @@ while (true){
 	      }
 	      else
 	      {
-			Thread.sleep(5000);
+			Thread.sleep(15000);
 
 	      }
 		      pendingEcho=pendingEcho+1;
+		      Fenetre.RefreshStat();
 	//		  System.out.println("statut du thread "   +this.getState());
 	   	   
 		}

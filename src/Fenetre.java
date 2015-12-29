@@ -15,10 +15,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
- 
+
 public class Fenetre extends JFrame{
  
-  private Panneau pan = new Panneau();
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+//  private Panneau pan = new Panneau();
   private JButton boutonStart = new JButton("Start");
   private JButton boutonStop = new JButton("Stop");
   private JButton boutonScan = new JButton("Scan");
@@ -27,23 +31,29 @@ public class Fenetre extends JFrame{
   private JButton boutonRefresh = new JButton("Refresh");
   private JButton boutonAffEcho = new JButton("Aff Echo");
   private JPanel container = new JPanel();
-  private JLabel label = new JLabel("Angle ° - Deplact en mn - Id2 du scan ");
+  private static JLabel label = new JLabel("Angle ° - Deplact en mn - Id2 du scan ");
   private JLabel label2 = new JLabel("Action >> ");
   private JFormattedTextField  angle = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  move = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  orient= new JFormattedTextField(NumberFormat.getIntegerInstance());
-  private JFormattedTextField  idscan = new JFormattedTextField(NumberFormat.getIntegerInstance());
+  private static JFormattedTextField  idscan = new JFormattedTextField(NumberFormat.getIntegerInstance());
+  private JFormattedTextField  init_X = new JFormattedTextField(NumberFormat.getIntegerInstance());
+  private JFormattedTextField  init_Y = new JFormattedTextField(NumberFormat.getIntegerInstance());
+
+//  private JPanel container2 = new JPanel();
  // private JTextField move = new JTextField("0");
-  private int compteur = 0;
+//  private int compteur = 0;
+  private JTextField textf = new JTextField(20);
+
   public int movIHM;
 // 
 
 //public int ang;
 //public int mov;
 //public int ids;
-  public String robotStat=" ?";
-  public String robotPower= " ?";
-  public String robotDiag;
+  public static String robotStat=" ?";
+  public static String robotPower= " ?";
+  public static String robotDiag;
   public Fenetre(){
     this.setTitle("Fonction de base");
     this.setSize(600, 200);
@@ -52,8 +62,9 @@ public class Fenetre extends JFrame{
     container.setBackground(Color.white);
     container.setLayout(new BorderLayout());
   //  container.add(pan, BorderLayout.CENTER);
-        
-    //Ce sont maintenant nos classes internes qui écoutent nos boutons 
+//    container2.setBackground(Color.blue);
+//    container2.setLayout(new BorderLayout());
+
     boutonInit.addActionListener(new BoutonInitListener()); 
     boutonStart.addActionListener(new BoutonStartListener());
     boutonStop.addActionListener(new BoutonStopListener());
@@ -72,8 +83,10 @@ public class Fenetre extends JFrame{
     Font police = new Font("Tahoma", Font.BOLD, 16);
     angle.setFont(police);
     angle.setPreferredSize(new Dimension(50, 30));
-    angle.setForeground(Color.BLUE);
+    angle.setForeground(Color.GREEN);
  //   angle.setLocation(200, 200);
+    init_X.setText("0");
+    init_Y.setText("0");
     angle.setText("0");
     move.setFont(police);
     move.setPreferredSize(new Dimension(50, 30));
@@ -83,32 +96,48 @@ public class Fenetre extends JFrame{
    idscan.setPreferredSize(new Dimension(50, 30));
 //    idscan.setForeground(Color.BLUE);
     idscan.setForeground(Color.RED);
+    idscan.setBackground(Color.LIGHT_GRAY);
 //    idscan.setBackground(Color.black);
     idscan.setText(RobotMainServer.idscanG);
     orient.setFont(police);
     orient.setPreferredSize(new Dimension(50, 30));
-    orient.setForeground(Color.RED);
+    orient.setForeground(Color.GREEN);
+    orient.setBackground(Color.LIGHT_GRAY);
+    init_X.setFont(police);
+    init_X.setPreferredSize(new Dimension(50, 30));
+    init_X.setForeground(Color.DARK_GRAY);
+    init_X.setBackground(Color.LIGHT_GRAY);
+    init_Y.setFont(police);
+    init_Y.setPreferredSize(new Dimension(50, 30));
+    init_Y.setForeground(Color.BLACK);
+    init_Y.setBackground(Color.LIGHT_GRAY);
 //    orient.setBackground(Color.black);
-    String orientGS=""+RobotMainServer.orientG;
-    orient.setText(orientGS);
+ //   String orientGS=""+RobotMainServer.orientG;
+ //   orient.setText(orientGS);
+    orient.setText("0");
 //    container.add(label);
  //   south.add(label);
     boutonInit.setForeground(Color.RED);
+    boutonInit.setBackground(Color.LIGHT_GRAY);
     top.add(label2);
     top.add(angle);
     top.add(move);
-    top.add(idscan);
     top.add(orient);
+    top.add(init_X);
+    top.add(init_Y);
+    top.add(idscan,BorderLayout.PAGE_END);
+
+
     label2.setHorizontalAlignment(JLabel.CENTER);
     south.add(label2);
     south.add(boutonStart);
     south.add(boutonStop);
-    south.add(boutonInit);
     south.add(boutonRefresh);
     south.add(boutonScan);
     south.add(boutonMove);
+
     south.add(boutonAffEcho);
-  
+    south.add(boutonInit);
 
     label.setFont(police);
     label.setForeground(Color.blue);
@@ -116,7 +145,11 @@ public class Fenetre extends JFrame{
     container.add(top, BorderLayout.CENTER);
     container.add(south, BorderLayout.SOUTH);
     container.add(label, BorderLayout.NORTH);
+ //   container2.add(top, BorderLayout.CENTER);
+ //   container2.add(south, BorderLayout.SOUTH);
+ //   container2.add(label, BorderLayout.NORTH);
     this.setContentPane(container);
+//    this.setContentPane(container2);
     this.setVisible(true);
 
 //    ang = Integer.parseInt(angle.getText());
@@ -125,7 +158,7 @@ public class Fenetre extends JFrame{
     go();
   }
       
-  private void go(){
+  private static void go(){
       label.setText(RobotMainServer.stationStatus+" "+robotStat+"-"+robotPower+ "-"+robotDiag);   
      RobotMainServer.idscanG= idscan.getText();
     //Cette méthode ne change pas
@@ -215,17 +248,18 @@ public class Fenetre extends JFrame{
 	    public void actionPerformed(ActionEvent arg0) {
 	        RobotMainServer.idscanG= idscan.getText();
 	      label.setText("Init posX, posY, orientation");   
-//	      System.out.println("posX " + angle.getText());
+	      System.out.println("posX " + angle.getText());
 //	      System.out.println("posY " + move.getText());
 //	      System.out.println("idscan " + idscan.getText());
-	      int posX = Integer.parseInt(angle.getText());
-	      int posY= Integer.parseInt(move.getText());
+	      int posX = Integer.parseInt(init_X.getText());
+	      int posY= Integer.parseInt(init_Y.getText());
 	      int ids= Integer.parseInt(idscan.getText());
 	      int orien= Integer.parseInt(orient.getText());
 	      InitPos initRobot = new InitPos();
 	      initRobot.InitRobot(posX, posY, orien, ids);
 	      SendUDP snd = new SendUDP();
-	      snd.SendUDPInit();
+	      snd.SendUDPInit(posX,posY,orien);
+	      Fenetre2.ValidePosition(posX, posY, orien);
 	      go();
 	    }
 	  }
@@ -294,9 +328,13 @@ public void MajRobotDiag(String string) {
     go();
 
 }
-public void RefreshStat() {
+public static void RefreshStat() {
 	// TODO Auto-generated method stub
-
+	if (EchoRobot.pendingEcho>2)
+	{
+		robotStat="timout";
+	}
+	
     go();
 }
 }
