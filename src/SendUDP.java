@@ -72,6 +72,29 @@ public class SendUDP {
 			   
 			   finally{}
 				}
+	public void SendUDPCalibrate() {
+		// TODO Auto-generated method stub
+		try{
+			  System.out.println("calibrate" );
+			      DatagramSocket clientSocket = new DatagramSocket();
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[3];
+			      String startCmde="c4w";
+			      sendData = startCmde.getBytes();
+			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+			      clientSocket.send(sendPacket);
+			      clientSocket.close();
+			//   System.exit(0);
+			  
+			  	 
+			   
+			   
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
 	public void SendUDPScan() {
 		// TODO Auto-generated method stub
 		try{
@@ -210,6 +233,57 @@ public class SendUDP {
 			      }
 			      cmde[7]=(byte)(move/256);
 			      cmde[8]=(byte)(move);
+	//		      int i;
+//			      for (i=9;i<20;i++)
+//			      	{
+//			    	  cmde[i]=0x00;
+//			      	}
+//			      String startCmde="c4m";
+		      sendData = cmde;
+		      System.out.println(byteArrayToHex(sendData));
+			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+			      clientSocket.send(sendPacket);
+			      clientSocket.close();
+			//   System.exit(0);
+			  		  	 
+			   
+			   
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	public void SendUDPGoto(long posX,long posY) {
+		// TODO Auto-generated method stub
+		try{
+			
+			  System.out.println("posX:"+posX+ " posY:"+posY );
+			      DatagramSocket clientSocket = new DatagramSocket();
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] cmde = new byte[15];
+			      byte[] sendData = new byte[15];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=0x67;  // "g"
+			      if (posX>=0){
+				      cmde[3]=0x2b;
+			      }
+			      else {
+				      cmde[3]=0x2d;
+				      posX=-posX;
+			      }
+			      cmde[4]=(byte)(posX/256);
+			      cmde[5]=(byte)(posX);
+			      if (posY>=0){
+				      cmde[6]=0x2b;
+			      }
+			      else {
+				      cmde[6]=0x2d;
+				      posY=-posY;
+			      }
+			      cmde[7]=(byte)(posY/256);
+			      cmde[8]=(byte)(posY);
 	//		      int i;
 //			      for (i=9;i<20;i++)
 //			      	{

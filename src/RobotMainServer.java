@@ -330,13 +330,9 @@ if (lastTrameNumber!=trameNumber)
 				{
 					power2=256-power2;
 				}
-				int power3=sentence2[9]*10;
-				if (power3<0)
-				{
-					power3=256-power3;
-				}
+
 //				System.out.println("power1: "+power1+"cV power2: "+power2+"cV power3: "+power3+"cV");
-				ihm.MajRobotPower(Integer.toString(power1)+ "cV "+Integer.toString(power2)+ "cV "+Integer.toString(power3)+ "cV ");
+				ihm.MajRobotPower(Integer.toString(power1)+ "cV "+Integer.toString(power2)+ "cV ");
 				}
 			   }
 			

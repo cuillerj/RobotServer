@@ -27,23 +27,26 @@ public class Fenetre extends JFrame{
   private JButton boutonStop = new JButton("Stop");
   private JButton boutonScan = new JButton("Scan");
   private JButton boutonMove = new JButton("Move");
+  private JButton boutonGoto = new JButton("Goto");
   private JButton boutonInit = new JButton("Init");
   private JButton boutonRefresh = new JButton("Refresh");
   private JButton boutonAffEcho = new JButton("Aff Echo");
+  private JButton boutonCalibrate = new JButton("W Calibr");
   private JPanel container = new JPanel();
   private static JLabel label = new JLabel("Angle ° - Deplact en mn - Id2 du scan ");
   private JLabel label2 = new JLabel("Action >> ");
+  private JLabel label3 = new JLabel("Angle Distance  posX  posY scanId ");
   private JFormattedTextField  angle = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  move = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  orient= new JFormattedTextField(NumberFormat.getIntegerInstance());
   private static JFormattedTextField  idscan = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  init_X = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  init_Y = new JFormattedTextField(NumberFormat.getIntegerInstance());
-
+   
 //  private JPanel container2 = new JPanel();
  // private JTextField move = new JTextField("0");
 //  private int compteur = 0;
-  private JTextField textf = new JTextField(20);
+//  private JTextField textf = new JTextField(20);
 
   public int movIHM;
 // 
@@ -55,8 +58,8 @@ public class Fenetre extends JFrame{
   public static String robotPower= " ?";
   public static String robotDiag;
   public Fenetre(){
-    this.setTitle("Fonction de base");
-    this.setSize(600, 200);
+    this.setTitle("Fields: move (angle, distance)  init (orientation posX posY) goto (posX posY)  scan Id");
+    this.setSize(800, 150);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setLocationRelativeTo(null);
     container.setBackground(Color.white);
@@ -70,8 +73,10 @@ public class Fenetre extends JFrame{
     boutonStop.addActionListener(new BoutonStopListener());
     boutonScan.addActionListener(new BoutonScanListener()); 
     boutonMove.addActionListener(new BoutonMoveListener()); 
+    boutonGoto.addActionListener(new BoutonGotoListener()); 
     boutonRefresh.addActionListener(new BoutonRefreshListener()); 
     boutonAffEcho.addActionListener(new BoutonAffEchoListener()); 
+    boutonCalibrate.addActionListener(new BoutonCalibrateListener()); 
 //  boutonInit.setBackground(Color.black);
 //    boutonInit.setForeground(Color.white);
     JPanel south = new JPanel();
@@ -115,11 +120,13 @@ public class Fenetre extends JFrame{
  //   String orientGS=""+RobotMainServer.orientG;
  //   orient.setText(orientGS);
     orient.setText("0");
-//    container.add(label);
- //   south.add(label);
+ //   container.add(label);
+  top.add(label);
+  south.add(label2);
+  label2.setHorizontalAlignment(JLabel.CENTER);
     boutonInit.setForeground(Color.RED);
     boutonInit.setBackground(Color.LIGHT_GRAY);
-    top.add(label2);
+  //  top.add(label2);
     top.add(angle);
     top.add(move);
     top.add(orient);
@@ -128,16 +135,18 @@ public class Fenetre extends JFrame{
     top.add(idscan,BorderLayout.PAGE_END);
 
 
-    label2.setHorizontalAlignment(JLabel.CENTER);
+
+ //   label2.setHorizontalAlignment(JLabel.CENTER);
     south.add(label2);
     south.add(boutonStart);
     south.add(boutonStop);
     south.add(boutonRefresh);
     south.add(boutonScan);
     south.add(boutonMove);
-
+    south.add(boutonGoto);
     south.add(boutonAffEcho);
     south.add(boutonInit);
+    south.add(boutonCalibrate);
 
     label.setFont(police);
     label.setForeground(Color.blue);
@@ -145,6 +154,7 @@ public class Fenetre extends JFrame{
     container.add(top, BorderLayout.CENTER);
     container.add(south, BorderLayout.SOUTH);
     container.add(label, BorderLayout.NORTH);
+
  //   container2.add(top, BorderLayout.CENTER);
  //   container2.add(south, BorderLayout.SOUTH);
  //   container2.add(label, BorderLayout.NORTH);
@@ -205,6 +215,16 @@ public class Fenetre extends JFrame{
       go();
     }
   } 
+  class BoutonCalibrateListener implements ActionListener{
+
+	    public void actionPerformed(ActionEvent e) {
+	        RobotMainServer.idscanG= idscan.getText();
+	      label.setText("Caibrate");
+	      SendUDP snd = new SendUDP();
+	      snd.SendUDPCalibrate();
+	      go();
+	    }
+	  } 
   class BoutonScanListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
@@ -233,6 +253,33 @@ public class Fenetre extends JFrame{
 	      {
 	      SendUDP snd = new SendUDP();
 	      snd.SendUDPMove((long)ang,(long) mov);
+	      }
+//	      Fenetre2 f2 = new Fenetre2();
+//	      f2.SetcurrentInd(idscan.getText());
+//	      f2.SetInitialPosition();
+//	      f2.SetMove(move.getText(), angle.getText());
+	      RobotMainServer.actStat=0x01;  //demande mov
+	      go();
+
+	    }
+	  }
+  class BoutonGotoListener implements ActionListener{
+	    //Redéfinition de la méthode actionPerformed()
+	    public void actionPerformed(ActionEvent arg0) {
+	        RobotMainServer.idscanG= idscan.getText();
+	      label.setText("Move");   
+//	      System.out.println("angle " + angle.getText());
+//	      System.out.println("move " + move.getText());
+//	      int ang = Integer.parseInt(angle.getText());
+//	      String moveT=move.getText();
+//	      Object mov = move.getValue();
+	      Object posX = init_X.getValue();
+	      Object posY = init_Y.getValue();
+//	      System.out.println("angle2 " + ang);
+	      if (!posX.equals(null) || !posY.equals(null))
+	      {
+	      SendUDP snd = new SendUDP();
+	      snd.SendUDPGoto((long)posX,(long) posY);
 	      }
 //	      Fenetre2 f2 = new Fenetre2();
 //	      f2.SetcurrentInd(idscan.getText());
