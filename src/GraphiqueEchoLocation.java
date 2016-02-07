@@ -69,7 +69,7 @@ public class GraphiqueEchoLocation extends JPanel {
 	    ptXBack=(int) (posX/10+distBack*Math.cos(Math.toRadians(orientation)+Math.toRadians(angle)+Math.PI-refAngleSonar));
 	    ptYBack=(int) (posY/10+distBack*Math.sin(Math.toRadians(orientation)+Math.toRadians(angle)+Math.PI-refAngleSonar));
 	    int center[]={this.getWidth()/2,this.getHeight()/2};
-	    System.out.println("center:"+center[0]+" "+center[1]);
+//	    System.out.println("center:"+center[0]+" "+center[1]);
 	    int ptXrefFront=ptXFront+this.getWidth()/2;
 	    int ptYrefFront=ptYFront+this.getHeight()/2;
 	    int ptXrefBack=ptXBack+this.getWidth()/2;
@@ -100,7 +100,7 @@ public class GraphiqueEchoLocation extends JPanel {
 	    }
 	
 
-	    System.out.println("nb point:"+nbPt);
+//	    System.out.println("nb point:"+nbPt);
 //	    int x[]={(int) (center[0]+posX-deltaX),(int) (center[0]+posX),(int) (center[0]+posX+deltaPx),(int) (center[0]+posX),(int) (center[0]+posX-deltaX)};
 //	    int y[]={(int) (center[1]+posY+deltaY),(int) (center[1]+posY+deltaY),(int) (center[1]+posY+deltaPy),(int) (center[1]+posY-deltaY),(int) (center[1]+posY-deltaY)};
 //	    for (int i=0;i<=4;i++){

@@ -240,10 +240,10 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 //	 	System.out.println("actualise "+ang2+" "+mov2 );
 	  	int orient=Integer.parseInt(ss);
 	    	ss =posXP.getText();
-	    	System.out.println(ss);
+//	    	System.out.println(ss);
 	     int posXP=Integer.parseInt(ss);
 	    	ss =posYP.getText();
-	    	System.out.println(ss);
+//	    	System.out.println(ss);
 	    	int posYP=Integer.parseInt(ss);
 	    	TargetLocation(ang2,mov2,posXP,posYP,orient);
 	}
@@ -266,7 +266,7 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 //		    	int posYN=Integer.parseInt(ss);
 		    	//ss =indScan.getText();
 		    	String ss=RobotMainServer.idscanG;
-		    	System.out.println(ss);
+//		    	System.out.println(ss);
 		    	int indsN=Integer.parseInt(ss);
 //	      InitPos initRobot = new InitPos();
 //	      initRobot.InitRobot(posX2, posY2, alpha, indsN);

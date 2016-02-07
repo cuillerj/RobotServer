@@ -19,7 +19,7 @@ while (true){
 	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 	      clientSocket.send(sendPacket);
 
-	      System.out.println("send echo:"+pendingEcho);
+	//      System.out.println("send echo:"+pendingEcho);
 	     clientSocket.close();
 	//	  System.out.println("statut du thread "   +this.getState());
 	      if (pendingEcho<=1)

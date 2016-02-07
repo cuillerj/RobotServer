@@ -12,9 +12,9 @@ import javax.swing.JPanel;
 		public static double orient=0;
 	  public void paintComponent(Graphics g){
 	    //Vous verrez cette phrase chaque fois que la méthode sera invoquée
-	    System.out.println("panneau Je suis exécutéex:"+posX+" Y;"+posY); 
+//	    System.out.println("panneau Je suis exécutéex:"+posX+" Y;"+posY); 
 	    int center[]={this.getWidth()/2,this.getHeight()/2};
-	    System.out.println("center:"+center[0]+" "+center[1]);
+//	    System.out.println("center:"+center[0]+" "+center[1]);
 	    double radian=-Math.toRadians(orient);
 	    double echelle=400/1000;  // 400cm pour 1000 pts
 //	    double deltaX=15+5*Math.cos(radian);
@@ -35,7 +35,7 @@ import javax.swing.JPanel;
 	    int x0[]={ (int) (posXnRef+h*Math.cos(radian)),(int) (posXnRef+l*Math.sin(radian)),(int) (posXnRef+diag*Math.cos(gamma)),(int) (posXnRef+diag*Math.cos(beta)),(int) (posXnRef-l*Math.sin(radian))};
 	    int y0[]={ (int) (posYnRef+h*Math.sin(radian)),(int) (posYnRef-l*Math.cos(radian)),(int) (posYnRef+diag*Math.sin(gamma)),(int) (posYnRef+diag*Math.sin(beta)),(int) (posYnRef+l*Math.cos(radian))};
 	    g.fillPolygon(x0, y0,5);
-	    System.out.println("orientation:"+radian+" sinus:"+Math.sin(radian)+" cosinus:"+Math.cos(radian)+ " alpha:"+Math.toDegrees(alpha)+ " beta:"+Math.toDegrees(beta)+" gamma:"+Math.toDegrees(gamma));
+//	    System.out.println("orientation:"+radian+" sinus:"+Math.sin(radian)+" cosinus:"+Math.cos(radian)+ " alpha:"+Math.toDegrees(alpha)+ " beta:"+Math.toDegrees(beta)+" gamma:"+Math.toDegrees(gamma));
 	    for (int i=0;i<=4;i++){
 //    	System.out.println((x0[i]-center[0])+","+(y0[i]-center[1]));
 	    }

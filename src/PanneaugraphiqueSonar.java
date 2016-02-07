@@ -16,13 +16,13 @@ public class PanneaugraphiqueSonar extends JPanel {
     //Vous verrez cette phrase chaque fois que la méthode sera invoquée
 
     int center[]={this.getWidth()/2,this.getHeight()/2};
-    System.out.println("center:"+center[0]+" "+center[1]);
+ //   System.out.println("center:"+center[0]+" "+center[1]);
     int ptXrefFront=ptXFront+this.getWidth()/2;
     int ptYrefFront=ptYFront+this.getHeight()/2;
     int ptXrefBack=ptXBack+this.getWidth()/2;
     int ptYrefBack=ptYBack+this.getHeight()/2;
     int dimpt=10;  // taille di point a dessiner
-    System.out.println("panneau sonar Je suis exécutéex: front X"+ptXrefFront+" Y;"+ptYrefFront+" back X"+ptXrefBack+" Y;"+ptYrefBack); 
+//    System.out.println("panneau sonar Je suis exécutéex: front X"+ptXrefFront+" Y;"+ptYrefFront+" back X"+ptXrefBack+" Y;"+ptYrefBack); 
 //    double deltaX=15+5*Math.cos(radian);
 //    double deltaY=10+5*Math.sin(radian);
 //    System.out.println(deltaX+"<->"+deltaY);

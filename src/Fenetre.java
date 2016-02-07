@@ -21,28 +21,29 @@ public class Fenetre extends JFrame{
 /**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 //  private Panneau pan = new Panneau();
   private JButton boutonStart = new JButton("Start");
   private JButton boutonStop = new JButton("Stop");
-  private JButton boutonScan = new JButton("Scan");
+  private JButton boutonScan = new JButton("ScanOnce");
+  private JButton boutonScanSeq = new JButton("ScanSeq");
   private JButton boutonMove = new JButton("Move");
   private JButton boutonGoto = new JButton("Goto");
   private JButton boutonInit = new JButton("Init");
   private JButton boutonRefresh = new JButton("Refresh");
-  private JButton boutonAffEcho = new JButton("Aff Echo");
+  public JButton boutonAffEcho = new JButton("Aff Echo");
   private JButton boutonCalibrate = new JButton("W Calibr");
   private JPanel container = new JPanel();
-  private static JLabel label = new JLabel("Angle ° - Deplact en mn - Id2 du scan ");
+  static JLabel label = new JLabel("Angle ° - Deplact en mn - Id2 du scan ");
   private JLabel label2 = new JLabel("Action >> ");
   private JLabel label3 = new JLabel("Angle Distance  posX  posY scanId ");
-  private JFormattedTextField  angle = new JFormattedTextField(NumberFormat.getIntegerInstance());
-  private JFormattedTextField  move = new JFormattedTextField(NumberFormat.getIntegerInstance());
+  static JFormattedTextField  angle = new JFormattedTextField(NumberFormat.getIntegerInstance());
+  static JFormattedTextField  move = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  orient= new JFormattedTextField(NumberFormat.getIntegerInstance());
-  private static JFormattedTextField  idscan = new JFormattedTextField(NumberFormat.getIntegerInstance());
+  static JFormattedTextField  idscan = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  init_X = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  init_Y = new JFormattedTextField(NumberFormat.getIntegerInstance());
-   
+
 //  private JPanel container2 = new JPanel();
  // private JTextField move = new JTextField("0");
 //  private int compteur = 0;
@@ -72,6 +73,7 @@ public class Fenetre extends JFrame{
     boutonStart.addActionListener(new BoutonStartListener());
     boutonStop.addActionListener(new BoutonStopListener());
     boutonScan.addActionListener(new BoutonScanListener()); 
+    boutonScanSeq.addActionListener(new BoutonScanSeqListener()); 
     boutonMove.addActionListener(new BoutonMoveListener()); 
     boutonGoto.addActionListener(new BoutonGotoListener()); 
     boutonRefresh.addActionListener(new BoutonRefreshListener()); 
@@ -142,6 +144,7 @@ public class Fenetre extends JFrame{
     south.add(boutonStop);
     south.add(boutonRefresh);
     south.add(boutonScan);
+    south.add(boutonScanSeq);
     south.add(boutonMove);
     south.add(boutonGoto);
     south.add(boutonAffEcho);
@@ -168,12 +171,12 @@ public class Fenetre extends JFrame{
     go();
   }
       
-  private static void go(){
+  static void go(){
       label.setText(RobotMainServer.stationStatus+" "+robotStat+"-"+robotPower+ "-"+robotDiag);   
      RobotMainServer.idscanG= idscan.getText();
     //Cette méthode ne change pas
   }
-  class BoutonAffEchoListener implements ActionListener{
+ public class BoutonAffEchoListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
 			FenetreEchoLocation ihm4 = new FenetreEchoLocation();
@@ -219,7 +222,7 @@ public class Fenetre extends JFrame{
 
 	    public void actionPerformed(ActionEvent e) {
 	        RobotMainServer.idscanG= idscan.getText();
-	      label.setText("Caibrate");
+	      label.setText("Calibrate");
 	      SendUDP snd = new SendUDP();
 	      snd.SendUDPCalibrate();
 	      go();
@@ -228,9 +231,30 @@ public class Fenetre extends JFrame{
   class BoutonScanListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-	        RobotMainServer.idscanG= idscan.getText();
+    	
+	    	RobotMainServer.Scan360();
+	    	/*
+	    int newIdScan=0;
+	      RobotMainServer.idscanG= Integer.toString(newIdScan);
+	      RobotMainServer.scanStepCount=1;
+	      idscan.setText(RobotMainServer.idscanG);
 	      label.setText("Demarrage du scan");   
-
+	      System.out.println(RobotMainServer.idscanG);
+	      SendUDP snd = new SendUDP();
+	      snd.SendUDPScan();
+	      */
+	      go();
+	    }
+	  }
+  class BoutonScanSeqListener implements ActionListener{
+	    //Redéfinition de la méthode actionPerformed()
+	    public void actionPerformed(ActionEvent arg0) {
+	    RobotMainServer.countScan=15;
+	    int newIdScan=Integer.parseInt(idscan.getText())+1;
+	      RobotMainServer.idscanG= Integer.toString(newIdScan);
+	      idscan.setText(RobotMainServer.idscanG);
+	      label.setText("Demarrage du scan serie");   
+	      System.out.println(RobotMainServer.idscanG);
 	      SendUDP snd = new SendUDP();
 	      snd.SendUDPScan();
 	      go();
@@ -241,6 +265,7 @@ public class Fenetre extends JFrame{
 	    public void actionPerformed(ActionEvent arg0) {
 	        RobotMainServer.idscanG= idscan.getText();
 	      label.setText("Move");   
+	      
 //	      System.out.println("angle " + angle.getText());
 //	      System.out.println("move " + move.getText());
 //	      int ang = Integer.parseInt(angle.getText());
@@ -267,7 +292,7 @@ public class Fenetre extends JFrame{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
 	        RobotMainServer.idscanG= idscan.getText();
-	      label.setText("Move");   
+	      label.setText("GoTo");   
 //	      System.out.println("angle " + angle.getText());
 //	      System.out.println("move " + move.getText());
 //	      int ang = Integer.parseInt(angle.getText());
@@ -315,7 +340,7 @@ public int ang() {
     int ang = Integer.parseInt(angle.getText());
 	return ang;
 }
-public int ids() {
+public static int ids() {
 	// TODO Auto-generated method stub
     int ids = Integer.parseInt(idscan.getText());
 	return ids;
@@ -352,7 +377,7 @@ public int mov() {
 	}
 	return mov;
 }
-public String idsString() {
+public static String idsString() {
 	// TODO Auto-generated method stub
     String ids = idscan.getText();
 	return ids;
@@ -380,6 +405,7 @@ public static void RefreshStat() {
 	if (EchoRobot.pendingEcho>2)
 	{
 		robotStat="timout";
+		RobotMainServer.runningStatus=-1;
 	}
 	
     go();
