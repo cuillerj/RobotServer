@@ -119,7 +119,7 @@ public class SendUDP {
 	public void SendUDPInit(int posX,int posY,int orient) {
 		// TODO Auto-generated method stub
 		try{
-			  System.out.println("init" );
+//			  System.out.println("init" );
 			      DatagramSocket clientSocket = new DatagramSocket();
 			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] sendData = new byte[25];

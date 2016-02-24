@@ -77,14 +77,16 @@ public class RobotBatchServer implements Runnable {
 //				Type=sentence2[2];
 
 			 trameNumber=sentence2[7];
-			 /*
+if (RobotMainServer.debugCnx==true)	
+{
 			 for (int i=0;i<50;i++)
 			 {
-				 hexaPrint(sentence2[i]);
+				 RobotMainServer.hexaPrint(sentence2[i]);
 
 			 }
 			 System.out.println();
-			 */
+}
+		
 //				System.out.print(" ID " + ID+ " len "+InpLen+" ");
 		//			System.out.println("RECEIVED length: " + sentence2.length);
 //				System.out.println(" RECEIVED: " +sentence2[7]);
@@ -97,7 +99,7 @@ public class RobotBatchServer implements Runnable {
 //				String FNam=FNamD+idx+".txt";  // modifie le nom du fichier log en ajoutant le type de la station emettrice
 			    java.util.Date today = new java.util.Date();
 			    //System.out.println(" - time:"+new java.sql.Timestamp(today.getTime()));
-			    System.out.println(" - time: "+today);
+//			    System.out.println(" - time: "+today);
 				 try {
 					Thread.sleep(300);
 				} catch (InterruptedException e1) {
@@ -173,7 +175,7 @@ public class RobotBatchServer implements Runnable {
 		//			int posY=posYG;
 					int angl=RobotMainServer.orientG;
 	//				System.out.println("pos:"+RobotMainServer.posXG+ " "+RobotMainServer.posYG);
-					String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+angl+")";
+					String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+angl+","+RobotMainServer.idCarto+")";
 					//System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
 					System.out.println(sql);
 					stmtI.executeUpdate(sql);
@@ -197,10 +199,13 @@ public class RobotBatchServer implements Runnable {
 					ihm.MajRobotStat("connected");
 					if (sentence2[8]==0x66){
 	//					System.out.print("scan running ");
+						RobotMainServer.runningStatus=1;
 						ihm.MajRobotStat("scan running");
+						RobotMainServer.runningStatus=1;
 					}
 					if (sentence2[8]==0x67){
 	//					System.out.print("scan ended ");
+						RobotMainServer.runningStatus=2;
 						ihm.MajRobotStat("scan ended");
 						/*
 						if (Integer.parseInt(Fenetre.idscan.getText())==0){  // scan id 0 means for localization
@@ -230,6 +235,7 @@ public class RobotBatchServer implements Runnable {
 					}
 					if (sentence2[8]==0x68){
 //						System.out.print("moving");
+						RobotMainServer.runningStatus=3;
 						ihm.MajRobotStat("moving");
 						int ang=ihm.ang();
 						int mov=ihm.mov();
@@ -250,6 +256,7 @@ public class RobotBatchServer implements Runnable {
 		//					PanneauGraphique.point(200+posXG/10,200+posYG/10);
 		//					graph.repaint();
 						}
+						RobotMainServer.runningStatus=4;
 						ihm.MajRobotStat("move ended");
 					    RobotMainServer.scanStepCount=0;
 //						System.out.print("move ended");
@@ -288,26 +295,29 @@ public class RobotBatchServer implements Runnable {
 					//
 					int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé
 					int oct1=(byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80);
-					RobotMainServer.posX=256*oct0+oct1;
+					RobotMainServer.hardPosX=256*oct0+oct1;
 					if (sentence2[14]==0x2d)
 					{
-						RobotMainServer.posX=-RobotMainServer.posX;
+						RobotMainServer.hardPosX=-RobotMainServer.hardPosX;
 					}
 					oct0=(byte)(sentence2[18]&0x7F)-(byte)(sentence2[18]&0x80); // manip car byte consideré signé
 					oct1=(byte)(sentence2[19]&0x7F)-(byte)(sentence2[19]&0x80);
-					RobotMainServer.posY=256*oct0+oct1;
+					RobotMainServer.hardPosY=256*oct0+oct1;
 					if (sentence2[17]==0x2d)
 					{
-						RobotMainServer.posY=-RobotMainServer.posY;
+						RobotMainServer.hardPosY=-RobotMainServer.hardPosY;
 					}
 					oct0=(byte)(sentence2[21]&0x7F)-(byte)(sentence2[21]&0x80); // manip car byte consideré signé
 					oct1=(byte)(sentence2[22]&0x7F)-(byte)(sentence2[22]&0x80);
-					RobotMainServer.alpha=256*oct0+oct1;
+					RobotMainServer.hardAlpha=256*oct0+oct1;
 					if (sentence2[20]==0x2d)
 					{
-						RobotMainServer.alpha=-RobotMainServer.alpha;
+						RobotMainServer.hardAlpha=-RobotMainServer.hardAlpha;
 					}
-				ihm2.ValidePosition(RobotMainServer.posX,RobotMainServer.posY,RobotMainServer.alpha);
+					oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
+					oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
+					RobotMainServer.northOrientation=256*oct0+oct1;
+	//			ihm2.ValidePosition(RobotMainServer.hardPosX,RobotMainServer.hardPosY,RobotMainServer.hardAlpha);
 //					System.out.println("posX:"+RobotMainServer.posX+ " posY:"+RobotMainServer.posY+" angle:"+ RobotMainServer.alpha);
 				}
 				if (sentence2[6]==0x66){                    // scan en cours

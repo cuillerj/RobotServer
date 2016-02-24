@@ -47,7 +47,7 @@ public class InitPos {
 
 		
 //			int posY=0;
-			String sql="INSERT INTO scanResult VALUES ("+ids+",now(),"+posX+","+posY+","+0+","+0+","+0+","+orien+")";
+			String sql="INSERT INTO scanResult VALUES ("+ids+",now(),"+posX+","+posY+","+0+","+0+","+0+","+orien+","+RobotMainServer.idCarto+")";
 			//System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
 			System.out.println(sql);
 			stmtII.executeUpdate(sql);

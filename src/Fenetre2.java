@@ -274,6 +274,15 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 	  		graph.repaint();
 
 }
+	public static void ValidePositionX(int value) {
+	  	SetcurrentPosX(String.valueOf(value));
+	}
+	public static void ValidePositionY(int value) {
+	  	SetcurrentPosY(String.valueOf(value));
+	}
+	public static void ValideOrientation(int value) {
+	  	SetcurrentOrientation(String.valueOf(value));
+	}
 	public void Refresh() {
 		
 	}

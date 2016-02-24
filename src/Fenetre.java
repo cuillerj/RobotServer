@@ -58,6 +58,7 @@ public class Fenetre extends JFrame{
   public static String robotStat=" ?";
   public static String robotPower= " ?";
   public static String robotDiag;
+//  public static int idCarto=1;    // a rendre modifiable
   public Fenetre(){
     this.setTitle("Fields: move (angle, distance)  init (orientation posX posY) goto (posX posY)  scan Id");
     this.setSize(800, 150);
@@ -249,7 +250,7 @@ public class Fenetre extends JFrame{
   class BoutonScanSeqListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-	    RobotMainServer.countScan=15;
+	    RobotMainServer.countScan=20;
 	    int newIdScan=Integer.parseInt(idscan.getText())+1;
 	      RobotMainServer.idscanG= Integer.toString(newIdScan);
 	      idscan.setText(RobotMainServer.idscanG);
@@ -327,6 +328,9 @@ public class Fenetre extends JFrame{
 	      int posY= Integer.parseInt(init_Y.getText());
 	      int ids= Integer.parseInt(idscan.getText());
 	      int orien= Integer.parseInt(orient.getText());
+	      RobotMainServer.posX=posX;
+	      RobotMainServer.posY=posY;
+	      RobotMainServer.alpha=orien;
 	      InitPos initRobot = new InitPos();
 	      initRobot.InitRobot(posX, posY, orien, ids);
 	      SendUDP snd = new SendUDP();

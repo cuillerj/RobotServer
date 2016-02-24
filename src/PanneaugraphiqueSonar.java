@@ -67,7 +67,7 @@ public class PanneaugraphiqueSonar extends JPanel {
 
   public static void point(int posXi,int posYi, int orient, int distFront,int distBack, int angle){
 	    //Vous verrez cette phrase chaque fois que la méthode sera invoquée
-	    System.out.println("point Je suis appele x:"+posXi+" Y;"+posYi+ " orient:"+ orient+" distfront:"+distFront+ " distback:"+distBack);
+//	    System.out.println("point Je suis appele x:"+posXi+" Y;"+posYi+ " orient:"+ orient+" distfront:"+distFront+ " distback:"+distBack);
 	    ptXFront=(int) (posXi/10+distFront*Math.cos(Math.toRadians(orient)+Math.toRadians(angle)-refAngleSonar));
 	    ptYFront=(int) (posYi/10+distFront*Math.sin(Math.toRadians(orient)+Math.toRadians(angle)-refAngleSonar));
 	    ptXBack=(int) (posXi/10+distBack*Math.cos(Math.toRadians(orient)+Math.toRadians(angle)+Math.PI-refAngleSonar));

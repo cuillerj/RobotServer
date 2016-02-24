@@ -12,6 +12,7 @@ import java.net.*;
 import java.sql.*;
 import java.util.Date;
 import java.util.Calendar;
+
 public class RobotMainServer 
 	{
 	public static int posXG=0;
@@ -22,6 +23,10 @@ public class RobotMainServer
 	public static int posX;
 	public static int posY;
 	public static int alpha;
+	public static int hardPosX;
+	public static int hardPosY;
+	public static int hardAlpha;
+	public static int northOrientation;
 	public static byte actStat=0x00;
 	public static String stationStatus="";
 	public static String ipRobot="192.168.1.133";  // 138 ou 133
@@ -34,7 +39,8 @@ public class RobotMainServer
 	public static int connectionDiag;
 	public static int robotDiag;
 	public static int runningStatus=0;
-
+	public static int idCarto=1;    // a rendre modifiable
+	public static boolean debugCnx=true;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
@@ -210,20 +216,81 @@ public static void Move(long ang,long mov)
     RobotMainServer.actStat=0x01;  //demande mov
 
 }
-public static void GoTo(long posX,long posY)
+public static void GoTo(long gotoX,long gotoY)
 {
     Fenetre.label.setText("GoTo");   
 
-    if (posX!=0|| posY!=0)
+    if (posX!=gotoX|| posY!=gotoY)
     {
     SendUDP snd = new SendUDP();
-    snd.SendUDPGoto((long)posX,(long) posY);
+    snd.SendUDPGoto ((long)gotoX,(long)gotoY);
     }
 
     RobotMainServer.actStat=0x01;  //demande mov
 }
-public static int RunningStatus()
+public static int GetRunningStatus()
 {
 return runningStatus;
 }
+public static int GetPosX()
+{
+return posX;
+}
+public static int GetPosY()
+{
+return posY;
+}
+public static int GetPosAngle()
+{
+return alpha;
+}
+public static int GetHardPosX()
+{
+return hardPosX;
+}
+public static int GetHardPosY()
+{
+return hardPosY;
+}
+public static int GetHardPosAngle()
+{
+return hardAlpha;
+}
+public static int GetNorthOrientation()
+{
+return northOrientation;
+}
+public static void SetRunningStatus(int value)
+{
+runningStatus=value;
+}
+public static void SetPosX(int value)
+{
+posX=value;
+Fenetre2.ValidePositionX(value);
+}
+public static void SetPosY(int value)
+{
+posY=value;
+Fenetre2.ValidePositionY(value);
+}
+public static void SetAlpha(int value)
+{
+alpha=value;
+Fenetre2.ValideOrientation(value);
+}
+public static void SetDebugCnxOn (boolean value)
+{
+debugCnx=value;
+}
+public static void UpdateHardRobotLocation()
+{
+SendUDP snd = new SendUDP();
+snd.SendUDPInit(posX,posY,alpha);
+Fenetre2.ValidePosition(posX, posY, alpha);
 	}
+public static void StopRobotServer()
+{
+System.exit(0);
+	}
+}
