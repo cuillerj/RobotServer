@@ -24,13 +24,11 @@ while (true){
 	//	  System.out.println("statut du thread "   +this.getState());
 	      if (pendingEcho<=1)
 	      {
-
 		   Thread.sleep(30000);
 	      }
 	      else
 	      {
 			Thread.sleep(15000);
-
 	      }
 		      pendingEcho=pendingEcho+1;
 		      Fenetre.RefreshStat();

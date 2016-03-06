@@ -23,7 +23,7 @@ public class InitPos {
 
 	public void InitRobot(int posX, int posY, int orien, int ids) {
 		// TODO Auto-generated method stub
-		System.out.println("init" );
+//		System.out.println("init" );
 
 		Connection connI = null;
 		Statement stmtRI = null;

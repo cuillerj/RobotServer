@@ -334,7 +334,7 @@ public class Fenetre extends JFrame{
 	      InitPos initRobot = new InitPos();
 	      initRobot.InitRobot(posX, posY, orien, ids);
 	      SendUDP snd = new SendUDP();
-	      snd.SendUDPInit(posX,posY,orien);
+	      snd.SendUDPInit(posX,posY,orien,RobotMainServer.currentLocProb);
 	      Fenetre2.ValidePosition(posX, posY, orien);
 	      go();
 	    }

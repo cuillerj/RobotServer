@@ -15,6 +15,7 @@ import java.util.Calendar;
 
 public class RobotMainServer 
 	{
+
 	public static int posXG=0;
 	public static int posYG=0;
 	public static int orientG=0;
@@ -39,8 +40,13 @@ public class RobotMainServer
 	public static int connectionDiag;
 	public static int robotDiag;
 	public static int runningStatus=0;
-	public static int idCarto=1;    // a rendre modifiable
-	public static boolean debugCnx=true;
+	public static int idCarto=1;                   // a rendre modifiable
+	public static int currentLocProb=0;
+	public static boolean hardJustReboot=false;
+	public static boolean serverJustRestarted=true;
+	public static boolean debugCnx=false;
+	public static boolean octaveRequestPending=false;
+	public static int octavePendingRequest=0;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
@@ -51,7 +57,7 @@ public static void main(String args[]) throws Exception
 //	FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
 //	ihm2.SetInitialPosition();
 //	ihm3.SetInitialPosition();
-	LanchBatch();
+
 //	RobotBatchServer batch = new RobotBatchServer();
 //	Thread myThread = new Thread(batch);
 //	myThread.setDaemon(true); // important, otherwise JVM does not exit at end of main()
@@ -60,8 +66,6 @@ public static void main(String args[]) throws Exception
 			}
 			
 		//   System.exit(0);
-		 
-
 			
 
 public static void GetCurrentPosition(String ids) {
@@ -165,7 +169,7 @@ public static void hexaPrint(byte y)
 
 		System.out.print("-" + String.format("%x", y));
 	}
-public static void LanchBatch()
+public static void LaunchBatch()
 {
 	FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
 //	ihm2.SetInitialPosition();
@@ -194,6 +198,8 @@ public static int GetScanDistBack(int idx)
 public static void Scan360()
 {
     int newIdScan=0;
+	octaveRequestPending=true;
+	RobotMainServer.runningStatus=2;
     RobotMainServer.idscanG= Integer.toString(newIdScan);
     RobotMainServer.scanStepCount=1;
     Fenetre.idscan.setText(RobotMainServer.idscanG);
@@ -206,7 +212,9 @@ public static void Scan360()
 public static void Move(long ang,long mov)
 {
 //    RobotMainServer.idscanG= Fenetre.idscan.getText();
+	octaveRequestPending=true;
     Fenetre.label.setText("Move");   
+	RobotMainServer.runningStatus=4;
     if (mov!=0 || ang!=0)
     {
     SendUDP snd = new SendUDP();
@@ -218,8 +226,9 @@ public static void Move(long ang,long mov)
 }
 public static void GoTo(long gotoX,long gotoY)
 {
+	octaveRequestPending=true;
     Fenetre.label.setText("GoTo");   
-
+	RobotMainServer.runningStatus=4;
     if (posX!=gotoX|| posY!=gotoY)
     {
     SendUDP snd = new SendUDP();
@@ -252,13 +261,22 @@ public static int GetHardPosY()
 {
 return hardPosY;
 }
-public static int GetHardPosAngle()
+public static int GetHardAngle()
 {
 return hardAlpha;
 }
 public static int GetNorthOrientation()
 {
+	RobotMainServer.octavePendingRequest=1;    // request info uptodate
+	RobotMainServer.octaveRequestPending=true;
+	SendUDP snd = new SendUDP();
+	snd.SendEcho();
+
 return northOrientation;
+}
+public static int GetCurrentLocProb()
+{
+return currentLocProb;
 }
 public static void SetRunningStatus(int value)
 {
@@ -283,14 +301,37 @@ public static void SetDebugCnxOn (boolean value)
 {
 debugCnx=value;
 }
+public static boolean GetHardJustReboot ()
+{
+return hardJustReboot;
+}
+public static boolean GetOctaveRequestPending ()
+{
+return octaveRequestPending;
+}
+public static void SetCurrentLocProb (int value)
+{
+currentLocProb=value;
+Fenetre2.SetcurrentLocProb();
+}
 public static void UpdateHardRobotLocation()
 {
+octaveRequestPending=true;
 SendUDP snd = new SendUDP();
-snd.SendUDPInit(posX,posY,alpha);
+snd.SendUDPInit(posX,posY,alpha,currentLocProb);
 Fenetre2.ValidePosition(posX, posY, alpha);
 	}
+public static void NorthAlignRobot(int northShift)
+{
+	RobotMainServer.octavePendingRequest=6;
+	RobotMainServer.octaveRequestPending=true;
+	SendUDP snd = new SendUDP();
+	snd.NorthAlignRobot(northShift);
+}
 public static void StopRobotServer()
 {
 System.exit(0);
 	}
+
+
 }

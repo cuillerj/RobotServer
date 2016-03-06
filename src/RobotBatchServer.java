@@ -196,16 +196,27 @@ if (RobotMainServer.debugCnx==true)
 				if (sentence2[6]==0x65){                    // e echo
 					EchoRobot.pendingEcho=0;
 	//				System.out.print("echo response: ");
+					if (RobotMainServer.runningStatus==0)
+					{
+						RobotMainServer.runningStatus=1;
+					}
 					ihm.MajRobotStat("connected");
 					if (sentence2[8]==0x66){
 	//					System.out.print("scan running ");
-						RobotMainServer.runningStatus=1;
+						if (RobotMainServer.runningStatus==2)  // scan required
+						{
+							RobotMainServer.runningStatus=102;
+						}
+
 						ihm.MajRobotStat("scan running");
-						RobotMainServer.runningStatus=1;
+
 					}
 					if (sentence2[8]==0x67){
 	//					System.out.print("scan ended ");
-						RobotMainServer.runningStatus=2;
+						if (RobotMainServer.runningStatus==2 || RobotMainServer.runningStatus==102)
+						{
+							RobotMainServer.runningStatus=103;
+						}
 						ihm.MajRobotStat("scan ended");
 						/*
 						if (Integer.parseInt(Fenetre.idscan.getText())==0){  // scan id 0 means for localization
@@ -235,7 +246,10 @@ if (RobotMainServer.debugCnx==true)
 					}
 					if (sentence2[8]==0x68){
 //						System.out.print("moving");
-						RobotMainServer.runningStatus=3;
+						if (RobotMainServer.runningStatus==4)  // scan required
+						{
+							RobotMainServer.runningStatus=104;
+						}
 						ihm.MajRobotStat("moving");
 						int ang=ihm.ang();
 						int mov=ihm.mov();
@@ -256,11 +270,44 @@ if (RobotMainServer.debugCnx==true)
 		//					PanneauGraphique.point(200+posXG/10,200+posYG/10);
 		//					graph.repaint();
 						}
-						RobotMainServer.runningStatus=4;
+						if (RobotMainServer.runningStatus==4 || RobotMainServer.runningStatus==104)
+						{
+							RobotMainServer.runningStatus=105;
+						}
+
 						ihm.MajRobotStat("move ended");
 					    RobotMainServer.scanStepCount=0;
 //						System.out.print("move ended");
 						RobotMainServer.actStat=0x03;
+					}
+					if (sentence2[8]==0x6a){
+
+						if (RobotMainServer.runningStatus==6 )
+						{
+							RobotMainServer.runningStatus=106;
+						}
+						ihm.MajRobotStat("aligning");
+						int ang=ihm.ang();
+						int mov=ihm.mov();
+						RobotMainServer.actStat=0x02;  
+						ihm2.PosActualise(ang,mov);
+			//			PanneauGraphique.point(150+posXG,150+posYG);
+			//			graph.repaint();
+					}
+					if (sentence2[8]==0x6b){
+
+						if (RobotMainServer.octavePendingRequest==6 && RobotMainServer.runningStatus!=107);
+						{
+							RobotMainServer.octaveRequestPending=false;
+						}
+						RobotMainServer.runningStatus=107;
+						ihm.MajRobotStat("aligning ended");
+						int ang=ihm.ang();
+						int mov=ihm.mov();
+						RobotMainServer.actStat=0x02;  
+						ihm2.PosActualise(ang,mov);
+			//			PanneauGraphique.point(150+posXG,150+posYG);
+			//			graph.repaint();
 					}
 					String sb ;
 
@@ -284,6 +331,11 @@ if (RobotMainServer.debugCnx==true)
 					sbb3.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
 					StringBuffer sbb = new StringBuffer(15);
 					sbn=sentence2[13];
+					if (sbn==255)   // robot just reboot
+					{
+						RobotMainServer.currentLocProb=0;
+						RobotMainServer.hardJustReboot=true;
+					}
 					sbnb=(byte)sbn;
 					RobotMainServer.robotDiag=sbn;
 					StringBuffer sbb4 = new StringBuffer(2);
@@ -317,8 +369,20 @@ if (RobotMainServer.debugCnx==true)
 					oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
 					oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
 					RobotMainServer.northOrientation=256*oct0+oct1;
+					if ( RobotMainServer.hardJustReboot==false && RobotMainServer.serverJustRestarted==true)
+					{
+						oct0=(byte)(sentence2[26]&0x7F)-(byte)(sentence2[27]&0x80);
+						RobotMainServer.currentLocProb=oct0;
+						RobotMainServer.serverJustRestarted=false;
+					}
 	//			ihm2.ValidePosition(RobotMainServer.hardPosX,RobotMainServer.hardPosY,RobotMainServer.hardAlpha);
 //					System.out.println("posX:"+RobotMainServer.posX+ " posY:"+RobotMainServer.posY+" angle:"+ RobotMainServer.alpha);
+				if 	(RobotMainServer.octaveRequestPending==true && RobotMainServer.octavePendingRequest==1)
+				{
+					RobotMainServer.octavePendingRequest=0;
+					RobotMainServer.octaveRequestPending=false;
+				}
+						
 				}
 				if (sentence2[6]==0x66){                    // scan en cours
 					EchoRobot.pendingEcho=0;

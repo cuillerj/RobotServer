@@ -32,6 +32,7 @@ public class Fenetre2 extends JFrame{
 	  private static JFormattedTextField  posXP= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private static JFormattedTextField  posYP= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private static JFormattedTextField  orientP= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  currentLocProb= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	 // private JTextField move = new JTextField("0");
 	  private int compteur = 0;
 	//public int ang;
@@ -84,6 +85,9 @@ public class Fenetre2 extends JFrame{
 	    orientP.setFont(police);
 	    orientP.setPreferredSize(new Dimension(50, 30));
 	    orientP.setForeground(Color.GREEN);
+	    currentLocProb.setFont(police);
+	    currentLocProb.setPreferredSize(new Dimension(50, 30));
+	    currentLocProb.setForeground(Color.GRAY);
 	    String orientPS=""+RobotMainServer.orientG;
 	    orientP.setText(orientPS);
 	    container.add(label);
@@ -95,6 +99,7 @@ public class Fenetre2 extends JFrame{
 	    top.add(orientP);
 	    top.add(posXP);
 	    top.add(posYP);
+	    top.add(currentLocProb);
 
 	    container.add(top, BorderLayout.CENTER);
 //	    container.add(center, BorderLayout.CENTER);
@@ -164,6 +169,10 @@ public class Fenetre2 extends JFrame{
 		// TODO Auto-generated method stub
 	    indScan.setText(text);	
 	}
+	public static void SetcurrentLocProb() {
+		// TODO Auto-generated method stub
+	    currentLocProb.setText(Integer.toString(RobotMainServer.currentLocProb));	
+	}
 	public void SetMove(String move, String angle) {
 		// TODO Auto-generated method stub
 	    mov=Integer.parseInt(move);	
@@ -195,6 +204,7 @@ conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPass
 stmtR1 = conn.createStatement();
 stmtI1 = conn.createStatement();
 ResultSet rs = null;
+SetcurrentLocProb();
 int ndscan=Integer.parseInt(RobotMainServer.idscanG);
 rs = stmtR1.executeQuery("SELECT * FROM scanResult WHERE idscan = "+indscan+"  ORDER by time desc limit 1"); 
 while (rs.next()) {
@@ -235,6 +245,7 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 	public void PosActualise(long ang2,long mov2) {
 		// TODO Auto-generated method stub
 		SetInitialPosition();
+		SetcurrentLocProb();
 	    indScan.setText(RobotMainServer.idscanG);
 	 	String ss =orientP.getText();
 //	 	System.out.println("actualise "+ang2+" "+mov2 );
@@ -249,9 +260,10 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 	}
 	public static void ValidePosition(int posX2, int posY2, int alpha) {
 	      label.setText("posX, posY, orientation");   
+	      SetcurrentLocProb();
 	//	 	String ss =orient.getText();
 	//	      SetcurrentOrientation(ss);
-			  	SetcurrentOrientation(String.valueOf(alpha));
+			 	SetcurrentOrientation(String.valueOf(alpha));
 //		 	System.out.println(ss);
 //		  	int orientN=Integer.parseInt(ss);
 	//	    	ss =posX.getText();
@@ -262,6 +274,7 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 //		    	ss =posY.getText();
 //			      SetcurrentPosY(ss);
 				  	SetcurrentPosY(String.valueOf(posY2));
+				  	
 //		    	System.out.println(ss);
 //		    	int posYN=Integer.parseInt(ss);
 		    	//ss =indScan.getText();
@@ -281,6 +294,9 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 	  	SetcurrentPosY(String.valueOf(value));
 	}
 	public static void ValideOrientation(int value) {
+	  	SetcurrentOrientation(String.valueOf(value));
+	}
+	public static void ValideL(int value) {
 	  	SetcurrentOrientation(String.valueOf(value));
 	}
 	public void Refresh() {
