@@ -192,31 +192,31 @@ public class Fenetre2 extends JFrame{
 	String posXP;
 	String posYP;
 	String orientP;
-	  System.out.println("actualise:"+indscan);
+	System.out.println("actualise:"+indscan);
 try {
 
-Class.forName("com.mysql.jdbc.Driver").newInstance();
-String connectionUrl = "jdbc:mysql://jserver:3306/robot";
-String connectionUser = "jean";
-String connectionPassword = "manu7890";
-conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
-//conn.setAutoCommit(false);
-stmtR1 = conn.createStatement();
-stmtI1 = conn.createStatement();
-ResultSet rs = null;
-SetcurrentLocProb();
-int ndscan=Integer.parseInt(RobotMainServer.idscanG);
-rs = stmtR1.executeQuery("SELECT * FROM scanResult WHERE idscan = "+indscan+"  ORDER by time desc limit 1"); 
-while (rs.next()) {
-  posXP = rs.getString("posX");
-  posYP = rs.getString("posY");
-  orientP = rs.getString("orientation");
-  SetcurrentPosX( posXP);
-  SetcurrentPosY( posYP);
-  SetcurrentOrientation( orientP);
-  System.out.println("x:"+posXP+" Y:"+posYP+" orient:"+orientP);
-}
-rs.close();
+	Class.forName("com.mysql.jdbc.Driver").newInstance();
+	String connectionUrl = "jdbc:mysql://jserver:3306/robot";
+	String connectionUser = "jean";
+	String connectionPassword = "manu7890";
+	conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
+	//conn.setAutoCommit(false);
+	stmtR1 = conn.createStatement();
+	stmtI1 = conn.createStatement();
+	ResultSet rs = null;
+	SetcurrentLocProb();
+	int ndscan=Integer.parseInt(RobotMainServer.idscanG);
+	rs = stmtR1.executeQuery("SELECT * FROM scanResult WHERE idscan = "+indscan+"  ORDER by time desc limit 1"); 
+		while (rs.next()) {
+		  posXP = rs.getString("posX");
+		  posYP = rs.getString("posY");
+		  orientP = rs.getString("orientation");
+		  SetcurrentPosX( posXP);
+		  SetcurrentPosY( posYP);
+		  SetcurrentOrientation( orientP);
+		  System.out.println("x:"+posXP+" Y:"+posYP+" orient:"+orientP);
+		}
+	rs.close();
 
 } catch (Exception e) {
 e.printStackTrace();
@@ -244,7 +244,7 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 	}
 	public void PosActualise(long ang2,long mov2) {
 		// TODO Auto-generated method stub
-		SetInitialPosition();
+	//	SetInitialPosition();
 		SetcurrentLocProb();
 	    indScan.setText(RobotMainServer.idscanG);
 	 	String ss =orientP.getText();

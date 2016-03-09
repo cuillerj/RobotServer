@@ -123,7 +123,7 @@ public class SendUDP {
 	public void SendUDPInit(int posX,int posY,int orient,int locProb) {
 		// TODO Auto-generated method stub
 		try{
-			  System.out.println("init2" );
+//			  System.out.println("init2" );
 			RobotMainServer.runningStatus=2000; // pending init
 			      DatagramSocket clientSocket = new DatagramSocket();
 			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -172,7 +172,7 @@ public class SendUDP {
     			
     			 for (int i=0;i<13;i++)
     			 {
-    				 RobotMainServer.hexaPrint(DataToSend[i]);
+    	//			 RobotMainServer.hexaPrint(DataToSend[i]);
 
     			 }
     			 System.out.println();

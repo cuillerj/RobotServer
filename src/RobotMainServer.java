@@ -12,10 +12,13 @@ import java.net.*;
 import java.sql.*;
 import java.util.Date;
 import java.util.Calendar;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 
 public class RobotMainServer 
 	{
-
 	public static int posXG=0;
 	public static int posYG=0;
 	public static int orientG=0;
@@ -47,11 +50,38 @@ public class RobotMainServer
 	public static boolean debugCnx=false;
 	public static boolean octaveRequestPending=false;
 	public static int octavePendingRequest=0;
+	public static boolean interactive=false;
+	public static String fname="robotJavaTrace.txt";
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
 public static void main(String args[]) throws Exception
-			{ 
+			{
+	System.out.println("start robot main server");
+	PrintStream console = System.out;
+//	File file = new File(fname);
+//	FileOutputStream fos = new FileOutputStream(file);
+//	PrintStream ps = new PrintStream(fos);
+//	System.setOut(ps);
+//	System.out.println("create trace");
+//	System.setOut(console);
+//	System.out.println("print console");
+	try{
+	int args0_len=0;
+	 args0_len=args[0].length();
+		if (args[0].equals("i"))     // interactive launch
+		{
+			interactive=true;
+			System.setOut(console);
+			System.out.println("trace sur console");
+			LaunchBatch();
+		}
+	}
+	  catch (Exception e) { 
+//			System.setOut(ps);
+//			System.out.println("trace fichier");
+	  }
+
 //	Fenetre ihm = new Fenetre();
 //	Fenetre2 ihm2 = new Fenetre2();
 //	FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
@@ -171,6 +201,7 @@ public static void hexaPrint(byte y)
 	}
 public static void LaunchBatch()
 {
+
 	FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
 //	ihm2.SetInitialPosition();
 	ihm3.SetInitialPosition();  // au moins une fenetre active avant de detacher le batch
@@ -204,7 +235,7 @@ public static void Scan360()
     RobotMainServer.scanStepCount=1;
     Fenetre.idscan.setText(RobotMainServer.idscanG);
     Fenetre.label.setText("Demarrage du scan");   
-    System.out.println(RobotMainServer.idscanG);
+ //   System.out.println(RobotMainServer.idscanG);
     SendUDP snd = new SendUDP();
     snd.SendUDPScan();
 
@@ -300,6 +331,22 @@ Fenetre2.ValideOrientation(value);
 public static void SetDebugCnxOn (boolean value)
 {
 debugCnx=value;
+}
+public static void SetTraceFileOn (boolean value)
+{
+
+	File file = new File(fname);
+	FileOutputStream fos = null;
+	try {
+		fos = new FileOutputStream(file);
+	} catch (FileNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	PrintStream ps = new PrintStream(fos);
+	System.setOut(ps);
+	System.out.println("create trace");
+
 }
 public static boolean GetHardJustReboot ()
 {

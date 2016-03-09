@@ -1,0 +1,7 @@
+test file
+start robot main server
+lastid:0 0 0
+actualise:0
+ Start
+stop
+start
