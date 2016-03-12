@@ -256,7 +256,7 @@ public class Fenetre extends JFrame{
 	      idscan.setText(RobotMainServer.idscanG);
 	      label.setText("Demarrage du scan serie");   
 	      System.out.println(RobotMainServer.idscanG);
-	      SendUDP snd = new SendUDP();
+	     SendUDP snd = new SendUDP();
 	      snd.SendUDPScan();
 	      go();
 	    }

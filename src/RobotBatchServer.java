@@ -195,6 +195,12 @@ if (RobotMainServer.debugCnx==true)
 				}
 				if (sentence2[6]==0x65){                    // e echo
 					EchoRobot.pendingEcho=0;
+					if (RobotMainServer.javaRequestStatusPending==true)
+					{
+						EventManagement.UpdateEvent(1,0,1,2);  // reqCode,retCode,source, dest
+						EventManagement.UpdateEvent(8,0,1,2);  // reqCode,retCode,source, dest
+					}
+	//			    RobotMainServer.javaRequestStatusPending=false;
 	//				System.out.print("echo response: ");
 					if (RobotMainServer.runningStatus==0)
 					{
@@ -213,6 +219,7 @@ if (RobotMainServer.debugCnx==true)
 					}
 					if (sentence2[8]==0x67){
 	//					System.out.print("scan ended ");
+
 						if (RobotMainServer.runningStatus==2 || RobotMainServer.runningStatus==102)
 						{
 							RobotMainServer.runningStatus=103;
@@ -384,16 +391,37 @@ if (RobotMainServer.debugCnx==true)
 				}
 						
 				}
+	// end of status info
+				
 				if (sentence2[6]==0x66){                    // scan en cours
 					EchoRobot.pendingEcho=0;
 	//				System.out.println("scan running");
 					ihm.MajRobotStat("scan running");
 					RobotMainServer.runningStatus=1;
 				}
-				if (sentence2[6]==0x67){                    // scan en cours
+				if (sentence2[6]==0x67){                    // 
 					EchoRobot.pendingEcho=0;
 //					System.out.println("scan ended");
+					int i2=10;
+					int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+					int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+					RobotMainServer.northOrientation=256*oct0+oct1;
+					UpdateScanRefOrientation(RobotMainServer.northOrientation);
+					EventManagement.UpdateEvent(2,0,1,2);  // reqCode,retCode,source, dest
 					ihm.MajRobotStat("scan ended");
+
+					RobotMainServer.runningStatus=2;
+				}
+				if (sentence2[6]==0x6b){                    // scan en cours
+					EchoRobot.pendingEcho=0;
+//					System.out.println("align ended");
+					int i2=10;
+					int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+					int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+					RobotMainServer.northOrientation=256*oct0+oct1;
+					EventManagement.UpdateEvent(6,0,1,2);  // reqCode,retCode,source, dest
+					ihm.MajRobotStat("align ended");
+
 					RobotMainServer.runningStatus=2;
 				}
 				if (sentence2[6]==0x68){                    // scan en cours
@@ -416,6 +444,7 @@ if (RobotMainServer.debugCnx==true)
 					}
 //					System.out.println("move ended");
 					ihm.MajRobotStat("move ended");
+					EventManagement.UpdateEvent(4,0,1,2);  // reqCode,retCode,source, dest
 					RobotMainServer.runningStatus=4;
 					if (RobotMainServer.actStat==0x02){ 
 						ihm2.ValidePosition(RobotMainServer.posX,RobotMainServer.posY,RobotMainServer.alpha);
@@ -444,5 +473,33 @@ if (RobotMainServer.debugCnx==true)
 				}
 			   }
 	}
+	void UpdateScanRefOrientation(int northOrientation)
+	{
+		int idscan=Fenetre.ids();
+		if (idscan!=0)
+			{
+			Connection conn2 = null;
+			Statement stmt = null;
+			try{
 	
+				Class.forName("com.mysql.jdbc.Driver").newInstance();
+				String connectionUrl = "jdbc:mysql://jserver:3306/robot";
+				String connectionUser = "jean";
+				String connectionPassword = "manu7890";
+				conn2 = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
+				stmt = conn2.createStatement();
+				String sql="INSERT INTO scanDesc VALUES ("+idscan+","+RobotMainServer.idCarto+","+northOrientation+",now())";
+	
+	//		    String sql = "UPDATE scanDesc " +
+	//	                "SET northOrientation = "+northOrientation+"  WHERE scanId = "+idscan+"";
+			    stmt.executeUpdate(sql);
+			    	
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try { if (stmt != null) stmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+				try { if (conn2 != null) conn2.close(); } catch (SQLException e) { e.printStackTrace(); }
+			}
+		}
+	}
 }

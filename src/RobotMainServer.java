@@ -48,6 +48,7 @@ public class RobotMainServer
 	public static boolean hardJustReboot=false;
 	public static boolean serverJustRestarted=true;
 	public static boolean debugCnx=false;
+	public static boolean javaRequestStatusPending=false;
 	public static boolean octaveRequestPending=false;
 	public static int octavePendingRequest=0;
 	public static boolean interactive=false;
@@ -69,7 +70,7 @@ public static void main(String args[]) throws Exception
 	try{
 	int args0_len=0;
 	 args0_len=args[0].length();
-		if (args[0].equals("i"))     // interactive launch
+		if (args[0].equals("i"))     // interactive mode
 		{
 			interactive=true;
 			System.setOut(console);
@@ -201,7 +202,7 @@ public static void hexaPrint(byte y)
 	}
 public static void LaunchBatch()
 {
-
+	StartTimeoutManagement();
 	FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
 //	ihm2.SetInitialPosition();
 	ihm3.SetInitialPosition();  // au moins une fenetre active avant de detacher le batch
@@ -214,7 +215,6 @@ public static void LaunchBatch()
 public static int GetScanAngle(int idx)
 {
 	return scanArray[idx][0];
-
 }
 public static int GetScanDistFront(int idx)
 {
@@ -224,7 +224,6 @@ public static int GetScanDistFront(int idx)
 public static int GetScanDistBack(int idx)
 {
 	return scanArray[idx][2];
-
 }
 public static void Scan360()
 {
@@ -236,9 +235,9 @@ public static void Scan360()
     Fenetre.idscan.setText(RobotMainServer.idscanG);
     Fenetre.label.setText("Demarrage du scan");   
  //   System.out.println(RobotMainServer.idscanG);
+	EventManagement.AddPendingEvent(2,1200,1,2);
     SendUDP snd = new SendUDP();
     snd.SendUDPScan();
-
 }
 public static void Move(long ang,long mov)
 {
@@ -246,26 +245,25 @@ public static void Move(long ang,long mov)
 	octaveRequestPending=true;
     Fenetre.label.setText("Move");   
 	RobotMainServer.runningStatus=4;
+	EventManagement.AddPendingEvent(4,600,1,2);
     if (mov!=0 || ang!=0)
     {
     SendUDP snd = new SendUDP();
     snd.SendUDPMove((long)ang,(long) mov);
     }
-
     RobotMainServer.actStat=0x01;  //demande mov
-
 }
 public static void GoTo(long gotoX,long gotoY)
 {
 	octaveRequestPending=true;
     Fenetre.label.setText("GoTo");   
 	RobotMainServer.runningStatus=4;
+	EventManagement.AddPendingEvent(4,600,1,2);
     if (posX!=gotoX|| posY!=gotoY)
     {
     SendUDP snd = new SendUDP();
     snd.SendUDPGoto ((long)gotoX,(long)gotoY);
     }
-
     RobotMainServer.actStat=0x01;  //demande mov
 }
 public static int GetRunningStatus()
@@ -286,23 +284,29 @@ return alpha;
 }
 public static int GetHardPosX()
 {
+	
+//	EventManagement.AddPendingEvent(1,20,1,2);
 return hardPosX;
 }
 public static int GetHardPosY()
 {
+//	EventManagement.AddPendingEvent(1,20,1,2);
 return hardPosY;
 }
 public static int GetHardAngle()
 {
+//	EventManagement.AddPendingEvent(1,20,1,2);
 return hardAlpha;
 }
 public static int GetNorthOrientation()
 {
-	RobotMainServer.octavePendingRequest=1;    // request info uptodate
-	RobotMainServer.octaveRequestPending=true;
+	EventManagement.AddPendingEvent(1,100,1,2);
+//	RobotMainServer.octavePendingRequest=1;    // request info uptodate
+//	RobotMainServer.octaveRequestPending=true;
 	SendUDP snd = new SendUDP();
 	snd.SendEcho();
-
+//	while(RobotMainServer.javaRequestStatusPending==true)
+	
 return northOrientation;
 }
 public static int GetCurrentLocProb()
@@ -363,15 +367,16 @@ Fenetre2.SetcurrentLocProb();
 }
 public static void UpdateHardRobotLocation()
 {
+EventManagement.AddPendingEvent(8,120,1,2);
 octaveRequestPending=true;
 SendUDP snd = new SendUDP();
 snd.SendUDPInit(posX,posY,alpha,currentLocProb);
 Fenetre2.ValidePosition(posX, posY, alpha);
 	}
-public static void NorthAlignRobot(int northShift)
+public static void NorthAlign(int northShift)
 {
-	RobotMainServer.octavePendingRequest=6;
-	RobotMainServer.octaveRequestPending=true;
+	EventManagement.AddPendingEvent(6,600,1,2);
+//	RobotMainServer.octaveRequestPending=true;
 	SendUDP snd = new SendUDP();
 	snd.NorthAlignRobot(northShift);
 }
@@ -379,6 +384,26 @@ public static void StopRobotServer()
 {
 System.exit(0);
 	}
+public static void StartTimeoutManagement()
+{
+	TimeoutManagement timeout=new TimeoutManagement();
+//	echo.EchoRobot();
+	timeout.start();
+}
+public static int GetRetcode(int reqCode,int reqSource,int reqDest)
+{
+	int i=0;
+	int retCode=0;
+	for ( i=0;i<EventManagement.sizeTable;i++)
+	{
+		System.out.println	(EventManagement.pendingRequestTable[i][1]+" "+EventManagement.pendingRequestTable[i][5]+" "+EventManagement.pendingRequestTable[i][3]+" "+EventManagement.pendingRequestTable[i][4]);
 
+		if (EventManagement.pendingRequestTable[i][1]==reqCode && EventManagement.pendingRequestTable[i][3]==reqSource  && EventManagement.pendingRequestTable[i][4]==reqDest)
+		{
+			retCode= EventManagement.pendingRequestTable[i][5];
+		}
+	}
+	return retCode;
+}
 
 }
