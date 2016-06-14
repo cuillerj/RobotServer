@@ -25,14 +25,18 @@ public class Fenetre2 extends JFrame{
 	//  private JPanel container2 = new JPanel();
 	  private static JLabel label = new JLabel("Position du robot ");
 	  
-	  private JFormattedTextField  posX= new JFormattedTextField(NumberFormat.getIntegerInstance());
-	  private JFormattedTextField  posY = new JFormattedTextField(NumberFormat.getIntegerInstance());
-	  private JFormattedTextField  orient= new JFormattedTextField(NumberFormat.getIntegerInstance());
-	  private JFormattedTextField  indScan= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  posX= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  posY = new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  orient= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  indScan= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private static JFormattedTextField  posXP= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private static JFormattedTextField  posYP= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private static JFormattedTextField  orientP= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private static JFormattedTextField  currentLocProb= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  posXHard= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  posYHard = new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  orientHard= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  northOrientation= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	 // private JTextField move = new JTextField("0");
 	  private int compteur = 0;
 	//public int ang;
@@ -42,7 +46,7 @@ public class Fenetre2 extends JFrame{
 	  public int ang;
 	  public Fenetre2(){
 	    this.setTitle("Statut du robot");
-	    this.setSize(250, 150);
+	    this.setSize(250, 180);
 	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    this.setLocationRelativeTo(null);
 	    this.setLocation(200,50);
@@ -88,18 +92,34 @@ public class Fenetre2 extends JFrame{
 	    currentLocProb.setFont(police);
 	    currentLocProb.setPreferredSize(new Dimension(50, 30));
 	    currentLocProb.setForeground(Color.GRAY);
+	    posXHard.setFont(police);
+	    posXHard.setPreferredSize(new Dimension(50, 30));
+	    posXHard.setForeground(Color.DARK_GRAY);
+	    posYHard.setFont(police);
+	    posYHard.setPreferredSize(new Dimension(50, 30));
+	    posYHard.setForeground(Color.BLACK);
+	    orientHard.setFont(police);
+	    orientHard.setPreferredSize(new Dimension(50, 30));
+	    orientHard.setForeground(Color.GREEN);
+	    northOrientation.setFont(police);
+	    northOrientation.setPreferredSize(new Dimension(50, 30));
+	    northOrientation.setForeground(Color.RED);
 	    String orientPS=""+RobotMainServer.orientG;
 	    orientP.setText(orientPS);
 	    container.add(label);
-	    top.add(orient);
-	    top.add(posX);
 	    top.add(label);
+	    top.add(posX);
 	    top.add(posY);
+	    top.add(orient);
 	    top.add(indScan);
-	    top.add(orientP);
 	    top.add(posXP);
 	    top.add(posYP);
+	    top.add(orientP);
 	    top.add(currentLocProb);
+	    top.add(posXHard);
+	    top.add(posYHard);
+	    top.add(orientHard);
+	    top.add(northOrientation);
 
 	    container.add(top, BorderLayout.CENTER);
 //	    container.add(center, BorderLayout.CENTER);
@@ -153,15 +173,15 @@ public class Fenetre2 extends JFrame{
 		// TODO Auto-generated method stub
 	    orientP.setText(text);	
 	}
-	public void SetnextPosX(String text) {
+	public static void SetnextPosX(String text) {
 		// TODO Auto-generated method stub
 	    posX.setText(text);	
 	}
-	public void SetnextPosY(String text) {
+	public static void SetnextPosY(String text) {
 		// TODO Auto-generated method stub
 	    posY.setText(text);	
 	}
-	public void SetnextOrientation(String text) {
+	public static void SetnextOrientation(String text) {
 		// TODO Auto-generated method stub
 	    orient.setText(text);	
 	}
@@ -172,6 +192,14 @@ public class Fenetre2 extends JFrame{
 	public static void SetcurrentLocProb() {
 		// TODO Auto-generated method stub
 	    currentLocProb.setText(Integer.toString(RobotMainServer.currentLocProb));	
+	}
+	public static void RefreshHardPosition() {
+		// TODO Auto-generated method stub
+	    posXHard.setText(Integer.toString(RobotMainServer.hardPosX));	
+	    posYHard.setText(Integer.toString(RobotMainServer.hardPosY));	
+	    orientHard.setText(Integer.toString(RobotMainServer.hardAlpha));	
+	    northOrientation.setText(Integer.toString(RobotMainServer.northOrientation));	
+
 	}
 	public void SetMove(String move, String angle) {
 		// TODO Auto-generated method stub
@@ -226,8 +254,8 @@ try { if (stmtR1 != null) stmtR1.close(); } catch (SQLException e) { e.printStac
 try { if (stmtI1 != null) stmtI1.close(); } catch (SQLException e) { e.printStackTrace(); }
 try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }}
 }
-	public void TargetLocation(long ang2,long mov2, int posX,int posY,long orient){
-		System.out.println("target location"+ang2+" "+mov2+" "+posX+" "+posY+" "+orient);
+	public static void TargetLocation(long ang2,long mov2, int posX,int posY,long orient){
+//	System.out.println("target location:"+ang2+" "+mov2+" "+posX+" "+posY+" "+orient);
 	orient=(orient+ang2)%360;
 	String orientnext=""+orient;
 	SetnextOrientation(orientnext);
@@ -242,7 +270,7 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 	String posYn=""+posYnext;
 	SetnextPosY(posYn);
 	}
-	public void PosActualise(long ang2,long mov2) {
+	public static void PosActualise(long ang2,long mov2) {
 		// TODO Auto-generated method stub
 	//	SetInitialPosition();
 		SetcurrentLocProb();

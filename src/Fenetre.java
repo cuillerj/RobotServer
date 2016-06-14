@@ -29,6 +29,7 @@ public class Fenetre extends JFrame{
   private JButton boutonScanSeq = new JButton("ScanSeq");
   private JButton boutonMove = new JButton("Move");
   private JButton boutonGoto = new JButton("Goto");
+  private JButton boutonValidHardPos = new JButton("ValHardPos");
   private JButton boutonInit = new JButton("Init");
   private JButton boutonRefresh = new JButton("Refresh");
   public JButton boutonAffEcho = new JButton("Aff Echo");
@@ -76,7 +77,8 @@ public class Fenetre extends JFrame{
     boutonScan.addActionListener(new BoutonScanListener()); 
     boutonScanSeq.addActionListener(new BoutonScanSeqListener()); 
     boutonMove.addActionListener(new BoutonMoveListener()); 
-    boutonGoto.addActionListener(new BoutonGotoListener()); 
+    boutonGoto.addActionListener(new BoutonGotoListener());
+    boutonValidHardPos.addActionListener(new BoutonValidHardPos());   
     boutonRefresh.addActionListener(new BoutonRefreshListener()); 
     boutonAffEcho.addActionListener(new BoutonAffEchoListener()); 
     boutonCalibrate.addActionListener(new BoutonCalibrateListener()); 
@@ -148,6 +150,7 @@ public class Fenetre extends JFrame{
     south.add(boutonScanSeq);
     south.add(boutonMove);
     south.add(boutonGoto);
+    south.add(boutonValidHardPos);
     south.add(boutonAffEcho);
     south.add(boutonInit);
     south.add(boutonCalibrate);
@@ -219,6 +222,13 @@ public class Fenetre extends JFrame{
       go();
     }
   } 
+  class BoutonValidHardPos implements ActionListener{
+
+	    public void actionPerformed(ActionEvent e) {
+	    	RobotMainServer.ValidHardPosition();
+
+	    }
+	  } 
   class BoutonCalibrateListener implements ActionListener{
 
 	    public void actionPerformed(ActionEvent e) {
@@ -326,7 +336,11 @@ public class Fenetre extends JFrame{
 //	      System.out.println("idscan " + idscan.getText());
 	      int posX = Integer.parseInt(init_X.getText());
 	      int posY= Integer.parseInt(init_Y.getText());
-	      int ids= Integer.parseInt(idscan.getText());
+	      String idsTS=idscan.getText();
+	      System.out.println("idscan " + idsTS);
+	      String idsT=idsTS.replaceAll(" ","");
+	      System.out.println("idscan " + idsT);
+	      int ids= Integer.parseInt(idsT);
 	      int orien= Integer.parseInt(orient.getText());
 	      RobotMainServer.posX=posX;
 	      RobotMainServer.posY=posY;

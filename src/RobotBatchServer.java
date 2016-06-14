@@ -77,123 +77,195 @@ public class RobotBatchServer implements Runnable {
 //				Type=sentence2[2];
 
 			 trameNumber=sentence2[7];
-if (RobotMainServer.debugCnx==true)	
-{
-			 for (int i=0;i<50;i++)
-			 {
-				 RobotMainServer.hexaPrint(sentence2[i]);
-
-			 }
-			 System.out.println();
-}
-		
-//				System.out.print(" ID " + ID+ " len "+InpLen+" ");
-		//			System.out.println("RECEIVED length: " + sentence2.length);
-//				System.out.println(" RECEIVED: " +sentence2[7]);
-
+			 if (RobotMainServer.debugCnx==true)	
+			 	{
+				 	for (int i=0;i<50;i++)
+				 		{
+				 			RobotMainServer.hexaPrint(sentence2[i]);
+				 		}
+				 	System.out.println();
+			 	}
 				int idx=Type;
-				if (sentence2[6]==0x01){ // scan -test InpLen contournement bug && ( InpLen==10)
-
-//					System.out.print( " n°:"+trameNumber);
+				if (sentence2[6]==0x01){ // means need a ack
+					InetAddress IPAddress = receivePacket.getAddress();
+				    DatagramSocket clientSocket = null;
+					try {
+						clientSocket = new DatagramSocket();				
+						} 
+					catch (SocketException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						}
+				    byte[] sendData = new byte[4];
+				    sendData[0]=0x63;
+				    sendData[1]=0x34;
+				    sendData[2]=0x61;
+				    sendData[3]=sentence2[7];
+				    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+				    try {
+						clientSocket.send(sendPacket);
+				    	} 
+				    catch (IOException e1) {
+						e1.printStackTrace();
+						}
 					EchoRobot.pendingEcho=0;
-//				String FNam=FNamD+idx+".txt";  // modifie le nom du fichier log en ajoutant le type de la station emettrice
-			    java.util.Date today = new java.util.Date();
-			    //System.out.println(" - time:"+new java.sql.Timestamp(today.getTime()));
-//			    System.out.println(" - time: "+today);
-				 try {
-					Thread.sleep(300);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					try {
+						Thread.sleep(300);
+				 		} 
+					catch (InterruptedException e1) {
+						e1.printStackTrace();
+				 		}
+					clientSocket.close();
+					if (sentence2[8]==0x46){       // scan data
+				    	 int i2=9;
+				    	 int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+				    	 int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+				    	 int distFront=256*oct0+oct1;
+				    	 i2=12;
+				    	 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+				    	 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+				    	 int distBack=256*oct0+oct1;
+				    	 i2=15;
+				    	 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+				    	 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+				    	 int angle=256*oct0+oct1;
+				    	 if (RobotMainServer.scanStepCount!=0)
+				    	 	{
+				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][0]=angle;
+				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][1]=distFront;
+				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][2]=distBack;
+				    		 	RobotMainServer.scanStepCount++;
+				    	 	}
+				    	 if (lastTrameNumber!=trameNumber)
+				    	 	{
+				    		 try {
+				    			 Class.forName("com.mysql.jdbc.Driver").newInstance();
+				    			 String connectionUrl = "jdbc:mysql://jserver:3306/robot";
+				    			 String connectionUser = "jean";
+				    			 String connectionPassword = "manu7890";
+				    			 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
+				    			 stmtR = conn.createStatement();
+				    			 stmtI = conn.createStatement();
+				    			 int idscan=Fenetre.ids();
+				    			 RobotMainServer.idscanG=Fenetre.idsString();
+				    			 String idsG=RobotMainServer.idscanG;
+				    			 RobotMainServer.GetCurrentPosition(idsG);
+				    			 int angl=RobotMainServer.orientG;
+				    			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+angl+","+RobotMainServer.idCarto+")";
+				    			 //System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
+				    			 System.out.println(sql);
+				    			 stmtI.executeUpdate(sql);
+				    		 	}
+				    		 	catch (Exception e) {
+				    		 		e.printStackTrace();
+				    		 	} finally {
+				    		 		try { if (stmtR != null) stmtR.close(); } catch (SQLException e) { e.printStackTrace(); }
+				    		 		try { if (stmtI != null) stmtI.close(); } catch (SQLException e) { e.printStackTrace(); }
+				    		 		try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+				    		 	}
+				    		 	lastTrameNumber=sentence2[15];
+				    	 	}
+				    	 PanneaugraphiqueSonar.point(RobotMainServer.posXG,RobotMainServer.posYG,RobotMainServer.orientG,distFront,distBack,angle);
+				    	 ihm3.repaint();
+					}
+					
+					
+				    if (sentence2[8]==0x01){       // end of action need ack
+				    	if (sentence2[9]==0x66){                    // scan en cours
+							EchoRobot.pendingEcho=0;
+			//				System.out.println("scan running");
+							ihm.MajRobotStat("scan running");
+							RobotMainServer.runningStatus=1;
+							}
+						if (sentence2[9]==0x67){                    // 
+							EchoRobot.pendingEcho=0;
+//							System.out.println("scan ended");
+							int i2=10;
+							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
+							int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+							RobotMainServer.northOrientation=256*oct0+oct1;
+							UpdateScanRefOrientation(RobotMainServer.northOrientation);
+							EventManagement.UpdateEvent(2,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							ihm.MajRobotStat("scan ended");
+							System.out.println("scan ended");
+						    RobotMainServer.scanStepCount=0;
+							RobotMainServer.runningStatus=2;
+							}
+						if (sentence2[9]==0x6b){                    // 
+							EchoRobot.pendingEcho=0;
+//							System.out.println("align ended");
+							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
+							int i2=10;
+							int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+							RobotMainServer.northOrientation=256*oct0+oct1;
+							EventManagement.UpdateEvent(6,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							ihm.MajRobotStat("align ended");
+							System.out.println("align ended");
+							RobotMainServer.runningStatus=2;
+							}
+						if (sentence2[9]==0x68){                    //
+							EchoRobot.pendingEcho=0;
+//							System.out.println("moving");
+							ihm.MajRobotStat("moving");
+							int ang=ihm.ang();
+							int mov=ihm.mov();
+							Fenetre2.PosActualise(ang,mov);
+							RobotMainServer.runningStatus=3;
+							RobotMainServer.actStat=0x02;   // move en cours
+							}
+						if (sentence2[9]==0x69){                    // 
+							EchoRobot.pendingEcho=0;
+	//						int ang=ihm.ang();
+	//						int mov=ihm.mov();
+	//						Fenetre2.PosActualise(ang,mov);
+							RobotMainServer.actStat=0x02; 
+							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
+							ihm.MajRobotStat("move ended");
+							EventManagement.UpdateEvent(4,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							RobotMainServer.runningStatus=4;
+							int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé
+							int oct1=(byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80);
+							RobotMainServer.hardPosX=256*oct0+oct1;
+							if (sentence2[14]==0x2d)
+							{
+								RobotMainServer.hardPosX=-RobotMainServer.hardPosX;
+							}
+							oct0=(byte)(sentence2[18]&0x7F)-(byte)(sentence2[18]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[19]&0x7F)-(byte)(sentence2[19]&0x80);
+							RobotMainServer.hardPosY=256*oct0+oct1;
+							if (sentence2[17]==0x2d)
+							{
+								RobotMainServer.hardPosY=-RobotMainServer.hardPosY;
+							}
+							oct0=(byte)(sentence2[21]&0x7F)-(byte)(sentence2[21]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[22]&0x7F)-(byte)(sentence2[22]&0x80);
+							RobotMainServer.hardAlpha=256*oct0+oct1;
+							if (sentence2[20]==0x2d)
+							{
+								RobotMainServer.hardAlpha=-RobotMainServer.hardAlpha;
+							}
+							oct0=(byte)(sentence2[12]&0x7F)-(byte)(sentence2[12]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[13]&0x7F)-(byte)(sentence2[13]&0x80);
+							RobotMainServer.northOrientation=256*oct0+oct1;
+							String XString=Integer.toString(RobotMainServer.hardPosX);
+							String YString=Integer.toString(RobotMainServer.hardPosY);
+							String HString=Integer.toString(RobotMainServer.hardAlpha);
+							System.out.println("move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation);
+							System.out.println("refresh hard on screen");
+							RobotMainServer.RefreshHardPositionOnScreen();
+							if (RobotMainServer.actStat==0x02){ 
+								Fenetre2.ValidePosition(RobotMainServer.posX,RobotMainServer.posY,RobotMainServer.alpha);
+								
+				//				PanneauGraphique.point(200+posXG/10,200+posYG/10);
+				//				graph.repaint();
+								}
+						RobotMainServer.actStat=0x03;
+							}				    	 
+			     	}
 				}
-				InetAddress IPAddress = receivePacket.getAddress();
-			      DatagramSocket clientSocket = null;
-				try {
-					clientSocket = new DatagramSocket();
-				} catch (SocketException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-//			      InetAddress IPAddress = InetAddress.getByName("192.168.1.99");
-			      byte[] sendData = new byte[4];
-			      sendData[0]=0x63;
-			      sendData[1]=0x34;
-			      sendData[2]=0x61;
-			      sendData[3]=sentence2[7];
-//				      String startCmde="c4a";
-//			      sendData = startCmde.getBytes();
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      try {
-					clientSocket.send(sendPacket);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			     clientSocket.close();
-				int port = receivePacket.getPort();
-				int i2=9;
-				int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
-				int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
-				int distFront=256*oct0+oct1;
-				i2=12;
-				 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
-				 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
-				int distBack=256*oct0+oct1;
-				i2=15;
-				 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
-				 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
-				int angle=256*oct0+oct1;
-				if (RobotMainServer.scanStepCount!=0)
-				{
-					RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][0]=angle;
-					RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][1]=distFront;
-					RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][2]=distBack;
-					RobotMainServer.scanStepCount++;
-				}
-//				PanneauGraphique.point(22,22);
-//				ihm2.setAlwaysOnTop(true);
-//				ihm2.setLocation(20,20);
-		//		ihm.setTitle("robot v0 - time: "+today);
-//				ihm2.setSize("pour voir");
-	if (lastTrameNumber!=trameNumber)
-	{
-				try {
-					Class.forName("com.mysql.jdbc.Driver").newInstance();
-					String connectionUrl = "jdbc:mysql://jserver:3306/robot";
-					String connectionUser = "jean";
-					String connectionPassword = "manu7890";
-					conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
-					stmtR = conn.createStatement();
-					stmtI = conn.createStatement();
-
-					int idscan=Fenetre.ids();
-					RobotMainServer.idscanG=Fenetre.idsString();
-					String idsG=RobotMainServer.idscanG;
-					RobotMainServer.GetCurrentPosition(idsG);
-
-		//			int posX=posXG;
-		//			int posY=posYG;
-					int angl=RobotMainServer.orientG;
-	//				System.out.println("pos:"+RobotMainServer.posXG+ " "+RobotMainServer.posYG);
-					String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+angl+","+RobotMainServer.idCarto+")";
-					//System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
-					System.out.println(sql);
-					stmtI.executeUpdate(sql);
-
-						
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					try { if (stmtR != null) stmtR.close(); } catch (SQLException e) { e.printStackTrace(); }
-					try { if (stmtI != null) stmtI.close(); } catch (SQLException e) { e.printStackTrace(); }
-					try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
-				}
-				lastTrameNumber=sentence2[15];
-	}
-		  		PanneaugraphiqueSonar.point(RobotMainServer.posXG,RobotMainServer.posYG,RobotMainServer.orientG,distFront,distBack,angle);
-	  		ihm3.repaint();
-				}
-				if (sentence2[6]==0x65){                    // e echo
+				if (sentence2[6]==0x65){                    // e echo status info
 					EchoRobot.pendingEcho=0;
 					if (RobotMainServer.javaRequestStatusPending==true)
 					{
@@ -214,8 +286,8 @@ if (RobotMainServer.debugCnx==true)
 							RobotMainServer.runningStatus=102;
 						}
 
-						ihm.MajRobotStat("scan running");
-
+						ihm.MajRobotStat("echo:scan running");
+						System.out.println("echo:scan running");
 					}
 					if (sentence2[8]==0x67){
 	//					System.out.print("scan ended ");
@@ -225,6 +297,7 @@ if (RobotMainServer.debugCnx==true)
 							RobotMainServer.runningStatus=103;
 						}
 						ihm.MajRobotStat("scan ended");
+						System.out.println("echo:scan ended");
 						/*
 						if (Integer.parseInt(Fenetre.idscan.getText())==0){  // scan id 0 means for localization
 							String    CShell="localization.bat "+Fenetre.idscan.getText();
@@ -258,6 +331,7 @@ if (RobotMainServer.debugCnx==true)
 							RobotMainServer.runningStatus=104;
 						}
 						ihm.MajRobotStat("moving");
+						System.out.println("echo:moving");
 						int ang=ihm.ang();
 						int mov=ihm.mov();
 						RobotMainServer.actStat=0x02;  
@@ -283,8 +357,9 @@ if (RobotMainServer.debugCnx==true)
 						}
 
 						ihm.MajRobotStat("move ended");
-					    RobotMainServer.scanStepCount=0;
-//						System.out.print("move ended");
+
+						EventManagement.UpdateEvent(4,0,1,2);  // reqCode,retCode,source, dest
+//						System.out.println("echo:move ended");
 						RobotMainServer.actStat=0x03;
 					}
 					if (sentence2[8]==0x6a){
@@ -294,6 +369,7 @@ if (RobotMainServer.debugCnx==true)
 							RobotMainServer.runningStatus=106;
 						}
 						ihm.MajRobotStat("aligning");
+						System.out.println("echo:aligning");
 						int ang=ihm.ang();
 						int mov=ihm.mov();
 						RobotMainServer.actStat=0x02;  
@@ -309,6 +385,7 @@ if (RobotMainServer.debugCnx==true)
 						}
 						RobotMainServer.runningStatus=107;
 						ihm.MajRobotStat("aligning ended");
+						System.out.println("echo:align ended");
 						int ang=ihm.ang();
 						int mov=ihm.mov();
 						RobotMainServer.actStat=0x02;  
@@ -376,6 +453,7 @@ if (RobotMainServer.debugCnx==true)
 					oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
 					oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
 					RobotMainServer.northOrientation=256*oct0+oct1;
+					RobotMainServer.RefreshHardPositionOnScreen();
 					if ( RobotMainServer.hardJustReboot==false && RobotMainServer.serverJustRestarted==true)
 					{
 						oct0=(byte)(sentence2[26]&0x7F)-(byte)(sentence2[27]&0x80);
@@ -393,67 +471,7 @@ if (RobotMainServer.debugCnx==true)
 				}
 	// end of status info
 				
-				if (sentence2[6]==0x66){                    // scan en cours
-					EchoRobot.pendingEcho=0;
-	//				System.out.println("scan running");
-					ihm.MajRobotStat("scan running");
-					RobotMainServer.runningStatus=1;
-				}
-				if (sentence2[6]==0x67){                    // 
-					EchoRobot.pendingEcho=0;
-//					System.out.println("scan ended");
-					int i2=10;
-					int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
-					int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
-					RobotMainServer.northOrientation=256*oct0+oct1;
-					UpdateScanRefOrientation(RobotMainServer.northOrientation);
-					EventManagement.UpdateEvent(2,0,1,2);  // reqCode,retCode,source, dest
-					ihm.MajRobotStat("scan ended");
-
-					RobotMainServer.runningStatus=2;
-				}
-				if (sentence2[6]==0x6b){                    // scan en cours
-					EchoRobot.pendingEcho=0;
-//					System.out.println("align ended");
-					int i2=10;
-					int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
-					int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
-					RobotMainServer.northOrientation=256*oct0+oct1;
-					EventManagement.UpdateEvent(6,0,1,2);  // reqCode,retCode,source, dest
-					ihm.MajRobotStat("align ended");
-
-					RobotMainServer.runningStatus=2;
-				}
-				if (sentence2[6]==0x68){                    // scan en cours
-					EchoRobot.pendingEcho=0;
-//					System.out.println("moving");
-					ihm.MajRobotStat("moving");
-					int ang=ihm.ang();
-					int mov=ihm.mov();
-					ihm2.PosActualise(ang,mov);
-					RobotMainServer.runningStatus=3;
-					RobotMainServer.actStat=0x02;   // move en cours
-				}
-				if (sentence2[6]==0x69){                    // scan en cours
-					EchoRobot.pendingEcho=0;
-					if (RobotMainServer.actStat==0x01){   // on a rate le statut moving
-						int ang=ihm.ang();
-						int mov=ihm.mov();
-						ihm2.PosActualise(ang,mov);
-						RobotMainServer.actStat=0x02; 
-					}
-//					System.out.println("move ended");
-					ihm.MajRobotStat("move ended");
-					EventManagement.UpdateEvent(4,0,1,2);  // reqCode,retCode,source, dest
-					RobotMainServer.runningStatus=4;
-					if (RobotMainServer.actStat==0x02){ 
-						ihm2.ValidePosition(RobotMainServer.posX,RobotMainServer.posY,RobotMainServer.alpha);
-						
-		//				PanneauGraphique.point(200+posXG/10,200+posYG/10);
-		//				graph.repaint();
-					}
-					RobotMainServer.actStat=0x03;
-				}
+				
 				if (sentence2[6]==0x70){  // power info
 					EchoRobot.pendingEcho=0;
 				int power1=sentence2[7]*10;
@@ -473,6 +491,7 @@ if (RobotMainServer.debugCnx==true)
 				}
 			   }
 	}
+
 	void UpdateScanRefOrientation(int northOrientation)
 	{
 		int idscan=Fenetre.ids();

@@ -7,7 +7,7 @@ public class SendUDP {
 	public void SendUDP() {
 		try{
 	//	  System.out.println("argument: " + args[0]);
-			  System.out.println("sendUDP" );
+		  System.out.println("sendUDP" );
 	      DatagramSocket clientSocket = new DatagramSocket();
 	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
@@ -169,14 +169,14 @@ public class SendUDP {
     			 DataToSend[10]=(byte)orient;  // orientation /256
     			 DataToSend[12]=0x00; 
     			 DataToSend[13]=(byte)Math.abs(locProb); 
-    			
+ /*   			
     			 for (int i=0;i<13;i++)
     			 {
-    	//			 RobotMainServer.hexaPrint(DataToSend[i]);
+    				 RobotMainServer.hexaPrint(DataToSend[i]);
 
     			 }
     			 System.out.println();
-    			
+ */   			
 				  sendData = DataToSend;		
 			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 			      clientSocket.send(sendPacket);
@@ -192,7 +192,7 @@ public class SendUDP {
 				}
 	public void SendEcho() {
 		try{
-	  System.out.println("echo" );
+			System.out.println("send echo" );
 	      DatagramSocket clientSocket = new DatagramSocket();
 	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
@@ -246,7 +246,7 @@ public class SendUDP {
 //			      	}
 //			      String startCmde="c4m";
 		      sendData = cmde;
-		      System.out.println(byteArrayToHex(sendData));
+//		      System.out.println(byteArrayToHex(sendData));
 			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 			      clientSocket.send(sendPacket);
 			      clientSocket.close();
@@ -332,7 +332,7 @@ public class SendUDP {
 			      cmde[4]=(byte)(angle);
 
 		      sendData = cmde;
-		      System.out.println(byteArrayToHex(sendData));
+//		      System.out.println(byteArrayToHex(sendData));
 			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 			      clientSocket.send(sendPacket);
 			      clientSocket.close();

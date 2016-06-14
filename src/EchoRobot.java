@@ -10,7 +10,6 @@ public class EchoRobot extends Thread{
 while (true){
 
 	try{
-
 	      DatagramSocket clientSocket = new DatagramSocket();
 	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
@@ -30,9 +29,9 @@ while (true){
 	      {
 			Thread.sleep(15000);
 	      }
-		      pendingEcho=pendingEcho+1;
-		      Fenetre.RefreshStat();
-	//		  System.out.println("statut du thread "   +this.getState());
+		    pendingEcho=pendingEcho+1;
+		     Fenetre.RefreshStat();
+//		  System.out.println("statut du thread "   +this.getState());
 	   	   
 		}
 	   catch(Exception e)
