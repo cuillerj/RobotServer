@@ -58,11 +58,12 @@ public class Fenetre extends JFrame{
 //public int ids;
   public static String robotStat=" ?";
   public static String robotPower= " ?";
-  public static String robotDiag;
+  public static String robotDiag=" ";
+  public static String actionRetcode=" ";
 //  public static int idCarto=1;    // a rendre modifiable
   public Fenetre(){
     this.setTitle("Fields: move (angle, distance)  init (orientation posX posY) goto (posX posY)  scan Id");
-    this.setSize(800, 150);
+    this.setSize(1000, 150);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setLocationRelativeTo(null);
     container.setBackground(Color.white);
@@ -176,7 +177,7 @@ public class Fenetre extends JFrame{
   }
       
   static void go(){
-      label.setText(RobotMainServer.stationStatus+" "+robotStat+"-"+robotPower+ "-"+robotDiag);   
+      label.setText(RobotMainServer.stationStatus+"-"+robotStat+"-Power:"+robotPower+ " Diag(Pow,Mot,Cnx,Rob):"+robotDiag+" Retcode:"+actionRetcode+" Stat:"+RobotMainServer.runningStatus);   
      RobotMainServer.idscanG= idscan.getText();
     //Cette méthode ne change pas
   }
@@ -415,6 +416,12 @@ public void MajRobotPower(String power1) {
 public void MajRobotDiag(String string) {
 	// TODO Auto-generated method stub
 	robotDiag=string;
+    go();
+
+}
+public void MajActionRetcode(String string) {
+	// TODO Auto-generated method stub
+	actionRetcode=string;
     go();
 
 }

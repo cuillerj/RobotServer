@@ -31,6 +31,8 @@ public class RobotMainServer
 	public static int hardPosY;
 	public static int hardAlpha;
 	public static int northOrientation;
+	public static int deltaNORotation;
+	public static int deltaNOMoving;
 	public static byte actStat=0x00;
 	public static String stationStatus="";
 	public static String ipRobot="192.168.1.133";  // 138 ou 133
@@ -46,7 +48,7 @@ public class RobotMainServer
 	public static int idCarto=1;                   // a rendre modifiable
 	public static int currentLocProb=0;
 	public static boolean hardJustReboot=false;
-	public static boolean serverJustRestarted=true;
+	public static boolean serverJustRestarted=false;
 	public static boolean debugCnx=false;
 	public static boolean javaRequestStatusPending=false;
 	public static boolean octaveRequestPending=false;

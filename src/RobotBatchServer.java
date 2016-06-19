@@ -171,6 +171,11 @@ public class RobotBatchServer implements Runnable {
 					
 					
 				    if (sentence2[8]==0x01){       // end of action need ack
+				    	int sbnb=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
+						StringBuffer sbb4 = new StringBuffer(2);
+						sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
+						sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
+						ihm.MajActionRetcode(" 0x"+sbb4);
 				    	if (sentence2[9]==0x66){                    // scan en cours
 							EchoRobot.pendingEcho=0;
 			//				System.out.println("scan running");
@@ -246,13 +251,27 @@ public class RobotBatchServer implements Runnable {
 							{
 								RobotMainServer.hardAlpha=-RobotMainServer.hardAlpha;
 							}
+							oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
+							RobotMainServer.deltaNORotation=256*oct0+oct1;
+							if (sentence2[23]==0x2d)
+							{
+								RobotMainServer.deltaNORotation=-RobotMainServer.deltaNORotation;
+							}
+							oct0=(byte)(sentence2[27]&0x7F)-(byte)(sentence2[27]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[28]&0x7F)-(byte)(sentence2[28]&0x80);
+							RobotMainServer.deltaNOMoving=256*oct0+oct1;
+							if (sentence2[26]==0x2d)
+							{
+								RobotMainServer.deltaNOMoving=-RobotMainServer.deltaNOMoving;
+							}
 							oct0=(byte)(sentence2[12]&0x7F)-(byte)(sentence2[12]&0x80); // manip car byte consideré signé
 							oct1=(byte)(sentence2[13]&0x7F)-(byte)(sentence2[13]&0x80);
 							RobotMainServer.northOrientation=256*oct0+oct1;
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
-							System.out.println("move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation);
+							System.out.println("move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving);
 							System.out.println("refresh hard on screen");
 							RobotMainServer.RefreshHardPositionOnScreen();
 							if (RobotMainServer.actStat==0x02){ 
