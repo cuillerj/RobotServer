@@ -31,6 +31,7 @@ public class Fenetre extends JFrame{
   private JButton boutonGoto = new JButton("Goto");
   private JButton boutonValidHardPos = new JButton("ValHardPos");
   private JButton boutonInit = new JButton("Init");
+  private JButton boutonReset = new JButton("Reset");
   private JButton boutonRefresh = new JButton("Refresh");
   public JButton boutonAffEcho = new JButton("Aff Echo");
   private JButton boutonCalibrate = new JButton("W Calibr");
@@ -80,6 +81,7 @@ public class Fenetre extends JFrame{
     boutonMove.addActionListener(new BoutonMoveListener()); 
     boutonGoto.addActionListener(new BoutonGotoListener());
     boutonValidHardPos.addActionListener(new BoutonValidHardPos());   
+    boutonReset.addActionListener(new BoutonResetListener()); 
     boutonRefresh.addActionListener(new BoutonRefreshListener()); 
     boutonAffEcho.addActionListener(new BoutonAffEchoListener()); 
     boutonCalibrate.addActionListener(new BoutonCalibrateListener()); 
@@ -146,6 +148,7 @@ public class Fenetre extends JFrame{
     south.add(label2);
     south.add(boutonStart);
     south.add(boutonStop);
+    south.add(boutonReset);
     south.add(boutonRefresh);
     south.add(boutonScan);
     south.add(boutonScanSeq);
@@ -223,6 +226,16 @@ public class Fenetre extends JFrame{
       go();
     }
   } 
+  class BoutonResetListener implements ActionListener{
+	    //Redéfinition de la méthode actionPerformed()
+	    public void actionPerformed(ActionEvent arg0) {
+//	        RobotMainServer.idscanG= idscan.getText();
+	      label.setText("Reset du Robot");   
+	      SendUDP snd = new SendUDP();
+	      snd.SendUDPReset();
+	      go();
+	    }
+	  }
   class BoutonValidHardPos implements ActionListener{
 
 	    public void actionPerformed(ActionEvent e) {

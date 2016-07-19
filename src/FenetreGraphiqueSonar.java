@@ -7,7 +7,7 @@ public class FenetreGraphiqueSonar extends JFrame {
    this.setLocation(150,00);               
    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
    this.setContentPane(new PanneaugraphiqueSonar());
-   this.setVisible(true);
+   this.setVisible(false);
 //   System.out.println("fenetre echo loc Je suis exécutée !");
  }
 

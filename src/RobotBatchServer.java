@@ -186,12 +186,15 @@ public class RobotBatchServer implements Runnable {
 							EchoRobot.pendingEcho=0;
 //							System.out.println("scan ended");
 							int i2=10;
+							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
+							System.out.println("event type:"+eventType);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
 							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 							RobotMainServer.northOrientation=256*oct0+oct1;
 							UpdateScanRefOrientation(RobotMainServer.northOrientation);
-							EventManagement.UpdateEvent(2,actionRetcode,1,2);  // reqCode,retCode,source, dest
+
+							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("scan ended");
 							System.out.println("scan ended");
 						    RobotMainServer.scanStepCount=0;
@@ -200,14 +203,43 @@ public class RobotBatchServer implements Runnable {
 						if (sentence2[9]==0x6b){                    // 
 							EchoRobot.pendingEcho=0;
 //							System.out.println("align ended");
+							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
+							System.out.println("event type:"+eventType);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							int i2=10;
 							int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
 							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 							RobotMainServer.northOrientation=256*oct0+oct1;
-							EventManagement.UpdateEvent(6,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("align ended");
 							System.out.println("align ended");
+							RobotMainServer.runningStatus=2;
+							}
+						
+						if (sentence2[9]==0x6c){                    // 
+							EchoRobot.pendingEcho=0;
+//							System.out.println("servo align ended");
+							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
+							System.out.println("event type:"+eventType);
+							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
+							int i2=10;
+							int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+							RobotMainServer.northOrientation=256*oct0+oct1;
+							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							ihm.MajRobotStat("servo align ended");
+							System.out.println("servo align ended");
+							RobotMainServer.runningStatus=2;
+							}
+						if (sentence2[9]==0x6d){                    // 
+							EchoRobot.pendingEcho=0;
+//							System.out.println("servo align ended");
+							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
+							System.out.println("event type:"+eventType);
+							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
+							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							ihm.MajRobotStat("pingFG ended");
+							System.out.println("pingFG ended");
 							RobotMainServer.runningStatus=2;
 							}
 						if (sentence2[9]==0x68){                    //
@@ -226,9 +258,11 @@ public class RobotBatchServer implements Runnable {
 	//						int mov=ihm.mov();
 	//						Fenetre2.PosActualise(ang,mov);
 							RobotMainServer.actStat=0x02; 
+							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
+							System.out.println("event type:"+eventType);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							ihm.MajRobotStat("move ended");
-							EventManagement.UpdateEvent(4,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							RobotMainServer.runningStatus=4;
 							int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé
 							int oct1=(byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80);
@@ -445,7 +479,7 @@ public class RobotBatchServer implements Runnable {
 					sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
 					sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
 					ihm.MajRobotDiag("0x"+sbb1+" 0x"+sbb2+" 0x"+sbb3+" 0x"+sbb4);
-	//				System.out.println(" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Connections:0x"+sbb3+"  Robot:0x"+sbb4);
+					System.out.println(" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Connections:0x"+sbb3+"  Robot:0x"+sbb4);
 					
 					//
 					int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé
@@ -480,7 +514,7 @@ public class RobotBatchServer implements Runnable {
 						RobotMainServer.serverJustRestarted=false;
 					}
 	//			ihm2.ValidePosition(RobotMainServer.hardPosX,RobotMainServer.hardPosY,RobotMainServer.hardAlpha);
-//					System.out.println("posX:"+RobotMainServer.posX+ " posY:"+RobotMainServer.posY+" angle:"+ RobotMainServer.alpha);
+					System.out.println("posX:"+RobotMainServer.hardPosX+ " posY:"+RobotMainServer.hardPosY+" angle:"+ RobotMainServer.hardAlpha);
 				if 	(RobotMainServer.octaveRequestPending==true && RobotMainServer.octavePendingRequest==1)
 				{
 					RobotMainServer.octavePendingRequest=0;
@@ -507,6 +541,22 @@ public class RobotBatchServer implements Runnable {
 				RobotMainServer.power5V=power2;
 //				System.out.println("power1: "+power1+"cV power2: "+power2+"cV power3: "+power3+"cV");
 				ihm.MajRobotPower(Integer.toString(power1)+ "cV "+Integer.toString(power2)+ "cV ");
+				}
+				
+				if (sentence2[6]==0x71){  // encoder & motor values
+				EchoRobot.pendingEcho=0;
+				int nbValue=(byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80);
+				int ix=8;
+				System.out.print("encoder leftHigh leftLow RightHigh RightLow LefPWM right PWM Ratio ");
+				for (int i=1;i<=nbValue;i++)
+				{
+					int oct0=(byte)(sentence2[ix]&0x7F)-(byte)(sentence2[ix]&0x80); // manip car byte consideré signé
+					int oct1=(byte)(sentence2[ix+1]&0x7F)-(byte)(sentence2[ix+1]&0x80);
+					int value=256*oct0+oct1;
+					System.out.print("-"+value+ "-");
+					ix=ix+3;
+				}
+				System.out.println();
 				}
 			   }
 	}

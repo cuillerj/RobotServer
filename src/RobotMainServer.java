@@ -55,6 +55,30 @@ public class RobotMainServer
 	public static int octavePendingRequest=0;
 	public static boolean interactive=false;
 	public static String fname="robotJavaTrace.txt";
+	public static final int scanning =102;   // 0x66
+	public static final int moving =104;     // 0x68
+	public static final int scanEnd=103;
+	public static final int moveEnd=105;
+	public static final int alignEnd=107;
+	public static final int servoAlignEnd=108;
+	public static final int pingFBEnd=109;
+	public static final byte moveRetcodeEncoderLeftLowLevel =1;
+	public static final byte moveRetcodeEncoderRightLowLevel= 2;
+	public static final byte moveRetcodeEncoderLeftHighLevel =3;
+	public static final byte moveRetcodeEncoderRightHighLevel =4;
+	public static final byte moveUnderLimitation =5;
+	public static final byte moveKoDueToSpeedInconsistancy =10;
+	public static final byte moveKoDueToObstacle =7;
+	public static final byte diagMotorPbLeft= 0;
+	public static final byte diagMotorPbRight =1;
+	public static final byte diagMotorPbSynchro =2;
+	public static final byte diagMotorPbEncoder =3;
+	public static final byte diagRobotPause =0;
+	public static final byte diagRobotObstacle= 1;
+	public static final int stepSize =10;
+	public static final byte resetMotor =0;
+	public static final byte resetObstacle =1;
+	public static final byte resetPause =2;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
@@ -237,7 +261,7 @@ public static void Scan360()
     Fenetre.idscan.setText(RobotMainServer.idscanG);
     Fenetre.label.setText("Scan requested");   
  //   System.out.println(RobotMainServer.idscanG);
-	EventManagement.AddPendingEvent(2,1200,1,2);
+	EventManagement.AddPendingEvent(scanEnd,1200,1,2);
     SendUDP snd = new SendUDP();
     snd.SendUDPScan();
 }
@@ -248,7 +272,7 @@ public static void Move(long ang,long mov)
 	octaveRequestPending=true;
     Fenetre.label.setText("Move requested");   
 	RobotMainServer.runningStatus=4;
-	EventManagement.AddPendingEvent(4,600,1,2);
+	EventManagement.AddPendingEvent(moveEnd,1200,1,2);
     if (mov!=0 || ang!=0)
     {
     SendUDP snd = new SendUDP();
@@ -262,7 +286,7 @@ public static void GoTo(long gotoX,long gotoY)
 	octaveRequestPending=true;
     Fenetre.label.setText("GoTo");   
 	RobotMainServer.runningStatus=4;
-	EventManagement.AddPendingEvent(4,600,1,2);
+	EventManagement.AddPendingEvent(4,1200,1,2);
     if (posX!=gotoX|| posY!=gotoY)
     {
     SendUDP snd = new SendUDP();
@@ -330,7 +354,7 @@ public static void SetPosY(int value)
 posY=value;
 Fenetre2.ValidePositionY(value);
 }
-public static void SetAlpha(int value)
+public static void SetHeading(int value)
 {
 alpha=value;
 Fenetre2.ValideOrientation(value);
@@ -343,7 +367,7 @@ public static void ValidHardPosition()
 {
 SetPosX(hardPosX);
 SetPosY(hardPosY);
-SetAlpha(hardAlpha);
+SetHeading(hardAlpha);
 }
 public static void SetTraceFileOn (boolean value)
 {
@@ -389,9 +413,32 @@ octaveRequestPending=true;
 SendUDP snd = new SendUDP();
 snd.SendEcho();
 	}
+public static void ResetRobotStatus()
+{
+EventManagement.AddPendingEvent(1,2,1,2);
+octaveRequestPending=true;
+SendUDP snd = new SendUDP();
+snd.SendUDPReset();
+	}
+public static void RobotAlignServo(int value)
+{             // request servomotor alignment from 0 to 180°
+EventManagement.AddPendingEvent(servoAlignEnd,100,1,2);
+octaveRequestPending=true;
+SendUDP snd = new SendUDP();
+snd.SendUDPServoAlign(value);
+	}
+
+public static void PingEchoFrontBack()
+{             // request servomotor alignment from 0 to 180°
+EventManagement.AddPendingEvent(pingFBEnd,50,1,2);
+octaveRequestPending=true;
+RobotMainServer.scanStepCount=1;  // use robot.GetScanDist...(0) to get front and echo distance
+SendUDP snd = new SendUDP();
+snd.SendUDPPingEchoFrontBack();
+	}
 public static void NorthAlign(int northShift)
 {
-	EventManagement.AddPendingEvent(6,900,1,2);
+	EventManagement.AddPendingEvent(alignEnd,1200,1,2);
 //	RobotMainServer.octaveRequestPending=true;
 	SendUDP snd = new SendUDP();
 	snd.NorthAlignRobot(northShift);

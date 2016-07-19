@@ -50,6 +50,29 @@ public class SendUDP {
 	   
 	   finally{}
 		}
+	public void SendUDPReset() {
+		try{
+	  System.out.println("reset" );
+		RobotMainServer.runningStatus=2004; // pending reset
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[4];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x72;   // r reset
+			 sendData[3]=(byte) 0xff;   // 0xff reset all
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	
 	public void SendUDPStart() {
 		// TODO Auto-generated method stub
 		try{
@@ -120,6 +143,51 @@ public class SendUDP {
 			   
 			   finally{}
 				}
+	public void SendUDPServoAlign(int value) {
+		try{
+	  System.out.println("align servo" );
+		RobotMainServer.runningStatus=2005; // pending reset
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[4];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x53;   // S align servomotor
+			 sendData[3]=(byte) value;   // value in degre between 0 to 180 
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	public void SendUDPPingEchoFrontBack() {
+		try{
+	  System.out.println("echo ping FB" );
+		RobotMainServer.runningStatus=2005; // pending reset
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[3];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x70;   // p 
+
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	
 	public void SendUDPInit(int posX,int posY,int orient,int locProb) {
 		// TODO Auto-generated method stub
 		try{

@@ -7,7 +7,7 @@ public class FenetreGraphique extends JFrame {
    this.setLocation(150,00);               
    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
    this.setContentPane(new PanneauGraphique());
-   this.setVisible(true);
+   this.setVisible(false);
 //   System.out.println("fenetre Je suis exécutée !");
  }
 
