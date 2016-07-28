@@ -3,11 +3,14 @@ import java.net.*;
 
 
 public class SendUDP {
+	String pgmId="SendUDP";
 //	public String ipRobot="192.168.1.133";  // 138 ou 133
 	public void SendUDP() {
 		try{
 	//	  System.out.println("argument: " + args[0]);
-		  System.out.println("sendUDP" );
+		  String mess="sendUDP";
+		  TraceLog Trace = new TraceLog();
+		  Trace.TraceLog(pgmId,mess);
 	      DatagramSocket clientSocket = new DatagramSocket();
 	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
@@ -29,7 +32,9 @@ public class SendUDP {
 		}
 	public void SendUDPStop() {
 		try{
-	  System.out.println("stop" );
+	  String mess="stop";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2001; // pending stop
 	      DatagramSocket clientSocket = new DatagramSocket();
 	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -52,7 +57,9 @@ public class SendUDP {
 		}
 	public void SendUDPReset() {
 		try{
-	  System.out.println("reset" );
+	  String mess="reset";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2004; // pending reset
 	      DatagramSocket clientSocket = new DatagramSocket();
 	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -76,7 +83,9 @@ public class SendUDP {
 	public void SendUDPStart() {
 		// TODO Auto-generated method stub
 		try{
-			  System.out.println("start" );
+			  String mess="start";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
 				RobotMainServer.runningStatus=2000; // pending start
 			      DatagramSocket clientSocket = new DatagramSocket();
 			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -100,7 +109,9 @@ public class SendUDP {
 	public void SendUDPCalibrate() {
 		// TODO Auto-generated method stub
 		try{
-			  System.out.println("calibrate" );
+			  String mess="calibrate";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
 				RobotMainServer.runningStatus=2003; // pending calibrate
 			      DatagramSocket clientSocket = new DatagramSocket();
 			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -124,7 +135,9 @@ public class SendUDP {
 	public void SendUDPScan() {
 		// TODO Auto-generated method stub
 		try{
-			  System.out.println("scan" );
+			  String mess="scan";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
 				RobotMainServer.runningStatus=1001; // pending scan
 			      DatagramSocket clientSocket = new DatagramSocket();
 			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -143,9 +156,12 @@ public class SendUDP {
 			   
 			   finally{}
 				}
+	
 	public void SendUDPServoAlign(int value) {
 		try{
-	  System.out.println("align servo" );
+	  String mess="align servo";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2005; // pending reset
 	      DatagramSocket clientSocket = new DatagramSocket();
 	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -165,9 +181,39 @@ public class SendUDP {
 	   
 	   finally{}
 		}
+
+	
+	public void SendUDPNorthRotate(int value) {
+		try{
+	  String mess="rotate VS NO";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+		RobotMainServer.runningStatus=2005; // pending reset
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[5];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x6e;   // e rotation based on north orientation
+			 sendData[3]=(byte) (value/256);   // value in degre between 0 to 360
+			 sendData[4]=(byte) (value);   //
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	
 	public void SendUDPPingEchoFrontBack() {
 		try{
-	  System.out.println("echo ping FB" );
+	  String mess="echo ping FB";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2005; // pending reset
 	      DatagramSocket clientSocket = new DatagramSocket();
 	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -192,6 +238,9 @@ public class SendUDP {
 		// TODO Auto-generated method stub
 		try{
 //			  System.out.println("init2" );
+			String mess="send init";
+			TraceLog Trace = new TraceLog();
+			Trace.TraceLog(pgmId,mess);
 			RobotMainServer.runningStatus=2000; // pending init
 			      DatagramSocket clientSocket = new DatagramSocket();
 			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -260,7 +309,9 @@ public class SendUDP {
 				}
 	public void SendEcho() {
 		try{
-			System.out.println("send echo" );
+			String mess="send echo";
+			TraceLog Trace = new TraceLog();
+			Trace.TraceLog(pgmId,mess);
 	      DatagramSocket clientSocket = new DatagramSocket();
 	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
@@ -281,7 +332,9 @@ public class SendUDP {
 		// TODO Auto-generated method stub
 		try{
 			RobotMainServer.runningStatus=1003; // pending move
-			  System.out.println("angle:"+angle+ " move:"+move );
+			  String mess="angle:"+angle+ " move:"+move;
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();
 			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] cmde = new byte[15];
@@ -332,7 +385,9 @@ public class SendUDP {
 		// TODO Auto-generated method stub
 		try{
 			RobotMainServer.runningStatus=1003; // pending move
-			  System.out.println("posX:"+posX+ " posY:"+posY );
+			  String mess="posX:"+posX+ " posY:"+posY;
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();
 			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] cmde = new byte[15];
@@ -388,7 +443,9 @@ public class SendUDP {
 	public void NorthAlignRobot(int angle) {
 		// TODO Auto-generated method stub
 		try{
-			  System.out.println("align to:"+angle );
+			  String mess="align to:"+angle;
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();
 			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] cmde = new byte[15];

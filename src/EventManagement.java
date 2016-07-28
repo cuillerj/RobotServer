@@ -5,7 +5,7 @@ public class EventManagement{
 	public static int[][] pendingRequestTable=new int[10][7];
 	static int reqId=0;
 	// [reqId,code,timeout,source,dest,retcode,countTimer]
-	// source dest 0 java, 1 octave 2 arduino
+	// source dest 0 java, 1 octave 2 arduino 3 arduino simulator
 
 	public static void AddPendingEvent(int reqCode,int reqTimeout,int reqSource,int reqDest)
 	{

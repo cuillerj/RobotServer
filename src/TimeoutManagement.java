@@ -4,7 +4,7 @@ public class TimeoutManagement extends Thread{
 	Thread t;
 
 	// [reqId,code,timeout,source,dest,retcode,countTimer]
-	// source dest 0 java, 1 octave 2 arduino
+	// source dest 0 java, 10 octave 20 arduino 20+1(21) arduino simulator
 	public void run(){
 	while(true)
 		{
@@ -22,7 +22,7 @@ public class TimeoutManagement extends Thread{
 					if (EventManagement.pendingRequestTable[i][6]>=EventManagement.pendingRequestTable[i][2])
 					{
 //						System.out.println("-");
-						EventManagement.pendingRequestTable[i][5]=-1;  // timeout
+
 						EventManagement.pendingRequestTable[i][2]=0;
 						RobotMainServer.octaveRequestPending=false;
 						RobotMainServer.octavePendingRequest=EventManagement.pendingRequestTable[i][1];
@@ -30,6 +30,17 @@ public class TimeoutManagement extends Thread{
 						{
 					    RobotMainServer.javaRequestStatusPending=false;
 						}
+						if (EventManagement.pendingRequestTable[i][4]==21)  // simulation mode
+						{
+							ArduinoSimulator.ActionEnd(EventManagement.pendingRequestTable[i][1], EventManagement.pendingRequestTable[i][3], EventManagement.pendingRequestTable[i][4]);
+							EventManagement.pendingRequestTable[i][2]=0;
+							EventManagement.pendingRequestTable[i][5]=0;
+						}
+						else{
+							EventManagement.pendingRequestTable[i][5]=-1;  // timeout
+							EventManagement.pendingRequestTable[i][2]=0;
+						}
+
 //						return;
 					}
 				}

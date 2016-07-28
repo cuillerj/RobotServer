@@ -12,8 +12,12 @@ import java.sql.Statement;
 public class RobotBatchServer implements Runnable {
 	public void run()
 	{
+		String pgmId="RobotBatchServer";
 		RobotMainServer.GetLastScanID();
-		System.out.println("lastid:"+RobotMainServer.idscanG+" "+RobotMainServer.posXG+ " "+RobotMainServer.posYG);
+		String mess="lastid:"+RobotMainServer.idscanG+" "+RobotMainServer.posXG+ " "+RobotMainServer.posYG;
+		TraceLog Trace = new TraceLog();
+		Trace.TraceLog(pgmId,mess);
+//		System.out.println(pgmId+": "+"lastid:"+RobotMainServer.idscanG+" "+RobotMainServer.posXG+ " "+RobotMainServer.posYG);
 
 		Fenetre ihm = new Fenetre();
 		Fenetre2 ihm2 = new Fenetre2();
@@ -153,7 +157,8 @@ public class RobotBatchServer implements Runnable {
 				    			 int angl=RobotMainServer.orientG;
 				    			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+angl+","+RobotMainServer.idCarto+")";
 				    			 //System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
-				    			 System.out.println(sql);
+				    			Trace.TraceLog(pgmId,sql);
+				    //			 System.out.println(sql);
 				    			 stmtI.executeUpdate(sql);
 				    		 	}
 				    		 	catch (Exception e) {
@@ -187,16 +192,20 @@ public class RobotBatchServer implements Runnable {
 //							System.out.println("scan ended");
 							int i2=10;
 							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
-							System.out.println("event type:"+eventType);
+//							System.out.println("event type:"+eventType);
+							mess="event type:"+eventType;
+							Trace.TraceLog(pgmId,mess);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
 							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 							RobotMainServer.northOrientation=256*oct0+oct1;
 							UpdateScanRefOrientation(RobotMainServer.northOrientation);
-
-							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
+							RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+//							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,RobotMainServer.eventArduino);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("scan ended");
-							System.out.println("scan ended");
+							mess="scan ended";
+							Trace.TraceLog(pgmId,mess);
 						    RobotMainServer.scanStepCount=0;
 							RobotMainServer.runningStatus=2;
 							}
@@ -204,15 +213,19 @@ public class RobotBatchServer implements Runnable {
 							EchoRobot.pendingEcho=0;
 //							System.out.println("align ended");
 							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
-							System.out.println("event type:"+eventType);
+							mess="event type:"+eventType;
+							Trace.TraceLog(pgmId,mess);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							int i2=10;
 							int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
 							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 							RobotMainServer.northOrientation=256*oct0+oct1;
-							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
+//							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
+									RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("align ended");
-							System.out.println("align ended");
+							mess="align ended";
+							Trace.TraceLog(pgmId,mess);
 							RobotMainServer.runningStatus=2;
 							}
 						
@@ -220,26 +233,33 @@ public class RobotBatchServer implements Runnable {
 							EchoRobot.pendingEcho=0;
 //							System.out.println("servo align ended");
 							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
-							System.out.println("event type:"+eventType);
+							mess="event type:"+eventType;
+							Trace.TraceLog(pgmId,mess);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							int i2=10;
 							int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
 							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 							RobotMainServer.northOrientation=256*oct0+oct1;
-							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
+							RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("servo align ended");
-							System.out.println("servo align ended");
+							mess="servo align ended";
+							Trace.TraceLog(pgmId,mess);
 							RobotMainServer.runningStatus=2;
 							}
 						if (sentence2[9]==0x6d){                    // 
 							EchoRobot.pendingEcho=0;
 //							System.out.println("servo align ended");
 							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
-							System.out.println("event type:"+eventType);
+							mess="event type:"+eventType;
+							Trace.TraceLog(pgmId,mess);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
-							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
-							ihm.MajRobotStat("pingFG ended");
-							System.out.println("pingFG ended");
+							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
+									RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+//							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							ihm.MajRobotStat("pingFB ended");
+							mess="pingFG ended";
+							Trace.TraceLog(pgmId,mess);
 							RobotMainServer.runningStatus=2;
 							}
 						if (sentence2[9]==0x68){                    //
@@ -259,10 +279,13 @@ public class RobotBatchServer implements Runnable {
 	//						Fenetre2.PosActualise(ang,mov);
 							RobotMainServer.actStat=0x02; 
 							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
-							System.out.println("event type:"+eventType);
+							mess="event type:"+eventType;
+							Trace.TraceLog(pgmId,mess);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							ihm.MajRobotStat("move ended");
-							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
+							RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+//							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							RobotMainServer.runningStatus=4;
 							int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé
 							int oct1=(byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80);
@@ -305,8 +328,9 @@ public class RobotBatchServer implements Runnable {
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
-							System.out.println("move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving);
-							System.out.println("refresh hard on screen");
+							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving;
+							Trace.TraceLog(pgmId,mess);
+	//						System.out.println("refresh hard on screen");
 							RobotMainServer.RefreshHardPositionOnScreen();
 							if (RobotMainServer.actStat==0x02){ 
 								Fenetre2.ValidePosition(RobotMainServer.posX,RobotMainServer.posY,RobotMainServer.alpha);
@@ -322,8 +346,9 @@ public class RobotBatchServer implements Runnable {
 					EchoRobot.pendingEcho=0;
 					if (RobotMainServer.javaRequestStatusPending==true)
 					{
-						EventManagement.UpdateEvent(1,0,1,2);  // reqCode,retCode,source, dest
-						EventManagement.UpdateEvent(8,0,1,2);  // reqCode,retCode,source, dest
+ // reqCode,retCode,source, dest
+						EventManagement.UpdateEvent(RobotMainServer.robotInfoUpdated,0,RobotMainServer.eventOctave,RobotMainServer.eventArduino);  // reqCode,retCode,source, dest
+						EventManagement.UpdateEvent(RobotMainServer.robotUpdatedEnd,0,RobotMainServer.eventOctave,RobotMainServer.eventArduino);  // reqCode,retCode,source, dest
 					}
 	//			    RobotMainServer.javaRequestStatusPending=false;
 	//				System.out.print("echo response: ");
@@ -340,7 +365,8 @@ public class RobotBatchServer implements Runnable {
 						}
 
 						ihm.MajRobotStat("echo:scan running");
-						System.out.println("echo:scan running");
+						mess="echo:scan running";
+						Trace.TraceLog(pgmId,mess);
 					}
 					if (sentence2[8]==0x67){
 	//					System.out.print("scan ended ");
@@ -350,7 +376,8 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.runningStatus=103;
 						}
 						ihm.MajRobotStat("scan ended");
-						System.out.println("echo:scan ended");
+						mess="echo:scan ended";
+						Trace.TraceLog(pgmId,mess);
 						/*
 						if (Integer.parseInt(Fenetre.idscan.getText())==0){  // scan id 0 means for localization
 							String    CShell="localization.bat "+Fenetre.idscan.getText();
@@ -384,7 +411,8 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.runningStatus=104;
 						}
 						ihm.MajRobotStat("moving");
-						System.out.println("echo:moving");
+						mess="echo:moving";
+						Trace.TraceLog(pgmId,mess);
 						int ang=ihm.ang();
 						int mov=ihm.mov();
 						RobotMainServer.actStat=0x02;  
@@ -422,7 +450,8 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.runningStatus=106;
 						}
 						ihm.MajRobotStat("aligning");
-						System.out.println("echo:aligning");
+						mess="echo:aligning";
+						Trace.TraceLog(pgmId,mess);
 						int ang=ihm.ang();
 						int mov=ihm.mov();
 						RobotMainServer.actStat=0x02;  
@@ -438,7 +467,8 @@ public class RobotBatchServer implements Runnable {
 						}
 						RobotMainServer.runningStatus=107;
 						ihm.MajRobotStat("aligning ended");
-						System.out.println("echo:align ended");
+						mess="echo:align ended";
+						Trace.TraceLog(pgmId,mess);
 						int ang=ihm.ang();
 						int mov=ihm.mov();
 						RobotMainServer.actStat=0x02;  
@@ -479,9 +509,12 @@ public class RobotBatchServer implements Runnable {
 					sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
 					sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
 					ihm.MajRobotDiag("0x"+sbb1+" 0x"+sbb2+" 0x"+sbb3+" 0x"+sbb4);
-					System.out.println(" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Connections:0x"+sbb3+"  Robot:0x"+sbb4);
-					
+	//				System.out.println(" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Connections:0x"+sbb3+"  Robot:0x"+sbb4);
+					mess=" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Connections:0x"+sbb3+"  Robot:0x"+sbb4;
+					Trace.TraceLog(pgmId,mess);
 					//
+					if (RobotMainServer.simulation==0)
+					{
 					int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé
 					int oct1=(byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80);
 					RobotMainServer.hardPosX=256*oct0+oct1;
@@ -503,8 +536,9 @@ public class RobotBatchServer implements Runnable {
 					{
 						RobotMainServer.hardAlpha=-RobotMainServer.hardAlpha;
 					}
-					oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
-					oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
+					}
+					int oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
+					int oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
 					RobotMainServer.northOrientation=256*oct0+oct1;
 					RobotMainServer.RefreshHardPositionOnScreen();
 					if ( RobotMainServer.hardJustReboot==false && RobotMainServer.serverJustRestarted==true)
@@ -514,7 +548,8 @@ public class RobotBatchServer implements Runnable {
 						RobotMainServer.serverJustRestarted=false;
 					}
 	//			ihm2.ValidePosition(RobotMainServer.hardPosX,RobotMainServer.hardPosY,RobotMainServer.hardAlpha);
-					System.out.println("posX:"+RobotMainServer.hardPosX+ " posY:"+RobotMainServer.hardPosY+" angle:"+ RobotMainServer.hardAlpha);
+					mess="posX:"+RobotMainServer.hardPosX+ " posY:"+RobotMainServer.hardPosY+" angle:"+ RobotMainServer.hardAlpha;
+					Trace.TraceLog(pgmId,mess);
 				if 	(RobotMainServer.octaveRequestPending==true && RobotMainServer.octavePendingRequest==1)
 				{
 					RobotMainServer.octavePendingRequest=0;
