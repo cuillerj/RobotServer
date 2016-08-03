@@ -12,13 +12,13 @@ public class EventManagement{
 		ClearEventTable (reqCode,reqSource,reqDest);
 		RobotMainServer.octaveRequestPending=true;
 		RobotMainServer.octavePendingRequest=reqCode;
-		pendingRequestTable[reqId%sizeTable][0]=reqId;
-		pendingRequestTable[reqId%sizeTable][1]=reqCode;
-		pendingRequestTable[reqId%sizeTable][2]=reqTimeout;
-		pendingRequestTable[reqId%sizeTable][3]=reqSource;
-		pendingRequestTable[reqId%sizeTable][4]=reqDest;
-		pendingRequestTable[reqId%sizeTable][5]=9;
-		pendingRequestTable[reqId%sizeTable][6]=0;
+		pendingRequestTable[reqId%sizeTable][0]=reqId;     // a unique identifier
+		pendingRequestTable[reqId%sizeTable][1]=reqCode;   // request code type identifier
+		pendingRequestTable[reqId%sizeTable][2]=reqTimeout; //  timeout duration expressed in 1/10 second
+		pendingRequestTable[reqId%sizeTable][3]=reqSource;  // source identifier
+		pendingRequestTable[reqId%sizeTable][4]=reqDest;    // receiver identifier
+		pendingRequestTable[reqId%sizeTable][5]=99;      // initial value corresponding to waiting status
+		pendingRequestTable[reqId%sizeTable][6]=0;       // reserved for futur use
 		reqId++;
 		if (reqCode==1 || reqCode==8)
 		{

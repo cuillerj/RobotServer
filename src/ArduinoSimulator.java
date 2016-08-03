@@ -10,12 +10,27 @@ public class ArduinoSimulator{
 	// [reqId,code,timeout,source,dest,retcode,countTimer]
 	// source dest 0 java, 1 octave 2 arduino 3 arduino simulator
 
-	public static void ActionEnd(int reqCode,int reqSource,int reqDest)
+	public static int  ActionEnd(int reqCode,int reqSource,int reqDest)
 	{
 
+		Random rand = new Random();
+		int retCode=rand.nextInt(11); // generate a random return code for the action
 		TraceLog Trace = new TraceLog();
+//		String mess1="randDom retCode:"+retCode;
+//		Trace.TraceLog(pgmId,mess1);
+
 		if (reqCode==RobotMainServer.moveEnd )
 		{
+			if (retCode == RobotMainServer.moveKoDueToSpeedInconsistancy || retCode == RobotMainServer.moveKoDueToObstacle)
+				{
+				savedDistance=savedDistance/2;
+				String mess2="randDom retCode Ko:"+retCode+" dist:"+savedDistance;
+				Trace.TraceLog(pgmId,mess2);
+				}
+			else
+			{
+				retCode=0;	
+			}
 		    RandomGaussian gaussian = new RandomGaussian();
 		    double meanRotation = savedRotation; 
 		    double varianceRotation = 3.0f;
@@ -31,7 +46,7 @@ public class ArduinoSimulator{
 			long heading=(RobotMainServer.alpha+savedRotation)%360;
 			
 			double degrees=heading;
-			String mess="noised move result rotation:"+savedRotation+" distance:"+savedDistance+" heading:"+heading+ " north orientation:"+northOrientation;
+			String mess="noised move result rotation:"+savedRotation+" distance:"+savedDistance+" heading:"+heading+ " north orientation:"+northOrientation+ " retCode:"+retCode;
 			Trace.TraceLog(pgmId,mess);
 			double radians=Math.toRadians(degrees);
 
@@ -45,6 +60,7 @@ public class ArduinoSimulator{
 		}
 		if ( reqCode==RobotMainServer.northAlignEnd)
 		{
+			retCode=0;	
 		    RandomGaussian gaussian = new RandomGaussian();
 		    double meanRotation = savedRotation; 
 		    double meanNorthOrientation = savedNorthOrientation;
@@ -71,12 +87,22 @@ public class ArduinoSimulator{
 		}
 		if (reqCode==RobotMainServer.robotUpdatedEnd)
 		{
+			retCode=0;	
 			RobotMainServer.hardPosX=RobotMainServer.posX;
 			RobotMainServer.hardPosY=RobotMainServer.posY;
 			RobotMainServer.hardAlpha=RobotMainServer.alpha;
-			String mess="Arduino robot updated posX:" + RobotMainServer.hardPosX + " posY:" + RobotMainServer.hardPosY+ " heading:" + RobotMainServer.hardAlpha;
+			String mess="Arduino robot updated posX:" + RobotMainServer.hardPosX + " posY:" + RobotMainServer.hardPosY+ " heading:" + RobotMainServer.hardAlpha+ " retCode:"+retCode;
 			Trace.TraceLog(pgmId,mess);
 		}
+		if (reqCode==RobotMainServer.robotInfoUpdated)
+		{
+			retCode=0;	
+		}
+		if (reqCode==RobotMainServer.pingFBEnd)
+		{
+			retCode=90;	
+		}
+		return retCode;
 		
 	}
 	public static void SaveMoveRequest(long ang,long mov)

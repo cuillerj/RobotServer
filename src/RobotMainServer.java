@@ -253,6 +253,7 @@ public static void LaunchBatch()
 	}
 public static void LaunchSimu()
 {
+	SetSimulationMode(1);
 	initEventTable();
 	StartTimeoutManagement();
 	FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
@@ -267,7 +268,7 @@ public static void LaunchSimu()
 public static void initEventTable()
 {
 	eventTimeoutTable[robotInfoUpdated][0]=100; // normal mode
-	eventTimeoutTable[robotInfoUpdated][1]=100;  // simulation mode
+	eventTimeoutTable[robotInfoUpdated][1]=20;  // simulation mode
 	eventTimeoutTable[robotUpdatedEnd][0]=100; // normal mode
 	eventTimeoutTable[robotUpdatedEnd][1]=20;  // simulation mode
 	eventTimeoutTable[scanEnd][0]=1200; // normal mode
@@ -277,16 +278,20 @@ public static void initEventTable()
 	eventTimeoutTable[northAlignEnd][0]=900; // normal mode
 	eventTimeoutTable[northAlignEnd][1]=30;  // simulation mode
 	eventTimeoutTable[servoAlignEnd][0]=100; // normal mode
-	eventTimeoutTable[servoAlignEnd][1]=50;  // simulation mode
+	eventTimeoutTable[servoAlignEnd][1]=10;  // simulation mode
 	eventTimeoutTable[pingFBEnd][0]=100; // normal mode
-	eventTimeoutTable[pingFBEnd][1]=100;  // simulation mode
+	eventTimeoutTable[pingFBEnd][1]=10;  // simulation mode
 	
+	actionSimulable[robotInfoUpdated][0]=1;   // simulation enable
+	actionSimulable[robotInfoUpdated][1]=1;  // simulation shift value
+	actionSimulable[robotUpdatedEnd][0]=1; 
+	actionSimulable[robotUpdatedEnd][1]=1; 
 	actionSimulable[moveEnd][0]=1;       // simulation enable
 	actionSimulable[moveEnd][1]=1;       // simulation shift value
 	actionSimulable[northAlignEnd][0]=1;
 	actionSimulable[northAlignEnd][1]=1;
-	actionSimulable[robotUpdatedEnd][0]=1;
-	actionSimulable[robotUpdatedEnd][1]=1;
+	actionSimulable[pingFBEnd][0]=1;
+	actionSimulable[pingFBEnd][1]=1;
 	}
 public static int GetScanAngle(int idx)
 {
@@ -317,7 +322,7 @@ public static void Scan360()
  //   System.out.println(RobotMainServer.idscanG);
 	int action=scanEnd;
 	int timeout=eventTimeoutTable[action][simulation];
-	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+actionSimulable[action][0]*actionSimulable[action][1]);
+	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 	if(simulation*actionSimulable[action][0]==0)
 	{
 		SendUDP snd = new SendUDP();
@@ -332,11 +337,14 @@ public static void Move(long ang,long mov)
 	int action=moveEnd;
     Fenetre.label.setText("Move requested");   
 	RobotMainServer.runningStatus=4;
-	ArduinoSimulator.SaveMoveRequest(ang,mov);
-	ArduinoSimulator.SaveNorthAlignRequest((northOrientation+ang)%360);
+	if (simulation!=0)
+	{
+		ArduinoSimulator.SaveMoveRequest(ang,mov);
+		ArduinoSimulator.SaveNorthAlignRequest((northOrientation+ang)%360);
+	}
 	int timeout=eventTimeoutTable[action][simulation];
 //	System.out.println("timeout:"+timeout);
-	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+actionSimulable[action][0]*actionSimulable[action][1]);
+	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
     if ((mov!=0 || ang!=0) && simulation*actionSimulable[action][0]==0)
     {
     SendUDP snd = new SendUDP();
@@ -373,7 +381,7 @@ public static int GetPosY()
 {
 return posY;
 }
-public static int GetPosAngle()
+public static int GetHeading()
 {
 return alpha;
 }
@@ -387,7 +395,7 @@ public static int GetHardPosY()
 //	EventManagement.AddPendingEvent(1,20,1,2);
 return hardPosY;
 }
-public static int GetHardAngle()
+public static int GetHardHeading()
 {
 //	EventManagement.AddPendingEvent(1,20,1,2);
 return hardAlpha;
@@ -396,7 +404,7 @@ public static int GetNorthOrientation()
 {
 	int action=robotInfoUpdated;
 	int timeout=eventTimeoutTable[action][simulation];
-	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+actionSimulable[action][0]*actionSimulable[action][1]);
+	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 //	RobotMainServer.octavePendingRequest=1;    // request info uptodate
 //	RobotMainServer.octaveRequestPending=true;
 	if(simulation*actionSimulable[action][0]==0)
@@ -415,7 +423,7 @@ return currentLocProb;
 }
 public static int GetEventArduinoDest(int reqType)
 {
-return (eventArduino+actionSimulable[reqType][0]*actionSimulable[reqType][1]);
+return (eventArduino+simulation*actionSimulable[reqType][0]*actionSimulable[reqType][1]);
 }
 public static void SetRunningStatus(int value)
 {
@@ -446,6 +454,9 @@ public static void SetSimulationMode (int value)
 	if (value<3)
 	{
 		simulation=value;
+		TraceLog Trace = new TraceLog();
+		String mess="Set Simulation Mode:"+value;
+		Trace.TraceLog("RobotMainServer",mess);
 	}
 }
 public static void ValidHardPosition()
@@ -487,7 +498,7 @@ public static void UpdateHardRobotLocation()
 {
 int action=robotUpdatedEnd;
 int timeout=eventTimeoutTable[action][simulation*actionSimulable[action][0]];
-EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+actionSimulable[action][0]*actionSimulable[action][1]);
+EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 octaveRequestPending=true;
 if(simulation*actionSimulable[action][0]==0)
 {
@@ -500,7 +511,7 @@ Fenetre2.ValidePosition(posX, posY, alpha);
 public static void UpdateRobotStatus()
 {
 int timeout=eventTimeoutTable[robotInfoUpdated][simulation];
-EventManagement.AddPendingEvent(robotInfoUpdated,timeout,eventOctave,eventArduino+actionSimulable[robotInfoUpdated][0]*actionSimulable[robotInfoUpdated][1]);
+EventManagement.AddPendingEvent(robotInfoUpdated,timeout,eventOctave,eventArduino+simulation*actionSimulable[robotInfoUpdated][0]*actionSimulable[robotInfoUpdated][1]);
 octaveRequestPending=true;
 SendUDP snd = new SendUDP();
 snd.SendEcho();
@@ -508,7 +519,7 @@ snd.SendEcho();
 public static void ResetRobotStatus()
 {
 int timeout=eventTimeoutTable[robotInfoUpdated][simulation];
-EventManagement.AddPendingEvent(robotInfoUpdated,timeout,eventOctave,eventArduino+actionSimulable[robotInfoUpdated][0]*actionSimulable[robotInfoUpdated][1]);
+EventManagement.AddPendingEvent(robotInfoUpdated,timeout,eventOctave,eventArduino+simulation*actionSimulable[robotInfoUpdated][0]*actionSimulable[robotInfoUpdated][1]);
 octaveRequestPending=true;
 SendUDP snd = new SendUDP();
 snd.SendUDPReset();
@@ -516,7 +527,7 @@ snd.SendUDPReset();
 public static void RobotAlignServo(int value)
 {             // request servomotor alignment from 0 to 180°
 int timeout=eventTimeoutTable[servoAlignEnd][simulation];
-EventManagement.AddPendingEvent(servoAlignEnd,timeout,eventOctave,eventArduino+actionSimulable[robotInfoUpdated][0]*actionSimulable[robotInfoUpdated][1]);
+EventManagement.AddPendingEvent(servoAlignEnd,timeout,eventOctave,eventArduino+simulation*actionSimulable[robotInfoUpdated][0]*actionSimulable[robotInfoUpdated][1]);
 octaveRequestPending=true;
 SendUDP snd = new SendUDP();
 snd.SendUDPServoAlign(value);
@@ -525,9 +536,12 @@ public static void RobotNorthRotate(int value)
 {             // request servomotor alignment from 0 to 180°
 int action=northAlignEnd;
 int timeout=eventTimeoutTable[action][simulation];
-ArduinoSimulator.SaveMoveRequest(value,0);
-ArduinoSimulator.SaveNorthAlignRequest((northOrientation+value)%360);
-EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+actionSimulable[action][0]*actionSimulable[action][1]);
+if (simulation!=0)
+{
+	ArduinoSimulator.SaveMoveRequest(value,0);
+	ArduinoSimulator.SaveNorthAlignRequest((northOrientation+value)%360);
+}
+EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 octaveRequestPending=true;
 if(simulation*actionSimulable[action][0]==0)
 	{
@@ -537,20 +551,24 @@ if(simulation*actionSimulable[action][0]==0)
 }
 public static void PingEchoFrontBack()
 {             // request servomotor alignment from 0 to 180°
-int timeout=eventTimeoutTable[pingFBEnd][simulation];
-EventManagement.AddPendingEvent(pingFBEnd,timeout,eventOctave,eventArduino+actionSimulable[pingFBEnd][0]*actionSimulable[pingFBEnd][1]);
+int action=pingFBEnd;
+int timeout=eventTimeoutTable[action][simulation];
+EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 octaveRequestPending=true;
 RobotMainServer.scanStepCount=1;  // use robot.GetScanDist...(0) to get front and echo distance
-SendUDP snd = new SendUDP();
-snd.SendUDPPingEchoFrontBack();
+if ( simulation*actionSimulable[action][0]==0)
+	{
+	SendUDP snd = new SendUDP();
+	snd.SendUDPPingEchoFrontBack();
 	}
+}
 public static void NorthAlign(int northShift)
 {
 	int action=northAlignEnd;
 	int timeout=eventTimeoutTable[action][simulation];
 	ArduinoSimulator.SaveMoveRequest((northShift)%360,0);
 	ArduinoSimulator.SaveNorthAlignRequest((northShift)%360);
-	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+actionSimulable[action][0]*actionSimulable[action][1]);
+	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 //	RobotMainServer.octaveRequestPending=true;
 	octaveRequestPending=true;
 	if(simulation*actionSimulable[action][0]==0)

@@ -201,7 +201,7 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.northOrientation=256*oct0+oct1;
 							UpdateScanRefOrientation(RobotMainServer.northOrientation);
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
-							RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 //							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,RobotMainServer.eventArduino);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("scan ended");
 							mess="scan ended";
@@ -222,7 +222,7 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.northOrientation=256*oct0+oct1;
 //							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
-									RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+									RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("align ended");
 							mess="align ended";
 							Trace.TraceLog(pgmId,mess);
@@ -241,7 +241,7 @@ public class RobotBatchServer implements Runnable {
 							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 							RobotMainServer.northOrientation=256*oct0+oct1;
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
-							RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("servo align ended");
 							mess="servo align ended";
 							Trace.TraceLog(pgmId,mess);
@@ -255,7 +255,7 @@ public class RobotBatchServer implements Runnable {
 							Trace.TraceLog(pgmId,mess);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
-									RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+									RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 //							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("pingFB ended");
 							mess="pingFG ended";
@@ -284,7 +284,7 @@ public class RobotBatchServer implements Runnable {
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							ihm.MajRobotStat("move ended");
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
-							RobotMainServer.eventArduino+RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 //							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							RobotMainServer.runningStatus=4;
 							int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé

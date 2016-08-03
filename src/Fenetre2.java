@@ -49,7 +49,7 @@ public class Fenetre2 extends JFrame{
 	    this.setSize(250, 180);
 	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    this.setLocationRelativeTo(null);
-	    this.setLocation(200,50);
+	    this.setLocation(100,20);
 	    container.setBackground(Color.white);
 	    container.setLayout(new BorderLayout());
 	  //  container.add(pan, BorderLayout.CENTER);

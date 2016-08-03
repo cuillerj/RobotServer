@@ -67,6 +67,7 @@ public class Fenetre extends JFrame{
     this.setSize(1000, 150);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setLocationRelativeTo(null);
+    this.setLocation(400,20);
     container.setBackground(Color.white);
     container.setLayout(new BorderLayout());
   //  container.add(pan, BorderLayout.CENTER);

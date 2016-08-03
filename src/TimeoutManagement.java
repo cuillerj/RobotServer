@@ -32,9 +32,9 @@ public class TimeoutManagement extends Thread{
 						}
 						if (EventManagement.pendingRequestTable[i][4]==21)  // simulation mode
 						{
-							ArduinoSimulator.ActionEnd(EventManagement.pendingRequestTable[i][1], EventManagement.pendingRequestTable[i][3], EventManagement.pendingRequestTable[i][4]);
+							int retCode=ArduinoSimulator.ActionEnd(EventManagement.pendingRequestTable[i][1], EventManagement.pendingRequestTable[i][3], EventManagement.pendingRequestTable[i][4]);
 							EventManagement.pendingRequestTable[i][2]=0;
-							EventManagement.pendingRequestTable[i][5]=0;
+							EventManagement.pendingRequestTable[i][5]=retCode;
 						}
 						else{
 							EventManagement.pendingRequestTable[i][5]=-1;  // timeout
