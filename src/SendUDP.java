@@ -1,13 +1,16 @@
 import java.io.*;
 import java.net.*;
+import java.sql.Timestamp;
 
-
-public class SendUDP {
+public class SendUDP extends Thread{
+	Thread t;
 	String pgmId="SendUDP";
+ 
 //	public String ipRobot="192.168.1.133";  // 138 ou 133
 	public void SendUDP() {
 		try{
 	//	  System.out.println("argument: " + args[0]);
+		  CheckTimer();
 		  String mess="sendUDP";
 		  TraceLog Trace = new TraceLog();
 		  Trace.TraceLog(pgmId,mess);
@@ -19,11 +22,6 @@ public class SendUDP {
 	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 	      clientSocket.send(sendPacket);
 	      clientSocket.close();
-	//   System.exit(0);
-	   
-	  	   
-	   
-	   
 		}
 	   catch(Exception e)
 	   {}
@@ -32,6 +30,7 @@ public class SendUDP {
 		}
 	public void SendUDPStop() {
 		try{
+	  CheckTimer();
 	  String mess="stop";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
@@ -83,6 +82,7 @@ public class SendUDP {
 	public void SendUDPStart() {
 		// TODO Auto-generated method stub
 		try{
+			  CheckTimer();
 			  String mess="start";
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
@@ -341,7 +341,7 @@ public class SendUDP {
 			      byte[] sendData = new byte[15];
 			      cmde[0]=0x63;
 			      cmde[1]=0x34;
-			      cmde[2]=0x6d;
+			      cmde[2]=0x6d;     //m
 			      if (angle>=0){
 				      cmde[3]=0x2b;
 			      }
@@ -471,6 +471,102 @@ public class SendUDP {
 			   
 			   finally{}
 				}
+	public void SendUDPHorn(int duration) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="shiftPulse";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+			      DatagramSocket clientSocket = new DatagramSocket();
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[4];
+			      byte[] cmde = new byte[4];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=0x68;  // h command
+			      cmde[3]=(byte)(duration);
+			      sendData = cmde;
+			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+			      clientSocket.send(sendPacket);
+			      clientSocket.close();
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	public void SendUDPShiftPulse(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="horn";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+			      DatagramSocket clientSocket = new DatagramSocket();
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[4];
+			      byte[] cmde = new byte[4];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=0x69;  // i command
+			      cmde[3]=(byte)(value);
+			      sendData = cmde;
+			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+			      clientSocket.send(sendPacket);
+			      clientSocket.close();
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	public void SendUDPObstacleDetection(boolean value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="horn";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+			      DatagramSocket clientSocket = new DatagramSocket();
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[4];
+			      byte[] cmde = new byte[4];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=0x4f;  // i command
+			      if (value)
+			    	  cmde[3]=0x01;
+			      else
+			    	  cmde[3]=0x00;
+			      sendData = cmde;
+			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+			      clientSocket.send(sendPacket);
+			      clientSocket.close();
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	
+	public void CheckTimer() {
+		try{
+	//	  System.out.println("argument: " + args[0]);
+		 	java.util.Date date= new java.util.Date();
+		 	date =new Timestamp(date.getTime());
+		 	long millis=date.getTime() - RobotMainServer.lastSentTime;
+		 	if (millis<300 && RobotMainServer.lastSentTime!=0)
+		 	{
+			   Thread.sleep(300-millis);         // to let arduino time for treatment
+			   System.out.println("UDP Send wait time:"+ millis);
+		 	}
+		 	RobotMainServer.lastSentTime=date.getTime();
+
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+
+		}
 	}
 	
 

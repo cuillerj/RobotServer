@@ -88,15 +88,20 @@ public class RobotMainServer
 	public static final byte resetMotor =0;
 	public static final byte resetObstacle =1;
 	public static final byte resetPause =2;
+	public static int cumulativeLeftHoles=0;
+	public static int cumulativeRightHoles=0;
+	public static long lastSentTime= 0;
+
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
+	
 public static void main(String args[]) throws Exception
 			{
 	String pgmId="Mainserver";
 	String mess="start robot main server";
-	  TraceLog Trace = new TraceLog();
-	  Trace.TraceLog(pgmId,mess);
+    TraceLog Trace = new TraceLog();
+    Trace.TraceLog(pgmId,mess);
 	PrintStream console = System.out;
 	
 //	File file = new File(fname);
@@ -266,14 +271,14 @@ public static void LaunchSimu()
 //	myThread.start(); 
 	}
 public static void initEventTable()
-{
+{                                                // duration expressed in 1/10 of second
 	eventTimeoutTable[robotInfoUpdated][0]=100; // normal mode
 	eventTimeoutTable[robotInfoUpdated][1]=20;  // simulation mode
 	eventTimeoutTable[robotUpdatedEnd][0]=100; // normal mode
 	eventTimeoutTable[robotUpdatedEnd][1]=20;  // simulation mode
 	eventTimeoutTable[scanEnd][0]=1200; // normal mode
 	eventTimeoutTable[scanEnd][1]=1200;  // simulation mode
-	eventTimeoutTable[moveEnd][0]=1200; // normal mode
+	eventTimeoutTable[moveEnd][0]=300; // normal mode
 	eventTimeoutTable[moveEnd][1]=30;  // simulation mode
 	eventTimeoutTable[northAlignEnd][0]=900; // normal mode
 	eventTimeoutTable[northAlignEnd][1]=30;  // simulation mode
@@ -417,6 +422,18 @@ public static int GetNorthOrientation()
 	
 return northOrientation;
 }
+public static int GetDeltaNORotation()
+{
+//	while(RobotMainServer.javaRequestStatusPending==true)
+	
+return	deltaNORotation;
+}
+public static int GetDeltaNOMoving()
+{
+//	while(RobotMainServer.javaRequestStatusPending==true)
+	
+return	deltaNOMoving;
+}
 public static int GetCurrentLocProb()
 {
 return currentLocProb;
@@ -550,7 +567,7 @@ if(simulation*actionSimulable[action][0]==0)
 	}
 }
 public static void PingEchoFrontBack()
-{             // request servomotor alignment from 0 to 180°
+{             // 
 int action=pingFBEnd;
 int timeout=eventTimeoutTable[action][simulation];
 EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
@@ -605,5 +622,19 @@ public static int GetRetcode(int reqCode,int reqSource,int reqDest)
 	}
 	return retCode;
 }
-
+public static void Horn(int duration)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.SendUDPHorn(duration);
+}
+public static void SetShifPulse(int value)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.SendUDPShiftPulse(value);
+}
+public static void SetObstacleDetection(boolean value)
+{             // 0 off 1 on
+	SendUDP snd = new SendUDP();
+	snd.SendUDPObstacleDetection(value);
+}
 }

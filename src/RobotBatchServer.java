@@ -220,11 +220,18 @@ public class RobotBatchServer implements Runnable {
 							int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
 							int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 							RobotMainServer.northOrientation=256*oct0+oct1;
+							oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
+							RobotMainServer.deltaNORotation=256*oct0+oct1;
+							if (sentence2[23]==0x2d)
+							{
+								RobotMainServer.deltaNORotation=-RobotMainServer.deltaNORotation;
+							}
 //							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
 									RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("align ended");
-							mess="align ended";
+							mess="robot align ended"+" deltaNORot:"+RobotMainServer.deltaNORotation;
 							Trace.TraceLog(pgmId,mess);
 							RobotMainServer.runningStatus=2;
 							}
@@ -325,12 +332,19 @@ public class RobotBatchServer implements Runnable {
 							oct0=(byte)(sentence2[12]&0x7F)-(byte)(sentence2[12]&0x80); // manip car byte consideré signé
 							oct1=(byte)(sentence2[13]&0x7F)-(byte)(sentence2[13]&0x80);
 							RobotMainServer.northOrientation=256*oct0+oct1;
+							oct0=(byte)(sentence2[30]&0x7F)-(byte)(sentence2[30]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[31]&0x7F)-(byte)(sentence2[31]&0x80);
+							RobotMainServer.cumulativeLeftHoles=256*oct0+oct1;
+							oct0=(byte)(sentence2[33]&0x7F)-(byte)(sentence2[33]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80);
+							RobotMainServer.cumulativeRightHoles=256*oct0+oct1;
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
-							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving;
+							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" cumLeftHoles:"+RobotMainServer.cumulativeLeftHoles+" cumRightHoles:"+RobotMainServer.cumulativeRightHoles;
 							Trace.TraceLog(pgmId,mess);
 	//						System.out.println("refresh hard on screen");
+							
 							RobotMainServer.RefreshHardPositionOnScreen();
 							if (RobotMainServer.actStat==0x02){ 
 								Fenetre2.ValidePosition(RobotMainServer.posX,RobotMainServer.posY,RobotMainServer.alpha);
@@ -467,7 +481,7 @@ public class RobotBatchServer implements Runnable {
 						}
 						RobotMainServer.runningStatus=107;
 						ihm.MajRobotStat("aligning ended");
-						mess="echo:align ended";
+						mess="echo:robot align ended";
 						Trace.TraceLog(pgmId,mess);
 						int ang=ihm.ang();
 						int mov=ihm.mov();

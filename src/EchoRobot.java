@@ -10,16 +10,19 @@ public class EchoRobot extends Thread{
 while (true){
 
 	try{
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
-	      byte[] sendData = new byte[3];
-	      String startCmde="c4e";
-	      sendData = startCmde.getBytes();
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-
+	      if (pendingEcho>0)
+	      {
+	    	  DatagramSocket clientSocket = new DatagramSocket();
+	    	  InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	    	  byte[] sendData = new byte[3];
+	    	  String startCmde="c4e";
+	    	  sendData = startCmde.getBytes();
+	    	  DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	    	  clientSocket.send(sendPacket);
+	    	  pendingEcho=pendingEcho+1;
 	//      System.out.println("send echo:"+pendingEcho);
 	     clientSocket.close();
+	      }
 	//	  System.out.println("statut du thread "   +this.getState());
 	      if (pendingEcho<=1)
 	      {
@@ -29,7 +32,7 @@ while (true){
 	      {
 			Thread.sleep(15000);
 	      }
-		    pendingEcho=pendingEcho+1;
+
 		     Fenetre.RefreshStat();
 //		  System.out.println("statut du thread "   +this.getState());
 	   	   

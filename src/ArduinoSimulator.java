@@ -1,5 +1,6 @@
 
 import java.util.Random;
+
 public class ArduinoSimulator{
 	Thread t;
 	public static long savedRotation=0;
@@ -115,7 +116,7 @@ public class ArduinoSimulator{
 	}
 	public static void SaveNorthAlignRequest(long ang)
 	{
-		savedNorthOrientation=ang;
+		savedNorthOrientation=(ang+savedNorthOrientation)%360;
 		TraceLog Trace = new TraceLog();
 		String mess="Arduino North Align simulation request:"+savedNorthOrientation ;
 		Trace.TraceLog(pgmId,mess);
