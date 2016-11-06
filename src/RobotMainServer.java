@@ -65,7 +65,6 @@ public class RobotMainServer
 	public static final int northAlignEnd=107;
 	public static final int servoAlignEnd=108;
 	public static final int pingFBEnd=109;
-	
 	public static final int eventJava=0;
 	public static final int eventOctave=10;
 	public static final int eventArduino=20;
@@ -637,4 +636,11 @@ public static void SetObstacleDetection(boolean value)
 	SendUDP snd = new SendUDP();
 	snd.SendUDPObstacleDetection(value);
 }
+public static int GetParametersNumValue(int ID)
+{
+	int value=ParametersSetting.GetParametersNumValue(ID);
+	
+return	value;
+}
+
 }

@@ -1,8 +1,9 @@
 
+
 import java.util.Random;
-public final class RandomGaussian {
+public  class RandomGaussian {
   
-  public static void main(String... aArgs){
+  public static void RandomGaussian(String... aArgs){
     RandomGaussian gaussian = new RandomGaussian();
     double MEAN = 100.0f; 
     double VARIANCE = 5.0f;

@@ -4,13 +4,15 @@ import java.sql.*;
 public class EchoRobot extends Thread{
 	Thread t;
 	public static int pendingEcho=2;
+	public static boolean sentEcho=false;
 	public void run(){
 
 
 while (true){
 
 	try{
-	      if (pendingEcho>0)
+//		 System.out.println("pending:"+pendingEcho+ " "+sentEcho);
+	      if ( pendingEcho>0 && sentEcho==false)
 	      {
 	    	  DatagramSocket clientSocket = new DatagramSocket();
 	    	  InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -20,16 +22,26 @@ while (true){
 	    	  DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 	    	  clientSocket.send(sendPacket);
 	    	  pendingEcho=pendingEcho+1;
+	    	  sentEcho=true;
 	//      System.out.println("send echo:"+pendingEcho);
-	     clientSocket.close();
+	    	  clientSocket.close();
 	      }
 	//	  System.out.println("statut du thread "   +this.getState());
-	      if (pendingEcho<=1)
+	      if (pendingEcho==1 && sentEcho==true)
 	      {
+    	  sentEcho=false;
+ //   	  pendingEcho++;
 		   Thread.sleep(30000);
+	      }
+	      if (pendingEcho>1 && sentEcho==true)
+	      {
+	    	sentEcho=false;
+//	    	pendingEcho++;
+			Thread.sleep(5000);
 	      }
 	      else
 	      {
+	    	  pendingEcho++;
 			Thread.sleep(15000);
 	      }
 
