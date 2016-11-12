@@ -90,6 +90,10 @@ public class RobotBatchServer implements Runnable {
 				 	System.out.println();
 			 	}
 				int idx=Type;
+				if(RobotMainServer.runningStatus<=0)
+				{
+					RobotMainServer.runningStatus=1;
+				}
 				if (sentence2[6]==0x01){ // means need a ack
 					InetAddress IPAddress = receivePacket.getAddress();
 				    DatagramSocket clientSocket = null;
@@ -113,6 +117,7 @@ public class RobotBatchServer implements Runnable {
 						e1.printStackTrace();
 						}
 					EchoRobot.pendingEcho=0;
+
 					try {
 						Thread.sleep(300);
 				 		} 
@@ -592,11 +597,22 @@ public class RobotBatchServer implements Runnable {
 				ihm.MajRobotPower(Integer.toString(power1)+ "cV "+Integer.toString(power2)+ "cV ");
 				}
 				
-				if (sentence2[6]==0x71){  // encoder & motor values
+				if (sentence2[6]==0x71 || sentence2[6]==0x72|| sentence2[6]==0x73){  // encoder & motor values
 				EchoRobot.pendingEcho=0;
 				int nbValue=(byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80);
 				int ix=8;
-				System.out.print("encoder leftHigh leftLow RightHigh RightLow LefPWM right PWM Ratio ");
+				if(sentence2[6]==0x71)
+				{
+					System.out.print("encoder leftHigh leftLow RightHigh RightLow LefPWM right PWM Ratio ");
+				}
+				if(sentence2[6]==0x72)
+				{
+					System.out.print("encoder leftHigh leftMaxLevel leftLow leftMinLevel rightHigh rightMaxLevel rightLow rightMinLevel ");
+				}
+				if(sentence2[6]==0x73)
+				{
+					System.out.print("leftMotorPWM RightMotorPWM ");
+				}
 				for (int i=1;i<=nbValue;i++)
 				{
 					int oct0=(byte)(sentence2[ix]&0x7F)-(byte)(sentence2[ix]&0x80); // manip car byte consideré signé

@@ -35,6 +35,8 @@ public class Fenetre extends JFrame{
   private JButton boutonRefresh = new JButton("Refresh");
   public JButton boutonAffEcho = new JButton("Aff Echo");
   private JButton boutonCalibrate = new JButton("W Calibr");
+  private JButton boutonPingFB = new JButton("Ping FB");
+  private JButton boutonPowerEncoder = new JButton("PowerEncoder");
   private JPanel container = new JPanel();
   static JLabel label = new JLabel("Angle ° - Deplact en mn - Id2 du scan ");
   private JLabel label2 = new JLabel("Action >> ");
@@ -52,6 +54,7 @@ public class Fenetre extends JFrame{
 //  private JTextField textf = new JTextField(20);
 
   public int movIHM;
+  public byte powerEncoderStatus=0;
 // 
 
 //public int ang;
@@ -64,7 +67,7 @@ public class Fenetre extends JFrame{
 //  public static int idCarto=1;    // a rendre modifiable
   public Fenetre(){
     this.setTitle("Fields: move (angle, distance)  init (orientation posX posY) goto (posX posY)  scan Id");
-    this.setSize(1000, 150);
+    this.setSize(1200, 150);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setLocationRelativeTo(null);
     this.setLocation(400,20);
@@ -86,6 +89,8 @@ public class Fenetre extends JFrame{
     boutonRefresh.addActionListener(new BoutonRefreshListener()); 
     boutonAffEcho.addActionListener(new BoutonAffEchoListener()); 
     boutonCalibrate.addActionListener(new BoutonCalibrateListener()); 
+    boutonPingFB.addActionListener(new BoutonPingFBListener());
+    boutonPowerEncoder.addActionListener(new BoutonPowerEncoderFBListener());
 //  boutonInit.setBackground(Color.black);
 //    boutonInit.setForeground(Color.white);
     JPanel south = new JPanel();
@@ -159,6 +164,8 @@ public class Fenetre extends JFrame{
     south.add(boutonAffEcho);
     south.add(boutonInit);
     south.add(boutonCalibrate);
+    south.add(boutonPingFB);
+    south.add(boutonPowerEncoder);
 
     label.setFont(police);
     label.setForeground(Color.blue);
@@ -199,8 +206,37 @@ public class Fenetre extends JFrame{
 	    public void actionPerformed(ActionEvent arg0) {
 	    	if (EchoRobot.pendingEcho>1)
 	    	{
-	    		robotStat="timout";
+	    		robotStat="timeout";
+	    		 RobotMainServer.runningStatus=-1;
 	    	}
+	      go();
+	    }
+	  }
+  class BoutonPingFBListener implements ActionListener{
+	    //Redéfinition de la méthode actionPerformed()
+	    public void actionPerformed(ActionEvent arg0) {
+	        RobotMainServer.idscanG= idscan.getText();
+	      label.setText("Ping FB");   
+	      SendUDP snd = new SendUDP();
+	      snd.SendUDPPingEchoFrontBack();
+	      go();
+	    }
+	  }
+  class  BoutonPowerEncoderFBListener implements ActionListener{
+	    //Redéfinition de la méthode actionPerformed()
+	    public void actionPerformed(ActionEvent arg0) {
+	        RobotMainServer.idscanG= idscan.getText();
+	      label.setText("PowerEncoder");
+	      if (powerEncoderStatus==0)
+	      {
+	    	  powerEncoderStatus=1;
+	      }
+	      else
+	      {
+	    	  powerEncoderStatus=0;
+	      }
+	      SendUDP snd = new SendUDP();
+	      snd.SendUDPPowerOnOffEncoder(powerEncoderStatus);
 	      go();
 	    }
 	  }

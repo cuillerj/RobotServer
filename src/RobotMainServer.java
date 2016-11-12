@@ -321,6 +321,7 @@ public static void Scan360()
 	RobotMainServer.runningStatus=2;
     RobotMainServer.idscanG= Integer.toString(newIdScan);
     RobotMainServer.scanStepCount=1;
+    RobotMainServer.countScan=0;
     Fenetre.idscan.setText(RobotMainServer.idscanG);
     Fenetre.label.setText("Scan 360 requested");   
  //   System.out.println(RobotMainServer.idscanG);
@@ -631,16 +632,54 @@ public static void SetShifPulse(int value)
 	SendUDP snd = new SendUDP();
 	snd.SendUDPShiftPulse(value);
 }
+public static void SetEncoderThreshold(boolean Left,int lowValue, int highValue)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.SetEncoderThreshold(Left,lowValue, highValue);
+}
+public static void SetPWMMotor(boolean Left,int value)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.SetPWMMotor(Left,value);
+}
+public static void QueryEncodersValues()
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.QueryEncodersValues();
+}
+public static void QueryMotorsPWM()
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.QueryMotorsPWM();
+}
+
+public static void SetMotorsRatio(int value)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.SetMotorsRatio(value);
+}
 public static void SetObstacleDetection(boolean value)
 {             // 0 off 1 on
 	SendUDP snd = new SendUDP();
 	snd.SendUDPObstacleDetection(value);
 }
-public static int GetParametersNumValue(int ID)
+public static int GetParameterNumValue(int ID)
 {
 	int value=ParametersSetting.GetParametersNumValue(ID);
 	
 return	value;
+}
+public static int GetParametersNumbers()
+{
+	int value=ParametersSetting.GetParametersNumbers();
+	
+return	value;
+}
+
+public static String GetParameterName(int number)
+{             
+	String ParameterName=ParametersName.GetParameterName(number);
+	return ParameterName;
 }
 
 }

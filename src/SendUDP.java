@@ -233,6 +233,168 @@ public class SendUDP extends Thread{
 	   
 	   finally{}
 		}
+	public void SendUDPPowerOnOffEncoder(byte encoderOn) {
+		try{
+	  String mess="encode OnOff";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[4];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x3a;   // : 
+			 sendData[3]=encoderOn;   // 
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	public void SetEncoderThreshold(boolean Left,int lowValue, int highValue) {
+		try{
+	  String mess="set encoder thresholds";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[10];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x3c;   // : 
+			 if (Left)
+			 {
+				 sendData[3]=0x4c;   // L
+			 }
+			 else{
+				 sendData[3]=0x52;   // R
+			 }
+			 sendData[4]=0x6c;   // 
+			 sendData[5]=(byte) (Math.abs(lowValue/256));   // 
+			 sendData[6]=(byte) lowValue;
+			 sendData[7]=0x68;   // 
+			 sendData[8]=(byte) (Math.abs(highValue/256));   // 
+			 sendData[9]=(byte) highValue;
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	public void SetPWMMotor(boolean Left,int value) {
+		try{
+	  String mess="set PWM motor";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[7];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x3f;   // : 
+			 if (Left)
+			 {
+				 sendData[3]=0x4c;   // L
+			 }
+			 else{
+				 sendData[3]=0x52;   // R
+			 }
+			 sendData[4]=0x00;   // 
+			 sendData[5]=(byte) (Math.abs(value/256));   // 
+			 sendData[6]=(byte) value;
+
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	public void QueryEncodersValues() {
+		try{
+	  String mess="query encoders values";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[3];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x3e;   // : 
+
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	public void QueryMotorsPWM() {
+		try{
+	  String mess="query motor PWM";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[3];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x40;   // : 
+
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	public void SetMotorsRatio(int value) {
+		try{
+	  String mess="set motors ratio";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[5];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x3d;   // : 
+			 sendData[3]=(byte) (Math.abs(value/256));   // 
+			 sendData[4]=(byte) value;
+
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
 	
 	public void SendUDPInit(int posX,int posY,int orient,int locProb) {
 		// TODO Auto-generated method stub
