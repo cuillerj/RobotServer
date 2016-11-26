@@ -663,6 +663,21 @@ public static void SetObstacleDetection(boolean value)
 	SendUDP snd = new SendUDP();
 	snd.SendUDPObstacleDetection(value);
 }
+public static void SetGyroSelectedRange(int value)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.SetGyroSelectedRange(value);
+}
+public static void SetGyroODR(int value)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.SetGyroODR(value);
+}
+public static void GetGyroRegisters(int register )
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.GetGyroRegisters(register);
+}
 public static int GetParameterNumValue(int ID)
 {
 	int value=ParametersSetting.GetParametersNumValue(ID);

@@ -324,6 +324,84 @@ public class SendUDP extends Thread{
 	   
 	   finally{}
 		}
+	public void SetGyroSelectedRange(int value) {
+		if (value==00||value==1||value==2)
+		{
+		try{
+	  String mess="set gyro selected range";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[4];
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x41;   // : 
+			 sendData[3]=(byte) (((byte) value)&0x0f);   // 
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+		}
+	public void SetGyroODR(int value) {
+		if (value>=0 && value<=15)
+		{        // 0 100 mgHz 4 200 8 400 12 800
+		try{
+	  String mess="set gyro selected range";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[4];
+	      byte valueB=(byte) (((byte) value)&0x0f);
+	      valueB=(byte) (valueB<<4&0xf0);
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x42;   // : 
+			 sendData[3]=valueB;   // 
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	}
+
+	public void GetGyroRegisters( int register) {
+	try{
+	  String mess="get gyro registers";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte registerB=(byte) register;
+	      byte[] sendData = new byte[9];
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x43;   // : 
+			 sendData[3]=0x05;   //
+			 for (int i=0;i<5;i++)
+			 {
+				 sendData[4+i]=(byte) (registerB+i);
+			 }
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+	}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	
 	public void QueryEncodersValues() {
 		try{
 	  String mess="query encoders values";
