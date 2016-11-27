@@ -673,10 +673,15 @@ public static void SetGyroODR(int value)
 	SendUDP snd = new SendUDP();
 	snd.SetGyroODR(value);
 }
-public static void GetGyroRegisters(int register )
+public static void SetGyroBiasMicrosec(int value)
 {             // duration in seconds up to 254
 	SendUDP snd = new SendUDP();
-	snd.GetGyroRegisters(register);
+	snd.SetGyroBiasMicrosec(value);
+}
+public static void GetSubsytemRegisters(int register )
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.GetSubsytemRegisters(register);
 }
 public static int GetParameterNumValue(int ID)
 {

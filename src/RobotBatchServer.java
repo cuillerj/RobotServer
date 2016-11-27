@@ -94,7 +94,7 @@ public class RobotBatchServer implements Runnable {
 				{
 					RobotMainServer.runningStatus=1;
 				}
-				if (sentence2[6]==0x01){ // means need a ack
+			if (sentence2[6] == 0x01) { // means need a ack
 					InetAddress IPAddress = receivePacket.getAddress();
 				    DatagramSocket clientSocket = null;
 					try {
@@ -622,6 +622,20 @@ public class RobotBatchServer implements Runnable {
 					ix=ix+3;
 				}
 				System.out.println();
+
+	
+				}
+				if(sentence2[6]==0x74)
+				{
+					System.out.print("subsystem registers ");
+					int i=0;
+					int ix=8;
+					for (i=0;i<sentence2[7];i++)
+					{
+	//					int oct0=(byte)(sentence2[ix+3*i]&0x7F)-(byte)(sentence2[ix+3*i]&0x80); // manip car byte consideré signé
+	//					int oct1=(byte)(sentence2[ix+1+3*i]&0x7F)-(byte)(sentence2[ix+1+3*i]&0x80);
+						System.out.println(" register: 0x"+byteToHex(sentence2[8+3*i])+" value:00x"+byteToHex(sentence2[9+3*i]));
+					}
 				}
 			   }
 	}
@@ -655,4 +669,8 @@ public class RobotBatchServer implements Runnable {
 			}
 		}
 	}
+	  public static String byteToHex(byte b) {
+		    int i = b & 0xFF;
+		    return Integer.toHexString(i);
+		  }
 }

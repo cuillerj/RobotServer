@@ -375,7 +375,34 @@ public class SendUDP extends Thread{
 		}
 	}
 
-	public void GetGyroRegisters( int register) {
+	public void SetGyroBiasMicrosec(int value) {
+		if (value>=0 && value<=255)
+		{        // 0 100 mgHz 4 200 8 400 12 800
+		try{
+	  String mess="set SetGyroBiasMicrosec";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[6];
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x44;   // : 
+			 sendData[3]=0x01;   // one register
+			 sendData[4]=0x18;   // register 18
+			 sendData[5]=(byte) value;   // 
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	}
+
+	public void GetSubsytemRegisters( int register) {
 	try{
 	  String mess="get gyro registers";
 	  TraceLog Trace = new TraceLog();
