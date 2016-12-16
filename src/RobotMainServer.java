@@ -33,6 +33,7 @@ public class RobotMainServer
 	public static int northOrientation;
 	public static int deltaNORotation;
 	public static int deltaNOMoving;
+	public static int gyroHeading=0;
 	public static byte actStat=0x00;
 	public static String stationStatus="";
 	public static String ipRobot="192.168.1.133";  // 138 ou 133
@@ -88,8 +89,21 @@ public class RobotMainServer
 	public static final byte resetObstacle =1;
 	public static final byte resetPause =2;
 	public static int cumulativeLeftHoles=0;
+	public static int prevCumulativeLeftHoles=0;
 	public static int cumulativeRightHoles=0;
+	public static int prevCumulativeRightHoles=0;
 	public static long lastSentTime= 0;
+	public static int leftHighThreshold=0;
+	public static int leftLowThreshold=0;
+	public static int rightHighThreshold=0;
+	public static int rightLowThreshold=0;
+	public static int leftPWM=0;
+	public static int rightPWM=0;
+	public static int PWMRatio=0;
+	public static int leftMaxLevel=0;
+	public static int leftMinLevel=0;
+	public static int rightMaxLevel=0;
+	public static int rightMinLevel=0;
 
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
@@ -277,7 +291,7 @@ public static void initEventTable()
 	eventTimeoutTable[robotUpdatedEnd][1]=20;  // simulation mode
 	eventTimeoutTable[scanEnd][0]=1200; // normal mode
 	eventTimeoutTable[scanEnd][1]=1200;  // simulation mode
-	eventTimeoutTable[moveEnd][0]=300; // normal mode
+	eventTimeoutTable[moveEnd][0]=600; // normal mode
 	eventTimeoutTable[moveEnd][1]=30;  // simulation mode
 	eventTimeoutTable[northAlignEnd][0]=900; // normal mode
 	eventTimeoutTable[northAlignEnd][1]=30;  // simulation mode
@@ -389,6 +403,10 @@ return posY;
 public static int GetHeading()
 {
 return alpha;
+}
+public static int GetGyroHeading()
+{
+return gyroHeading;
 }
 public static int GetHardPosX()
 {	
@@ -550,7 +568,7 @@ SendUDP snd = new SendUDP();
 snd.SendUDPServoAlign(value);
 	}
 public static void RobotNorthRotate(int value)
-{             // request servomotor alignment from 0 to 180°
+{             
 int action=northAlignEnd;
 int timeout=eventTimeoutTable[action][simulation];
 if (simulation!=0)
@@ -564,6 +582,23 @@ if(simulation*actionSimulable[action][0]==0)
 	{
 	SendUDP snd = new SendUDP();
 	snd.SendUDPNorthRotate(value);
+	}
+}
+public static void RobotGyroRotate(int value)
+{             
+int action=moveEnd;
+int timeout=eventTimeoutTable[action][simulation];
+if (simulation!=0)
+{
+	ArduinoSimulator.SaveGyroRequest(value);
+	ArduinoSimulator.SaveNorthAlignRequest((northOrientation+value)%360);
+}
+EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
+octaveRequestPending=true;
+if(simulation*actionSimulable[action][0]==0)
+	{
+	SendUDP snd = new SendUDP();
+	snd.SendUDPGyroRotate(value);
 	}
 }
 public static void PingEchoFrontBack()

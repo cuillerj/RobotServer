@@ -188,7 +188,7 @@ public class Fenetre extends JFrame{
   }
       
   static void go(){
-      label.setText(RobotMainServer.stationStatus+"-"+robotStat+"-Power:"+robotPower+ " Diag(Pow,Mot,Cnx,Rob):"+robotDiag+" Retcode:"+actionRetcode+" Stat:"+RobotMainServer.runningStatus);   
+      label.setText(RobotMainServer.stationStatus+"-"+robotStat+"-Power:"+robotPower+ " Diag(Pow,Mot,Rob)I2C:"+robotDiag+" Retcode:"+actionRetcode+" Stat:"+RobotMainServer.runningStatus);   
      RobotMainServer.idscanG= idscan.getText();
     //Cette méthode ne change pas
   }

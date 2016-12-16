@@ -16,7 +16,7 @@ public class ParametersName {
 		String pgmId="ParametersName";
 		String mess="Start";
 		TraceLog Trace = new TraceLog();
-		Trace.TraceLog(pgmId,mess);
+	//	Trace.TraceLog(pgmId,mess);
 			while(true)
 			{
 				Connection conn = null;
@@ -30,16 +30,16 @@ public class ParametersName {
 				    			 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
 				    			 stmtI = conn.createStatement();
 				    			 String sql="SELECT * from parameters where idparameter = "+ID+" limit 1";
-				    			 Trace.TraceLog(pgmId,sql);
+//				    			 Trace.TraceLog(pgmId,sql);
 				    			 rs=stmtI.executeQuery(sql);
 				    			 String name="";
 				 				while (rs.next()) {	 					
 				 					name=rs.getString("name");
 					 				 mess="found parameter "+ID+" name:"+name;
-					 				Trace.TraceLog(pgmId,mess);
+	//				 				Trace.TraceLog(pgmId,mess);
 				 				}
 				 				mess="End";
-				 				Trace.TraceLog(pgmId,mess);
+	//			 				Trace.TraceLog(pgmId,mess);
 					    		return(name);
 				    		 	}
 				    		 	catch (Exception e) {

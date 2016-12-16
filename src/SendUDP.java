@@ -185,7 +185,7 @@ public class SendUDP extends Thread{
 	
 	public void SendUDPNorthRotate(int value) {
 		try{
-	  String mess="rotate VS NO";
+	  String mess="rotate VS NO:"+value;
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2005; // pending reset
@@ -199,6 +199,35 @@ public class SendUDP extends Thread{
 			 sendData[2]=0x6e;   // e rotation based on north orientation
 			 sendData[3]=(byte) (value/256);   // value in degre between 0 to 360
 			 sendData[4]=(byte) (value);   //
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      clientSocket.send(sendPacket);
+	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	public void SendUDPGyroRotate(int value) {
+		try{
+	  String mess="rotate using gyro:"+value;
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+		RobotMainServer.runningStatus=2005; // pending reset
+	      DatagramSocket clientSocket = new DatagramSocket();
+	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[5];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x6f;   // rotation based on gyroscope
+			 sendData[3]=(byte) (Math.abs(value)/256);   // value in degre between 0 to 360
+			 sendData[4]=(byte) (Math.abs(value));   //
+			 if (value<0)
+			 {
+				 sendData[3]=(byte) (sendData[3]|0b10000000);  // upper bit to one means negative rotation
+			 }
 	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 	      clientSocket.send(sendPacket);
 	      clientSocket.close();  
@@ -741,7 +770,7 @@ public class SendUDP extends Thread{
 	public void SendUDPHorn(int duration) {
 		// TODO Auto-generated method stub
 		try{
-			  String mess="shiftPulse";
+			  String mess="horn";
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();
@@ -765,7 +794,7 @@ public class SendUDP extends Thread{
 	public void SendUDPShiftPulse(int value) {
 		// TODO Auto-generated method stub
 		try{
-			  String mess="horn";
+			  String mess="shift pulse";
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();

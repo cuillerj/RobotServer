@@ -186,6 +186,7 @@ public class RobotBatchServer implements Runnable {
 						sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
 						sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
 						ihm.MajActionRetcode(" 0x"+sbb4);
+						int retCode=sentence2[10];
 				    	if (sentence2[9]==0x66){                    // scan en cours
 							EchoRobot.pendingEcho=0;
 			//				System.out.println("scan running");
@@ -209,7 +210,7 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 //							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,RobotMainServer.eventArduino);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("scan ended");
-							mess="scan ended";
+							mess="scan ended:"+retCode;
 							Trace.TraceLog(pgmId,mess);
 						    RobotMainServer.scanStepCount=0;
 							RobotMainServer.runningStatus=2;
@@ -234,8 +235,8 @@ public class RobotBatchServer implements Runnable {
 							}
 //							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
-									RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
-							ihm.MajRobotStat("align ended");
+							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+							ihm.MajRobotStat("align ended:"+retCode);
 							mess="robot align ended"+" deltaNORot:"+RobotMainServer.deltaNORotation;
 							Trace.TraceLog(pgmId,mess);
 							RobotMainServer.runningStatus=2;
@@ -255,7 +256,7 @@ public class RobotBatchServer implements Runnable {
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
 							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("servo align ended");
-							mess="servo align ended";
+							mess="servo align ended:"+retCode;
 							Trace.TraceLog(pgmId,mess);
 							RobotMainServer.runningStatus=2;
 							}
@@ -267,10 +268,10 @@ public class RobotBatchServer implements Runnable {
 							Trace.TraceLog(pgmId,mess);
 							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
-									RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 //							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("pingFB ended");
-							mess="pingFG ended";
+							mess="pingFG ended:"+retCode;
 							Trace.TraceLog(pgmId,mess);
 							RobotMainServer.runningStatus=2;
 							}
@@ -339,14 +340,20 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.northOrientation=256*oct0+oct1;
 							oct0=(byte)(sentence2[30]&0x7F)-(byte)(sentence2[30]&0x80); // manip car byte consideré signé
 							oct1=(byte)(sentence2[31]&0x7F)-(byte)(sentence2[31]&0x80);
-							RobotMainServer.cumulativeLeftHoles=256*oct0+oct1;
+							RobotMainServer.gyroHeading=256*oct0+oct1;
+							if (sentence2[29]==0x2d)
+							{
+								RobotMainServer.gyroHeading=-RobotMainServer.gyroHeading;
+							}
+							/*
 							oct0=(byte)(sentence2[33]&0x7F)-(byte)(sentence2[33]&0x80); // manip car byte consideré signé
-							oct1=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80);
+							oct1=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80);			
 							RobotMainServer.cumulativeRightHoles=256*oct0+oct1;
+							*/
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
-							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" cumLeftHoles:"+RobotMainServer.cumulativeLeftHoles+" cumRightHoles:"+RobotMainServer.cumulativeRightHoles;
+							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode:"+retCode;
 							Trace.TraceLog(pgmId,mess);
 	//						System.out.println("refresh hard on screen");
 							
@@ -527,9 +534,9 @@ public class RobotBatchServer implements Runnable {
 					StringBuffer sbb4 = new StringBuffer(2);
 					sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
 					sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
-					ihm.MajRobotDiag("0x"+sbb1+" 0x"+sbb2+" 0x"+sbb3+" 0x"+sbb4);
+					ihm.MajRobotDiag("0x"+sbb1+" 0x"+sbb2+" 0x"+sbb4+" 0x"+sbb3);
 	//				System.out.println(" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Connections:0x"+sbb3+"  Robot:0x"+sbb4);
-					mess=" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Connections:0x"+sbb3+"  Robot:0x"+sbb4;
+					mess=" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Robot:0x"+sbb4+"  I2C:0x"+sbb3;
 					Trace.TraceLog(pgmId,mess);
 					//
 					if (RobotMainServer.simulation==0)
@@ -597,39 +604,183 @@ public class RobotBatchServer implements Runnable {
 				ihm.MajRobotPower(Integer.toString(power1)+ "cV "+Integer.toString(power2)+ "cV ");
 				}
 				
-				if (sentence2[6]==0x71 || sentence2[6]==0x72|| sentence2[6]==0x73){  // encoder & motor values
+				if (sentence2[6]==0x71 || sentence2[6]==0x72|| sentence2[6]==0x73 || sentence2[6]==0x74){  // encoder & motor values
 				EchoRobot.pendingEcho=0;
 				int nbValue=(byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80);
 				int ix=8;
 				if(sentence2[6]==0x71)
 				{
-					System.out.print("encoder leftHigh leftLow RightHigh RightLow LefPWM right PWM Ratio ");
+					mess="encoder leftHigh leftLow RightHigh RightLow LefPWM rightPWM Ratio ";
+//					Trace.TraceLog(pgmId,mess);
+//					System.out.print("encoder leftHigh leftLow RightHigh RightLow LefPWM right PWM Ratio ");
 				}
 				if(sentence2[6]==0x72)
 				{
-					System.out.print("encoder leftHigh leftMaxLevel leftLow leftMinLevel rightHigh rightMaxLevel rightLow rightMinLevel ");
+					mess="encoder leftHigh leftMaxLevel leftLow leftMinLevel rightHigh rightMaxLevel rightLow rightMinLevel ";
+//					System.out.print("encoder leftHigh leftMaxLevel leftLow leftMinLevel rightHigh rightMaxLevel rightLow rightMinLevel ");
 				}
 				if(sentence2[6]==0x73)
 				{
-					System.out.print("leftMotorPWM RightMotorPWM ");
+					mess="leftMotorPWM RightMotorPWM ";
+//					System.out.print("leftMotorPWM RightMotorPWM ");
+				}
+				if(sentence2[6]==0x74)
+				{
+					mess="leftHoles RightHoles ";
 				}
 				for (int i=1;i<=nbValue;i++)
 				{
 					int oct0=(byte)(sentence2[ix]&0x7F)-(byte)(sentence2[ix]&0x80); // manip car byte consideré signé
 					int oct1=(byte)(sentence2[ix+1]&0x7F)-(byte)(sentence2[ix+1]&0x80);
 					int value=256*oct0+oct1;
-					System.out.print("-"+value+ "-");
+					mess=mess+" "+value;
+	//				System.out.print("-"+value+ "-");
 					ix=ix+3;
-				}
-				System.out.println();
+					if(sentence2[6]==0x71 )
+					{						
+					switch(i){
+						case (1):
+						{
+					RobotMainServer.leftHighThreshold=value;
+					break;
+					}
+						case (2):
+						{
+					RobotMainServer.leftLowThreshold=value;
+					break;
+					}
+						case (3):
+						{
+					RobotMainServer.rightHighThreshold=value;
+					break;
+					}
+						case (4):
+						{
+					RobotMainServer.rightLowThreshold=value;
+					break;
+					}
+						case (5):
+						{
+					RobotMainServer.leftPWM=value;
+					break;
+					}
+						case (6):
+						{
+					RobotMainServer.rightPWM=value;
+					break;
+					}
+						case (7):
+						{
+					RobotMainServer.PWMRatio=value;
+					break;
+					}
+					}
+					}
+					if(sentence2[6]==0x72 )
+					{						
+					switch(i){
+						case (1):
+						{
+					RobotMainServer.leftHighThreshold=value;
+					break;
+					}
+						case (2):
+						{
+					RobotMainServer.leftMaxLevel=value;
+					break;
+					}
+						case (3):
+						{
+					RobotMainServer.leftLowThreshold=value;
+					break;
+					}						
+						case (4):
+					{
+							RobotMainServer.leftMinLevel=value;
+							break;
+					}
+						case (5):
+						{
+					RobotMainServer.rightHighThreshold=value;
+					break;
+					}
+						case (6):
+						{
+					RobotMainServer.rightMaxLevel=value;
+					break;
+					}
+						case (7):
+						{
+					RobotMainServer.rightLowThreshold=value;
+					break;
+					}
 
-	
+						case (8):
+						{
+					RobotMainServer.rightMinLevel=value;
+					break;
+					}
+					}
+					}
+					if(sentence2[6]==0x73 )
+					{						
+					switch(i){
+						case (1):
+						{
+					RobotMainServer.leftPWM=value;
+					break;
+					}
+						case (2):
+						{
+					RobotMainServer.rightPWM=value;
+					break;
+					}
+
+					}
+					}
+
+
+					/*
+					 * 
+					 */
+					if(sentence2[6]==0x74 )
+					{
+						switch(i){
+						case (1):{
+							RobotMainServer.cumulativeLeftHoles=value;
+							break;
+						}
+						case (2):{
+							RobotMainServer.cumulativeRightHoles=value;
+							break;
+						}
+
+						}
+
+						
+
+					}
+
+			//	System.out.println();
+
+					}
+				Trace.TraceLog(pgmId,mess);
+				if (sentence2[6]==0x74 && (RobotMainServer.cumulativeLeftHoles != RobotMainServer.prevCumulativeLeftHoles || RobotMainServer.cumulativeRightHoles!= RobotMainServer.prevCumulativeRightHoles))
+				{
+					String sql="INSERT INTO encodersStatistics VALUES (now(), 1,"
+							+ ""+RobotMainServer.cumulativeLeftHoles+","+RobotMainServer.cumulativeRightHoles+","+RobotMainServer.leftPWM+","+RobotMainServer.rightPWM+","+RobotMainServer.PWMRatio+","
+									+ ""+RobotMainServer.leftMaxLevel+","+RobotMainServer.leftMinLevel+","+RobotMainServer.rightMaxLevel+","+RobotMainServer.rightMinLevel+""
+							+ ","+RobotMainServer.leftLowThreshold+","+RobotMainServer.leftHighThreshold+","+RobotMainServer.rightLowThreshold+","+RobotMainServer.rightHighThreshold+")";
+					RobotMainServer.prevCumulativeLeftHoles=RobotMainServer.cumulativeLeftHoles ;
+					RobotMainServer.prevCumulativeRightHoles=RobotMainServer.cumulativeRightHoles ;
+					InsertSqlData(sql);
 				}
-				if(sentence2[6]==0x74)
+				}
+				if(sentence2[6]==0x80)
 				{
 					System.out.print("subsystem registers ");
 					int i=0;
-					int ix=8;
+//					int idx=8;
 					for (i=0;i<sentence2[7];i++)
 					{
 	//					int oct0=(byte)(sentence2[ix+3*i]&0x7F)-(byte)(sentence2[ix+3*i]&0x80); // manip car byte consideré signé
@@ -637,7 +788,7 @@ public class RobotBatchServer implements Runnable {
 						System.out.println(" register: 0x"+byteToHex(sentence2[8+3*i])+" value:00x"+byteToHex(sentence2[9+3*i]));
 					}
 				}
-			   }
+			}
 	}
 
 	void UpdateScanRefOrientation(int northOrientation)
@@ -673,4 +824,35 @@ public class RobotBatchServer implements Runnable {
 		    int i = b & 0xFF;
 		    return Integer.toHexString(i);
 		  }
+	  public void InsertSqlData(String sql)
+	  {
+			Connection conn = null;
+			Statement stmtI = null;
+			String pgmId="RobotBatchServer/Sql";
+			TraceLog Trace = new TraceLog();
+		 try {
+			 Class.forName("com.mysql.jdbc.Driver").newInstance();
+			 String connectionUrl = "jdbc:mysql://jserver:3306/robot";
+			 String connectionUser = "jean";
+			 String connectionPassword = "manu7890";
+			 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
+				 stmtI = conn.createStatement();
+			 int idscan=Fenetre.ids();
+			 RobotMainServer.idscanG=Fenetre.idsString();
+			 String idsG=RobotMainServer.idscanG;
+			 RobotMainServer.GetCurrentPosition(idsG);
+			 int angl=RobotMainServer.orientG;
+//			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+angl+","+RobotMainServer.idCarto+")";
+			 //System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
+			Trace.TraceLog(pgmId,sql);
+//			 System.out.println(sql);
+			 stmtI.executeUpdate(sql);
+		 	}
+		 	catch (Exception e) {
+		 		e.printStackTrace();
+		 	} finally {
+		 		try { if (stmtI != null) stmtI.close(); } catch (SQLException e) { e.printStackTrace(); }
+		 		try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+		 	}
+}
 }

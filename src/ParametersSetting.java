@@ -16,7 +16,7 @@ public class ParametersSetting {
 		String pgmId="ParametersSetting";
 		String mess="Start";
 		TraceLog Trace = new TraceLog();
-		Trace.TraceLog(pgmId,mess);
+	//	Trace.TraceLog(pgmId,mess);
 
 			while(true)
 			{
@@ -31,7 +31,7 @@ public class ParametersSetting {
 				    			 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
 				    			 stmtI = conn.createStatement();
 				    			 String sql="SELECT * from parameters where idparameter = "+ID+" limit 1";
-				    			 Trace.TraceLog(pgmId,sql);
+	//			    			 Trace.TraceLog(pgmId,sql);
 				    			 rs=stmtI.executeQuery(sql);
 				    			 int numValue=0;
 				 				while (rs.next()) {		 					
@@ -42,7 +42,7 @@ public class ParametersSetting {
 	//								charValue=rs.getString("charValue");
 				 				}
 				 				mess="End";
-				 				Trace.TraceLog(pgmId,mess);
+			//	 				Trace.TraceLog(pgmId,mess);
 					    		 return(numValue);
 				    		 	}
 				    		 	catch (Exception e) {
@@ -61,7 +61,7 @@ public class ParametersSetting {
 		String pgmId="ParametersNumbers";
 		String mess="Start";
 		TraceLog Trace = new TraceLog();
-		Trace.TraceLog(pgmId,mess);
+	//	Trace.TraceLog(pgmId,mess);
 
 			while(true)
 			{
@@ -76,7 +76,7 @@ public class ParametersSetting {
 				    			 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
 				    			 stmtI = conn.createStatement();
 				    			 String sql="SELECT count(*) as number from parameters ";
-				    			 Trace.TraceLog(pgmId,sql);
+//				    			 Trace.TraceLog(pgmId,sql);
 				    			 rs=stmtI.executeQuery(sql);
 				    			 int numValue=0;
 				 				while (rs.next()) {		 					
@@ -87,7 +87,7 @@ public class ParametersSetting {
 	//								charValue=rs.getString("charValue");
 				 				}
 				 				mess="End";
-				 				Trace.TraceLog(pgmId,mess);
+			//	 				Trace.TraceLog(pgmId,mess);
 					    		 return(numValue);
 				    		 	}
 				    		 	catch (Exception e) {
