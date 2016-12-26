@@ -104,7 +104,15 @@ public class RobotMainServer
 	public static int leftMinLevel=0;
 	public static int rightMaxLevel=0;
 	public static int rightMinLevel=0;
-
+	public static int echoClosestRefX=0;
+	public static int echoClosestRefY=0;
+	public static int echoClosestRefServoHeading=0;
+	public static int echoClosestRefDistFront=0;
+	public static int echoClosestRefDistBack=0;
+	public static float echoClosestStdFront=0;
+	public static float echoClosestStdBack=0;
+	public static int echoClosestCount=0;
+	public static int echoClosestDistance=0;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
@@ -736,5 +744,13 @@ public static String GetParameterName(int number)
 	String ParameterName=ParametersName.GetParameterName(number);
 	return ParameterName;
 }
-
+public static int GetClosestReferenceEcho(int inX,int inY,int servoHeading,int tileSize)
+{
+	String pgmId="GetClosestReferenceEcho";
+	String mess="inX:"+inX+" inY:"+inY+" servoH:"+servoHeading+" size:"+tileSize;
+    TraceLog Trace = new TraceLog();
+    Trace.TraceLog(pgmId,mess);
+	int RC=GetSqlData.GetClosestEchoGetClosestReferenceEcho(inX, inY, servoHeading, tileSize);
+return	RC;
+}
 }

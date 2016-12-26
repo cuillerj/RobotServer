@@ -818,7 +818,7 @@ public class SendUDP extends Thread{
 	public void SendUDPObstacleDetection(boolean value) {
 		// TODO Auto-generated method stub
 		try{
-			  String mess="horn";
+			  String mess="detection obstacle:"+value;
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();
