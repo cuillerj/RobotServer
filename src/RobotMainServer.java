@@ -295,7 +295,7 @@ public static void initEventTable()
 {                                                // duration expressed in 1/10 of second
 	eventTimeoutTable[robotInfoUpdated][0]=100; // normal mode
 	eventTimeoutTable[robotInfoUpdated][1]=20;  // simulation mode
-	eventTimeoutTable[robotUpdatedEnd][0]=100; // normal mode
+	eventTimeoutTable[robotUpdatedEnd][0]=1200; // normal mode
 	eventTimeoutTable[robotUpdatedEnd][1]=20;  // simulation mode
 	eventTimeoutTable[scanEnd][0]=1200; // normal mode
 	eventTimeoutTable[scanEnd][1]=1200;  // simulation mode

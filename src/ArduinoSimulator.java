@@ -37,7 +37,7 @@ public class ArduinoSimulator{
 		    double meanRotation = savedRotation;
 		    double meanGyro = savedGyro; 
 		    double varianceRotation = 3.0f;
-		    double varianceGyro = 1.0f;
+		    double varianceGyro = 2.5f;
 		    double meanDistance = savedDistance; 
 		    double varianceDistance = 3.0f;
 		    double meanNorthOrientation = savedNorthOrientation;

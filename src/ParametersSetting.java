@@ -37,7 +37,7 @@ public class ParametersSetting {
 				 				while (rs.next()) {		 					
 				 					numValue=rs.getInt("numValue");
 					 				 mess="found parameter "+ID+" value:"+numValue;
-					 				Trace.TraceLog(pgmId,mess);
+//					 				Trace.TraceLog(pgmId,mess);
 	//								name=rs.getString("name");
 	//								charValue=rs.getString("charValue");
 				 				}
@@ -82,7 +82,7 @@ public class ParametersSetting {
 				 				while (rs.next()) {		 					
 				 					numValue=rs.getInt("number");
 					 				 mess=" count:"+numValue;
-					 				Trace.TraceLog(pgmId,mess);
+	//				 				Trace.TraceLog(pgmId,mess);
 	//								name=rs.getString("name");
 	//								charValue=rs.getString("charValue");
 				 				}

@@ -17,7 +17,7 @@ public class GetSqlData {
 		String pgmId="GetSqlData";
 		String mess="Start";
 		TraceLog Trace = new TraceLog();
-		Trace.TraceLog(pgmId,mess);
+//		Trace.TraceLog(pgmId,mess);
 
 				Connection conn = null;
 				Statement stmtI = null;
@@ -41,7 +41,7 @@ public class GetSqlData {
 	    			 String connectionPassword = "manu7890";
 	    			 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
 	    			 mess="BD connected";
-    				Trace.TraceLog(pgmId,mess);
+  //  				Trace.TraceLog(pgmId,mess);
 					cStmt = conn.prepareCall("{call apeRobotGetClosestEcho(?, ?, ?, ?,?,?,?,?,?,?,?,?,?)}");
 	    			 mess="call prepared";
 	    			 Trace.TraceLog(pgmId,mess);
@@ -55,7 +55,7 @@ public class GetSqlData {
 	    			 cStmt.registerOutParameter(12, java.sql.Types.INTEGER);
 	    			 cStmt.registerOutParameter(13, java.sql.Types.INTEGER);
 	    			 mess="out param";
-   				Trace.TraceLog(pgmId,mess);
+//   				Trace.TraceLog(pgmId,mess);
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -86,7 +86,7 @@ public class GetSqlData {
 				}
 				    		 try {
 				    			 mess="before exe";
-				    				Trace.TraceLog(pgmId,mess);
+	//			    				Trace.TraceLog(pgmId,mess);
 	//		    			    boolean hadResults = cStmt.execute();
 	//			    			 stmtI = conn.createStatement();
 //				    			 String sql="SELECT * from parameters where idparameter = "+ID+" limit 1";
