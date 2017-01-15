@@ -113,6 +113,8 @@ public class RobotMainServer
 	public static float echoClosestStdBack=0;
 	public static int echoClosestCount=0;
 	public static int echoClosestDistance=0;
+	public static float noiseLevel=0;
+	public static boolean noiseRetCode=true;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };

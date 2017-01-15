@@ -16,7 +16,12 @@ public class ArduinoSimulator{
 	{
 
 		Random rand = new Random();
-		int retCode=rand.nextInt(11); // generate a random return code for the action
+		int retCode=0;
+		if (RobotMainServer.noiseRetCode)
+		{
+			retCode=rand.nextInt(11); // generate a random return code for the action
+		}
+
 		TraceLog Trace = new TraceLog();
 //		String mess1="randDom retCode:"+retCode;
 //		Trace.TraceLog(pgmId,mess1);
@@ -36,12 +41,12 @@ public class ArduinoSimulator{
 		    RandomGaussian gaussian = new RandomGaussian();
 		    double meanRotation = savedRotation;
 		    double meanGyro = savedGyro; 
-		    double varianceRotation = 3.0f;
-		    double varianceGyro = 2.5f;
 		    double meanDistance = savedDistance; 
-		    double varianceDistance = 3.0f;
 		    double meanNorthOrientation = savedNorthOrientation;
-		    double varianceNO = 5.0f;
+		    double varianceRotation = 3.0f*RobotMainServer.noiseLevel;
+		    double varianceGyro = 2.5f*RobotMainServer.noiseLevel;
+		    double varianceDistance = 3.0f*RobotMainServer.noiseLevel;
+		    double varianceNO = 5.0f*RobotMainServer.noiseLevel;
 //			String mess="Arduino move :"+reqCode+ " "+ reqSource +" "+ reqDest;
 //			Trace.TraceLog(pgmId,mess);
 		    savedRotation=(long) ((gaussian.getGaussian(meanRotation, varianceRotation)));
@@ -73,8 +78,8 @@ public class ArduinoSimulator{
 		    RandomGaussian gaussian = new RandomGaussian();
 		    double meanRotation = savedRotation; 
 		    double meanNorthOrientation = savedNorthOrientation;
-		    double varianceRotation = 2.0f;
-		    double varianceNO = 1.0f;
+		    double varianceRotation = 2.0f*RobotMainServer.noiseLevel;
+		    double varianceNO = 1.0f*RobotMainServer.noiseLevel;
 
 //			String mess="Arduino move :"+reqCode+ " "+ reqSource +" "+ reqDest;
 //			Trace.TraceLog(pgmId,mess);
