@@ -19,6 +19,7 @@ while (true){
 	    	  byte[] sendData = new byte[3];
 	    	  String startCmde="c4e";
 	    	  sendData = startCmde.getBytes();
+	    	  sendData[1]=0x00;
 	    	  DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 	    	  clientSocket.send(sendPacket);
 	    	  pendingEcho=pendingEcho+1;

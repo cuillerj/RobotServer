@@ -10,6 +10,7 @@ import java.sql.Statement;
 
 
 public class RobotBatchServer implements Runnable {
+	public static int statusFrameCount=0;
 	public void run()
 	{
 		String pgmId="RobotBatchServer";
@@ -88,6 +89,8 @@ public class RobotBatchServer implements Runnable {
 				 			RobotMainServer.hexaPrint(sentence2[i]);
 				 		}
 				 	System.out.println();
+		 			RobotMainServer.hexaPrint(sentence2[8]);
+				 	System.out.println();
 			 	}
 				int idx=Type;
 				if(RobotMainServer.runningStatus<=0)
@@ -106,7 +109,7 @@ public class RobotBatchServer implements Runnable {
 						}
 				    byte[] sendData = new byte[4];
 				    sendData[0]=0x63;
-				    sendData[1]=0x34;
+				    sendData[1]=SendUDP.countUdp;
 				    sendData[2]=0x61;
 				    sendData[3]=sentence2[7];
 				    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
@@ -138,6 +141,10 @@ public class RobotBatchServer implements Runnable {
 				    	 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
 				    	 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 				    	 int angle=256*oct0+oct1;
+				    	 i2=19;
+				    	 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+				    	 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+				    	 RobotMainServer.northOrientation=256*oct0+oct1;
 				    	 if (RobotMainServer.scanStepCount!=0)
 				    	 	{
 				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][0]=angle;
@@ -159,8 +166,8 @@ public class RobotBatchServer implements Runnable {
 				    			 RobotMainServer.idscanG=Fenetre.idsString();
 				    			 String idsG=RobotMainServer.idscanG;
 				    			 RobotMainServer.GetCurrentPosition(idsG);
-				    			 int angl=RobotMainServer.orientG;
-				    			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+angl+","+RobotMainServer.idCarto+")";
+			//	    			 int angl=RobotMainServer.orientG;
+				    			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+RobotMainServer.northOrientation+","+RobotMainServer.idCarto+")";
 				    			 //System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
 				    			Trace.TraceLog(pgmId,sql);
 				    //			 System.out.println(sql);
@@ -175,12 +182,12 @@ public class RobotBatchServer implements Runnable {
 				    		 	}
 				    		 	lastTrameNumber=sentence2[15];
 				    	 	}
-				    	 PanneaugraphiqueSonar.point(RobotMainServer.posXG,RobotMainServer.posYG,RobotMainServer.orientG,distFront,distBack,angle);
+				    	 PanneaugraphiqueSonar.point(RobotMainServer.posXG,RobotMainServer.posYG,RobotMainServer.northOrientation,distFront,distBack,angle);
 				    	 ihm3.repaint();
 					}
 					
 					
-				    if (sentence2[8]==0x01){       // end of action need ack
+					if (sentence2[8]==0x01){       // end of action need ack
 				    	int sbnb=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
 						StringBuffer sbb4 = new StringBuffer(2);
 						sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
@@ -365,8 +372,59 @@ public class RobotBatchServer implements Runnable {
 				//				graph.repaint();
 								}
 						RobotMainServer.actStat=0x03;
-							}				    	 
+							}	
+
 			     	}
+					if(sentence2[8]==0x76)
+					{
+						int i=0;
+//						int idx=8;
+		//				(byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80)
+						RobotMainServer.BNOLocFlag=(byte) ((byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80));
+						int oct0=(byte)(sentence2[11]&0x7F)-(byte)(sentence2[11]&0x80); // manip car byte consideré signé
+						int oct1=(byte)(sentence2[12]&0x7F)-(byte)(sentence2[12]&0x80);
+						int pos=256*oct0+oct1;
+						if (sentence2[10]==0x2d)
+						{
+							pos=-pos;
+						}
+						RobotMainServer.BNOLeftPosX=pos;
+						 oct0=(byte)(sentence2[14]&0x7F)-(byte)(sentence2[14]&0x80); // manip car byte consideré signé
+						 oct1=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80);
+						 pos=256*oct0+oct1;
+						if (sentence2[13]==0x2d)
+						{
+							pos=-pos;
+						}
+						RobotMainServer.BNOLeftPosY=pos;
+						 oct0=(byte)(sentence2[17]&0x7F)-(byte)(sentence2[17]&0x80); // manip car byte consideré signé
+						 oct1=(byte)(sentence2[18]&0x7F)-(byte)(sentence2[18]&0x80);
+						 pos=256*oct0+oct1;
+						if (sentence2[16]==0x2d)
+						{
+							pos=-pos;
+						}
+						RobotMainServer.BNORightPosX=pos;
+						 oct0=(byte)(sentence2[20]&0x7F)-(byte)(sentence2[20]&0x80); // manip car byte consideré signé
+						 oct1=(byte)(sentence2[21]&0x7F)-(byte)(sentence2[21]&0x80);
+						 pos=256*oct0+oct1;
+						if (sentence2[19]==0x2d)
+						{
+							pos=-pos;
+						}
+						RobotMainServer.BNORightPosY=pos;
+						 oct0=(byte)(sentence2[23]&0x7F)-(byte)(sentence2[23]&0x80); // manip car byte consideré signé
+						 oct1=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80);
+						 pos=256*oct0+oct1;
+						if (sentence2[22]==0x2d)
+						{
+							pos=-pos;
+						}
+						RobotMainServer.BNOLocHeading=pos;
+					mess=" BNO loc flag:"+RobotMainServer.BNOLocFlag+" leftX:"+RobotMainServer.BNOLeftPosX+" leftY:"+RobotMainServer.BNOLeftPosY+" rightX:"+RobotMainServer.BNORightPosX+" rightY:"+RobotMainServer.BNORightPosY+ " Heading:"+RobotMainServer.BNOLocHeading;
+					Trace.TraceLog(pgmId,mess);
+//					Fenetre2.RefreshBNO();
+					}
 				}
 				if (sentence2[6]==0x65){                    // e echo status info
 					EchoRobot.pendingEcho=0;
@@ -375,6 +433,22 @@ public class RobotBatchServer implements Runnable {
  // reqCode,retCode,source, dest
 						EventManagement.UpdateEvent(RobotMainServer.robotInfoUpdated,0,RobotMainServer.eventOctave,RobotMainServer.eventArduino);  // reqCode,retCode,source, dest
 						EventManagement.UpdateEvent(RobotMainServer.robotUpdatedEnd,0,RobotMainServer.eventOctave,RobotMainServer.eventArduino);  // reqCode,retCode,source, dest
+					}
+					if (RobotMainServer.pendingAcqUdp=false)
+					{
+						if (sentence2[28]==SendUDP.countUdp)
+						{
+							RobotMainServer.pendingAcqUdp=false;
+							statusFrameCount=0;
+						}
+						else
+						{
+							statusFrameCount++;
+							if (sentence2[28]>SendUDP.countUdp || statusFrameCount >3)
+							{
+								SendUDP.ResendLastFrame();
+							}
+						}
 					}
 	//			    RobotMainServer.javaRequestStatusPending=false;
 	//				System.out.print("echo response: ");
@@ -470,7 +544,6 @@ public class RobotBatchServer implements Runnable {
 						RobotMainServer.actStat=0x03;
 					}
 					if (sentence2[8]==0x6a){
-
 						if (RobotMainServer.runningStatus==6 )
 						{
 							RobotMainServer.runningStatus=106;
@@ -565,7 +638,22 @@ public class RobotBatchServer implements Runnable {
 					}
 					int oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
 					int oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
-					RobotMainServer.northOrientation=256*oct0+oct1;
+					
+					if (sentence2[23]==0x09)
+					{
+						RobotMainServer.northOrientation=256*oct0+oct1;
+						RobotMainServer.absoluteOrientation=-1;	
+					}
+					else if (sentence2[23]==0x0c)
+					{
+						RobotMainServer.absoluteOrientation=256*oct0+oct1;
+						RobotMainServer.northOrientation=-1;	
+					}
+					else
+					{
+						RobotMainServer.northOrientation=-1;		
+						RobotMainServer.absoluteOrientation=-1;	
+					}
 					RobotMainServer.RefreshHardPositionOnScreen();
 					if ( RobotMainServer.hardJustReboot==false && RobotMainServer.serverJustRestarted==true)
 					{
@@ -776,6 +864,23 @@ public class RobotBatchServer implements Runnable {
 					InsertSqlData(sql);
 				}
 				}
+				if(sentence2[6]==0x75)
+				{
+
+					int i=0;
+//					int idx=8;
+	//				(byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80)
+					RobotMainServer.BNOMode=(byte) ((byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80));
+					RobotMainServer.BNOCalStat=(byte) ((byte)(sentence2[8]&0x7F)-(byte)(sentence2[8]&0x80));
+					RobotMainServer.BNOSysStat=(byte) ((byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80));
+					RobotMainServer.BNOSysError=(byte) ((byte)(sentence2[11]&0x7F)-(byte)(sentence2[11]&0x80));
+	//					int oct0=(byte)(sentence2[ix+3*i]&0x7F)-(byte)(sentence2[ix+3*i]&0x80); // manip car byte consideré signé
+	//					int oct1=(byte)(sentence2[ix+1+3*i]&0x7F)-(byte)(sentence2[ix+1+3*i]&0x80);
+				mess=" BNO status mode 0x:"+byteToHex(RobotMainServer.BNOMode)+" calibration status 0x:"+byteToHex(RobotMainServer.BNOCalStat)+" system status 0x:"+byteToHex(RobotMainServer.BNOSysStat)+" system error 0x:"+byteToHex(RobotMainServer.BNOSysError);
+				Trace.TraceLog(pgmId,mess);
+				Fenetre2.RefreshBNO();
+				}
+
 				if(sentence2[6]==0x80)
 				{
 					System.out.print("subsystem registers ");

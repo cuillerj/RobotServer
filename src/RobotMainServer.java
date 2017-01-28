@@ -31,12 +31,14 @@ public class RobotMainServer
 	public static int hardPosY;
 	public static int hardAlpha;
 	public static int northOrientation;
+	public static int absoluteOrientation;
 	public static int deltaNORotation;
 	public static int deltaNOMoving;
 	public static int gyroHeading=0;
 	public static byte actStat=0x00;
 	public static String stationStatus="";
-	public static String ipRobot="192.168.1.133";  // 138 ou 133
+	public static String ipRobot="192.168.1.133";  // en cible a lire en BD 
+	public static int shiftEchoVsRotationCenter = 6;  // en cible a lire en BD 
 	public static int[][] scanArray = new int [15][3];
 	public static int scanStepCount=0;
 	public static int power9V;
@@ -115,10 +117,21 @@ public class RobotMainServer
 	public static int echoClosestDistance=0;
 	public static float noiseLevel=0;
 	public static boolean noiseRetCode=true;
+	public static byte BNOMode=0x00;
+	public static byte BNOCalStat=0x00;
+	public static byte BNOSysStat=0x00;
+	public static byte BNOSysError=0x00;
+	public static boolean pendingAcqUdp=false;
+	public static int BNOLeftPosX=0;
+	public static int BNOLeftPosY=0;
+	public static int BNORightPosX=0;
+	public static int BNORightPosY=0;
+	public static int BNOLocFlag=0;
+	public static int BNOLocHeading=0;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
-	
+	public static PrintStream stdout = System.out;
 public static void main(String args[]) throws Exception
 			{
 	String pgmId="Mainserver";
@@ -362,6 +375,7 @@ public static void Move(long ang,long mov)
 {
 //	System.out.println("Move requested");
 //    RobotMainServer.idscanG= Fenetre.idscan.getText();
+	BNOLocFlag=255;
 	octaveRequestPending=true;
 	int action=moveEnd;
     Fenetre.label.setText("Move requested");   
@@ -513,17 +527,26 @@ SetHeading(hardAlpha);
 public static void SetTraceFileOn (boolean value)
 {
 
-	File file = new File(fname);
-	FileOutputStream fos = null;
-	try {
-		fos = new FileOutputStream(file);
-	} catch (FileNotFoundException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+	if (value==true)
+	{
+
+		File file = new File(fname);
+		FileOutputStream fos = null;
+		try {
+			fos = new FileOutputStream(file);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		PrintStream ps = new PrintStream(fos);
+		System.setOut(ps);
+		System.out.println("create trace");
 	}
-	PrintStream ps = new PrintStream(fos);
-	System.setOut(ps);
-	System.out.println("create trace");
+	else
+	{
+		System.out.println("switch to stdout");
+		System.setOut(stdout);  
+	}
 
 }
 public static boolean GetHardJustReboot ()
@@ -541,6 +564,7 @@ Fenetre2.SetcurrentLocProb();
 }
 public static void UpdateHardRobotLocation()
 {
+BNOLocFlag=255;
 int action=robotUpdatedEnd;
 int timeout=eventTimeoutTable[action][simulation*actionSimulable[action][0]];
 EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
@@ -728,6 +752,12 @@ public static void GetSubsytemRegisters(int register )
 	SendUDP snd = new SendUDP();
 	snd.GetSubsytemRegisters(register);
 }
+public static void GetSubsystemLocation( )
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	BNOLocFlag=255;
+	snd.GetSubsytemLocation();
+}
 public static int GetParameterNumValue(int ID)
 {
 	int value=ParametersSetting.GetParametersNumValue(ID);
@@ -754,5 +784,17 @@ public static int GetClosestReferenceEcho(int inX,int inY,int servoHeading,int t
     Trace.TraceLog(pgmId,mess);
 	int RC=GetSqlData.GetClosestEchoGetClosestReferenceEcho(inX, inY, servoHeading, tileSize);
 return	RC;
+}
+public static void setBNOMode(int mode)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SetBNOMode((byte) mode);
+	}
+	else
+	{
+		BNOMode=(byte)mode;
+	}
 }
 }

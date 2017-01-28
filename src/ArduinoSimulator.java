@@ -59,12 +59,18 @@ public class ArduinoSimulator{
 			String mess="noised move result wheels rotation:"+savedRotation+" distance:"+savedDistance+" heading:"+heading+ " north orientation:"+northOrientation+ " gyro:"+savedGyro+" retCode:"+retCode;
 			Trace.TraceLog(pgmId,mess);
 			double radians=Math.toRadians(degrees);
-
+			double currentH=Math.cos(Math.toRadians(RobotMainServer.hardAlpha));
 //		    System.out.println("random:"+gaussian.getGaussian(mean, variance));
-			int posXnext=(int) (Math.cos(radians)*savedDistance);					
-			int posYnext=(int) (Math.sin(radians)*savedDistance);
-			RobotMainServer.hardPosX=posXnext+RobotMainServer.posX;
-			RobotMainServer.hardPosY=posYnext+RobotMainServer.posY;
+			double posCenterX= (RobotMainServer.posX-RobotMainServer.shiftEchoVsRotationCenter*Math.cos(Math.toRadians(currentH)));
+			double posCenterY= (RobotMainServer.posY-RobotMainServer.shiftEchoVsRotationCenter*Math.sin(Math.toRadians(currentH)));
+			double rotX=posCenterX+Math.cos(radians)*RobotMainServer.shiftEchoVsRotationCenter;
+			double rotY=posCenterY+Math.sin(radians)*RobotMainServer.shiftEchoVsRotationCenter;
+			int posXnext=(int)(rotX+(Math.cos(radians)*savedDistance));
+			int posYnext=(int)(rotY+(Math.sin(radians)*savedDistance));
+//			int posXnext=(int) (Math.cos(radians)*savedDistance);					
+//			int posYnext=(int) (Math.sin(radians)*savedDistance);
+			RobotMainServer.hardPosX=posXnext;
+			RobotMainServer.hardPosY=posYnext;
 			RobotMainServer.hardAlpha=(int) (heading);
 			RobotMainServer.northOrientation=(int) northOrientation;
 			RobotMainServer.gyroHeading= (int) savedGyro;

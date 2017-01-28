@@ -37,6 +37,9 @@ public class Fenetre2 extends JFrame{
 	  private static JFormattedTextField  posYHard = new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private static JFormattedTextField  orientHard= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	  private static JFormattedTextField  northOrientation= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  absoluteOrientation= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  BNOMode= new JFormattedTextField(NumberFormat.getIntegerInstance());
+	  private static JFormattedTextField  BNOCalibration= new JFormattedTextField(NumberFormat.getIntegerInstance());
 	 // private JTextField move = new JTextField("0");
 	  private int compteur = 0;
 	//public int ang;
@@ -46,7 +49,7 @@ public class Fenetre2 extends JFrame{
 	  public int ang;
 	  public Fenetre2(){
 	    this.setTitle("Statut du robot");
-	    this.setSize(250, 180);
+	    this.setSize(250, 220);
 	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    this.setLocationRelativeTo(null);
 	    this.setLocation(100,20);
@@ -104,6 +107,15 @@ public class Fenetre2 extends JFrame{
 	    northOrientation.setFont(police);
 	    northOrientation.setPreferredSize(new Dimension(50, 30));
 	    northOrientation.setForeground(Color.RED);
+	    absoluteOrientation.setFont(police);
+	    absoluteOrientation.setPreferredSize(new Dimension(50, 30));
+	    absoluteOrientation.setForeground(Color.RED);
+	    BNOMode.setFont(police);
+	    BNOMode.setPreferredSize(new Dimension(50, 30));
+	    BNOMode.setForeground(Color.GRAY);
+	    BNOCalibration.setFont(police);
+	    BNOCalibration.setPreferredSize(new Dimension(50, 30));
+	    BNOCalibration.setForeground(Color.GRAY);
 	    String orientPS=""+RobotMainServer.orientG;
 	    orientP.setText(orientPS);
 	    container.add(label);
@@ -120,7 +132,9 @@ public class Fenetre2 extends JFrame{
 	    top.add(posYHard);
 	    top.add(orientHard);
 	    top.add(northOrientation);
-
+	    top.add(absoluteOrientation);
+	    top.add(BNOMode);
+	    top.add(BNOCalibration);
 	    container.add(top, BorderLayout.CENTER);
 //	    container.add(center, BorderLayout.CENTER);
 	//    south.add(boutonActualise);
@@ -198,7 +212,15 @@ public class Fenetre2 extends JFrame{
 	    posXHard.setText(Integer.toString(RobotMainServer.hardPosX));	
 	    posYHard.setText(Integer.toString(RobotMainServer.hardPosY));	
 	    orientHard.setText(Integer.toString(RobotMainServer.hardAlpha));	
-	    northOrientation.setText(Integer.toString(RobotMainServer.northOrientation));	
+	    northOrientation.setText(Integer.toString(RobotMainServer.northOrientation));
+	    absoluteOrientation.setText(Integer.toString(RobotMainServer.absoluteOrientation));	
+
+	}
+	public static void RefreshBNO() {
+		// TODO Auto-generated method stub
+	    BNOMode.setText(byteToHex(RobotMainServer.BNOMode));	
+	   BNOCalibration.setText(byteToHex(RobotMainServer.BNOCalStat));	
+
 
 	}
 	public void SetMove(String move, String angle) {
@@ -330,5 +352,8 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 	public void Refresh() {
 		
 	}
-	
+	  public static String byteToHex(byte b) {
+		    int i = b & 0xFF;
+		    return Integer.toHexString(i);
+		  }
 }

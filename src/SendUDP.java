@@ -5,6 +5,8 @@ import java.sql.Timestamp;
 public class SendUDP extends Thread{
 	Thread t;
 	String pgmId="SendUDP";
+	public static byte countUdp=0x00;
+	public static byte [] copySentData;
  
 //	public String ipRobot="192.168.1.133";  // 138 ou 133
 	public void SendUDP() {
@@ -14,14 +16,15 @@ public class SendUDP extends Thread{
 		  String mess="sendUDP";
 		  TraceLog Trace = new TraceLog();
 		  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	//      DatagramSocket clientSocket = new DatagramSocket();
+	//      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 	      String startCmde="c4x";
 	      sendData = startCmde.getBytes();
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();
+	      sendData=SecurSendUdp(sendData);
+	//      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	//      clientSocket.send(sendPacket);
+	//      clientSocket.close();
 		}
 	   catch(Exception e)
 	   {}
@@ -35,14 +38,15 @@ public class SendUDP extends Thread{
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2001; // pending stop
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 	      String startCmde="c4s";
 	      sendData = startCmde.getBytes();
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();
+	      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();
 	//   System.exit(0);
 	  
 	  	 
@@ -60,8 +64,8 @@ public class SendUDP extends Thread{
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2004; // pending reset
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[4];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
@@ -69,9 +73,11 @@ public class SendUDP extends Thread{
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x72;   // r reset
 			 sendData[3]=(byte) 0xff;   // 0xff reset all
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		   sendData=SecurSendUdp(sendData);
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -87,14 +93,15 @@ public class SendUDP extends Thread{
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 				RobotMainServer.runningStatus=2000; // pending start
-			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] sendData = new byte[3];
 			      String startCmde="c4x";
 			      sendData = startCmde.getBytes();
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+			      sendData=SecurSendUdp(sendData);
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
 			//   System.exit(0);
 			  
 			  	 
@@ -113,14 +120,15 @@ public class SendUDP extends Thread{
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 				RobotMainServer.runningStatus=2003; // pending calibrate
-			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] sendData = new byte[3];
 			      String startCmde="c4w";
 			      sendData = startCmde.getBytes();
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+			      sendData=SecurSendUdp(sendData);
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
 			//   System.exit(0);
 			  
 			  	 
@@ -139,14 +147,15 @@ public class SendUDP extends Thread{
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 				RobotMainServer.runningStatus=1001; // pending scan
-			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] sendData = new byte[3];
 			      String startCmde="c4+";
 			      sendData = startCmde.getBytes();
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+			      sendData=SecurSendUdp(sendData);
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
 			  	 
 			   
 			   
@@ -163,8 +172,8 @@ public class SendUDP extends Thread{
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2005; // pending reset
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[4];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
@@ -172,9 +181,10 @@ public class SendUDP extends Thread{
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x53;   // S align servomotor
 			 sendData[3]=(byte) value;   // value in degre between 0 to 180 
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+	//      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	//      clientSocket.send(sendPacket);
+	//      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -189,8 +199,8 @@ public class SendUDP extends Thread{
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2005; // pending reset
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+///	      DatagramSocket clientSocket = new DatagramSocket();
+///	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[5];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
@@ -199,9 +209,10 @@ public class SendUDP extends Thread{
 			 sendData[2]=0x6e;   // e rotation based on north orientation
 			 sendData[3]=(byte) (value/256);   // value in degre between 0 to 360
 			 sendData[4]=(byte) (value);   //
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -214,8 +225,8 @@ public class SendUDP extends Thread{
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2005; // pending reset
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[5];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
@@ -228,9 +239,10 @@ public class SendUDP extends Thread{
 			 {
 				 sendData[3]=(byte) (sendData[3]|0b10000000);  // upper bit to one means negative rotation
 			 }
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -244,18 +256,18 @@ public class SendUDP extends Thread{
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2005; // pending reset
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
 			 sendData[0]=0x63;  // c
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x70;   // p 
-
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -267,8 +279,8 @@ public class SendUDP extends Thread{
 	  String mess="encode OnOff";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[4];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
@@ -276,9 +288,10 @@ public class SendUDP extends Thread{
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x3a;   // : 
 			 sendData[3]=encoderOn;   // 
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -290,8 +303,8 @@ public class SendUDP extends Thread{
 	  String mess="set encoder thresholds";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[10];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
@@ -311,9 +324,10 @@ public class SendUDP extends Thread{
 			 sendData[7]=0x68;   // 
 			 sendData[8]=(byte) (Math.abs(highValue/256));   // 
 			 sendData[9]=(byte) highValue;
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -325,8 +339,8 @@ public class SendUDP extends Thread{
 	  String mess="set PWM motor";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	/      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[7];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
@@ -343,10 +357,10 @@ public class SendUDP extends Thread{
 			 sendData[4]=0x00;   // 
 			 sendData[5]=(byte) (Math.abs(value/256));   // 
 			 sendData[6]=(byte) value;
-
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+///	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -360,16 +374,17 @@ public class SendUDP extends Thread{
 	  String mess="set gyro selected range";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[4];
 			 sendData[0]=0x63;  // c
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x41;   // : 
 			 sendData[3]=(byte) (((byte) value)&0x0f);   // 
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -384,8 +399,8 @@ public class SendUDP extends Thread{
 	  String mess="set gyro selected range";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[4];
 	      byte valueB=(byte) (((byte) value)&0x0f);
 	      valueB=(byte) (valueB<<4&0xf0);
@@ -393,9 +408,10 @@ public class SendUDP extends Thread{
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x42;   // : 
 			 sendData[3]=valueB;   // 
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -411,8 +427,8 @@ public class SendUDP extends Thread{
 	  String mess="set SetGyroBiasMicrosec";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[6];
 			 sendData[0]=0x63;  // c
 			 sendData[1]=0x34;  // 4
@@ -420,9 +436,10 @@ public class SendUDP extends Thread{
 			 sendData[3]=0x01;   // one register
 			 sendData[4]=0x18;   // register 18
 			 sendData[5]=(byte) value;   // 
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -436,8 +453,8 @@ public class SendUDP extends Thread{
 	  String mess="get gyro registers";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte registerB=(byte) register;
 	      byte[] sendData = new byte[9];
 			 sendData[0]=0x63;  // c
@@ -448,9 +465,10 @@ public class SendUDP extends Thread{
 			 {
 				 sendData[4+i]=(byte) (registerB+i);
 			 }
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 	}
 	   catch(Exception e)
 	   {}
@@ -463,18 +481,41 @@ public class SendUDP extends Thread{
 	  String mess="query encoders values";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
 			 sendData[0]=0x63;  // c
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x3e;   // : 
-
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	public void GetSubsytemLocation() {
+		try{
+	  String mess="GetSubsytemLocation";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[3];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x00;  // 
+			 sendData[2]=0x7a;   // : 
+		     sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -486,18 +527,18 @@ public class SendUDP extends Thread{
 	  String mess="query motor PWM";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
 			 sendData[0]=0x63;  // c
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x40;   // : 
-
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -509,8 +550,8 @@ public class SendUDP extends Thread{
 	  String mess="set motors ratio";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[5];
 //	      String startCmde="c4r";
 //	      sendData = startCmde.getBytes();
@@ -519,10 +560,10 @@ public class SendUDP extends Thread{
 			 sendData[2]=0x3d;   // : 
 			 sendData[3]=(byte) (Math.abs(value/256));   // 
 			 sendData[4]=(byte) value;
-
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();  
+		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
 		}
 	   catch(Exception e)
 	   {}
@@ -590,10 +631,11 @@ public class SendUDP extends Thread{
     			 }
     			 System.out.println();
  */   			
-				  sendData = DataToSend;		
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+				  sendData = DataToSend;
+			      sendData=SecurSendUdp(sendData);
+	//		      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	//		      clientSocket.send(sendPacket);
+	//		      clientSocket.close();
 			  	 
 			   
 			   
@@ -608,14 +650,15 @@ public class SendUDP extends Thread{
 			String mess="send echo";
 			TraceLog Trace = new TraceLog();
 			Trace.TraceLog(pgmId,mess);
-	      DatagramSocket clientSocket = new DatagramSocket();
-	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
 	      String startCmde="c4e";
 	      sendData = startCmde.getBytes();
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-	      clientSocket.send(sendPacket);
-	      clientSocket.close();
+	      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();
   	 	   
 	   
 		}
@@ -663,10 +706,11 @@ public class SendUDP extends Thread{
 //			      	}
 //			      String startCmde="c4m";
 		      sendData = cmde;
+		      sendData=SecurSendUdp(sendData);
 //		      System.out.println(byteArrayToHex(sendData));
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
 			//   System.exit(0);
 			  		  	 
 			   
@@ -684,8 +728,8 @@ public class SendUDP extends Thread{
 			  String mess="posX:"+posX+ " posY:"+posY;
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
-			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] cmde = new byte[15];
 			      byte[] sendData = new byte[15];
 			      cmde[0]=0x63;
@@ -716,10 +760,11 @@ public class SendUDP extends Thread{
 //			      	}
 //			      String startCmde="c4m";
 		      sendData = cmde;
+		      sendData=SecurSendUdp(sendData);
 		      System.out.println(byteArrayToHex(sendData));
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
 			//   System.exit(0);
 			  		  	 
 			   
@@ -742,8 +787,8 @@ public class SendUDP extends Thread{
 			  String mess="align to:"+angle;
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
-			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] cmde = new byte[15];
 			      byte[] sendData = new byte[15];
 			      cmde[0]=0x63;
@@ -753,10 +798,11 @@ public class SendUDP extends Thread{
 			      cmde[4]=(byte)(angle);
 
 		      sendData = cmde;
+		      sendData=SecurSendUdp(sendData);
 //		      System.out.println(byteArrayToHex(sendData));
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
 			//   System.exit(0);
 			  		  	 
 			   
@@ -773,8 +819,8 @@ public class SendUDP extends Thread{
 			  String mess="horn";
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
-			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] sendData = new byte[4];
 			      byte[] cmde = new byte[4];
 			      cmde[0]=0x63;
@@ -782,9 +828,10 @@ public class SendUDP extends Thread{
 			      cmde[2]=0x68;  // h command
 			      cmde[3]=(byte)(duration);
 			      sendData = cmde;
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+			      sendData=SecurSendUdp(sendData);
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
 				}
 			   catch(Exception e)
 			   {}
@@ -797,8 +844,8 @@ public class SendUDP extends Thread{
 			  String mess="shift pulse";
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
-			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] sendData = new byte[4];
 			      byte[] cmde = new byte[4];
 			      cmde[0]=0x63;
@@ -806,9 +853,10 @@ public class SendUDP extends Thread{
 			      cmde[2]=0x69;  // i command
 			      cmde[3]=(byte)(value);
 			      sendData = cmde;
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+			      sendData=SecurSendUdp(sendData);
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
 				}
 			   catch(Exception e)
 			   {}
@@ -821,8 +869,8 @@ public class SendUDP extends Thread{
 			  String mess="detection obstacle:"+value;
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
-			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] sendData = new byte[4];
 			      byte[] cmde = new byte[4];
 			      cmde[0]=0x63;
@@ -833,16 +881,37 @@ public class SendUDP extends Thread{
 			      else
 			    	  cmde[3]=0x00;
 			      sendData = cmde;
-			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-			      clientSocket.send(sendPacket);
-			      clientSocket.close();
+			      sendData=SecurSendUdp(sendData);
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
 				}
 			   catch(Exception e)
 			   {}
 			   
 			   finally{}
 				}
-	
+	public void SetBNOMode(byte value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set BNOMode:"+value;
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+			      byte[] sendData = new byte[4];
+			      byte[] cmde = new byte[4];
+			      cmde[0]=0x63;
+			      cmde[1]=0x00;
+			      cmde[2]=0x79;
+			      cmde[3]=value;  // 
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+
 	public void CheckTimer() {
 		try{
 	//	  System.out.println("argument: " + args[0]);
@@ -863,6 +932,75 @@ public class SendUDP extends Thread{
 	   finally{}
 
 		}
+	byte[] SecurSendUdp(byte[] sendData)
+	{
+//		System.out.println(" in: 0x"+byteToHex(sendData[0])+" - "+byteToHex(sendData[1])+" - "+byteToHex(sendData[2]));
+	      DatagramSocket clientSocket = null;
+		try {
+			clientSocket = new DatagramSocket();
+		} catch (SocketException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+	      InetAddress IPAddress = null;
+		try {
+			IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+//		System.out.println(" count:"+countUdp);
+		countUdp++;
+//		System.out.println(" count:"+countUdp);
+		sendData[1]=countUdp;
+//		System.out.println(" out: 0x"+byteToHex(sendData[0])+" - "+byteToHex(sendData[1])+" - "+byteToHex(sendData[2]));
+		copySentData=sendData;
+		RobotMainServer.pendingAcqUdp=true;
+		RobotBatchServer.statusFrameCount=0;
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      try {
+			clientSocket.send(sendPacket);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	      clientSocket.close();
+		return sendData;
+	}
+	static void ResendLastFrame()
+	{
+	      DatagramSocket clientSocket = null;
+		try {
+			clientSocket = new DatagramSocket();
+		} catch (SocketException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+	      InetAddress IPAddress = null;
+		try {
+			IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		System.out.println(" resend: 0x"+byteToHex(copySentData[0])+" - "+byteToHex(copySentData[1])+" - "+byteToHex(copySentData[2]));
+		RobotMainServer.pendingAcqUdp=true;
+		RobotBatchServer.statusFrameCount=0;
+	      DatagramPacket sendPacket = new DatagramPacket(copySentData, copySentData.length, IPAddress, 8888);
+	      try {
+			clientSocket.send(sendPacket);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	      clientSocket.close();
+
+	}
+	  public static String byteToHex(byte b) {
+		    int i = b & 0xFF;
+		    return Integer.toHexString(i);
+		  }
 	}
 	
 
