@@ -667,6 +667,31 @@ public class SendUDP extends Thread{
 	   
 	   finally{}
 		}
+	public void RefreshNorthOrientation() {
+		try{
+			String mess="get NO";
+			TraceLog Trace = new TraceLog();
+			Trace.TraceLog(pgmId,mess);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+		     byte[] sendData = new byte[25];
+			 byte[] DataToSend = new byte[3];
+			 DataToSend[0]=0x63;  // c
+			 DataToSend[1]=0x34;  // 4
+			 DataToSend[2]=0x7b;   // I
+			 sendData = DataToSend;
+	      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();
+  	 	   
+	   
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
 	public void SendUDPMove(long angle,long move) {
 		// TODO Auto-generated method stub
 		try{

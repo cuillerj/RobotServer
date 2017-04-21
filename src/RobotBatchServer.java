@@ -145,6 +145,7 @@ public class RobotBatchServer implements Runnable {
 				    	 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
 				    	 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 				    	 RobotMainServer.northOrientation=256*oct0+oct1;
+				    	 RobotMainServer.RefreshHardPositionOnScreen();
 				    	 if (RobotMainServer.scanStepCount!=0)
 				    	 	{
 				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][0]=angle;
@@ -373,7 +374,24 @@ public class RobotBatchServer implements Runnable {
 								}
 						RobotMainServer.actStat=0x03;
 							}	
+						if (sentence2[9]==0x7b){                    //
+							EchoRobot.pendingEcho=0;
+							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
+							mess="event type:"+eventType;
+							Trace.TraceLog(pgmId,mess);
+							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
+							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
+							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest							
+							if (actionRetcode==0)
+							{
+								int i2=10;
+								int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
+								int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
+								RobotMainServer.northOrientation=256*oct0+oct1;
+								RobotMainServer.RefreshHardPositionOnScreen();
+							}
 
+							}
 			     	}
 					if(sentence2[8]==0x76)
 					{

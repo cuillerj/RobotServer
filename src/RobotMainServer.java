@@ -68,6 +68,7 @@ public class RobotMainServer
 	public static final int northAlignEnd=107;
 	public static final int servoAlignEnd=108;
 	public static final int pingFBEnd=109;
+	public static final int robotNOUpdated=123;
 	public static final int eventJava=0;
 	public static final int eventOctave=10;
 	public static final int eventArduino=20;
@@ -80,6 +81,8 @@ public class RobotMainServer
 	public static final byte moveUnderLimitation =5;
 	public static final byte moveKoDueToSpeedInconsistancy =10;
 	public static final byte moveKoDueToObstacle =7;
+	public static final byte moveKoDueToNotEnoughSpace = 11;
+	public static final byte rotationKoToManyRetry =(byte) 0xfe;
 	public static final byte diagMotorPbLeft= 0;
 	public static final byte diagMotorPbRight =1;
 	public static final byte diagMotorPbSynchro =2;
@@ -322,6 +325,8 @@ public static void initEventTable()
 	eventTimeoutTable[servoAlignEnd][1]=10;  // simulation mode
 	eventTimeoutTable[pingFBEnd][0]=100; // normal mode
 	eventTimeoutTable[pingFBEnd][1]=10;  // simulation mode
+	eventTimeoutTable[robotNOUpdated][0]=500; // normal mode
+	eventTimeoutTable[robotNOUpdated][1]=20;  // simulation mode
 	
 	actionSimulable[robotInfoUpdated][0]=1;   // simulation enable
 	actionSimulable[robotInfoUpdated][1]=1;  // simulation shift value
@@ -447,9 +452,9 @@ public static int GetHardHeading()
 //	EventManagement.AddPendingEvent(1,20,1,2);
 return hardAlpha;
 }
-public static int GetNorthOrientation()
+public static int RefreshNorthOrientation()
 {
-	int action=robotInfoUpdated;
+	int action=robotNOUpdated;
 	int timeout=eventTimeoutTable[action][simulation];
 	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 //	RobotMainServer.octavePendingRequest=1;    // request info uptodate
@@ -457,7 +462,7 @@ public static int GetNorthOrientation()
 	if(simulation*actionSimulable[action][0]==0)
 	{
 		SendUDP snd = new SendUDP();
-		snd.SendEcho();
+		snd.RefreshNorthOrientation();
 	}
 
 //	while(RobotMainServer.javaRequestStatusPending==true)
