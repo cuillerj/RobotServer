@@ -44,7 +44,7 @@ public class GetSqlData {
   //  				Trace.TraceLog(pgmId,mess);
 					cStmt = conn.prepareCall("{call apeRobotGetClosestEcho(?, ?, ?, ?,?,?,?,?,?,?,?,?,?)}");
 	    			 mess="call prepared";
-	    			 Trace.TraceLog(pgmId,mess);
+//	    			 Trace.TraceLog(pgmId,mess);
 	    			 cStmt.registerOutParameter(5, java.sql.Types.INTEGER);
 	    			 cStmt.registerOutParameter(6, java.sql.Types.INTEGER);
 	    			 cStmt.registerOutParameter(7, java.sql.Types.INTEGER);
@@ -112,7 +112,7 @@ public class GetSqlData {
 				    				 mess=mess+" count: "+RobotMainServer.echoClosestCount;
 				    				 RobotMainServer.echoClosestDistance=cStmt.getInt(13);
 				    				 mess=mess+" dist: "+RobotMainServer.echoClosestDistance;
-				    				 Trace.TraceLog(pgmId,mess);
+//				    				 Trace.TraceLog(pgmId,mess);
 				    				 mess="End";
 
 			//	 				Trace.TraceLog(pgmId,mess);

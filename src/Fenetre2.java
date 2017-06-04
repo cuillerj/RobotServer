@@ -238,7 +238,7 @@ public class Fenetre2 extends JFrame{
 //	String ids =indScan.getText();
 //	int indscan=Integer.parseInt(ids);
     indScan.setText(RobotMainServer.idscanG);
-    int indscan=Integer.parseInt(RobotMainServer.idscanG);
+    int indscan=Integer.parseInt(RobotMainServer.idscanG.replaceAll("[^a-zA-Z0-9\\s+]", ""));
 	String posXP;
 	String posYP;
 	String orientP;
@@ -328,9 +328,9 @@ try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTra
 //		    	System.out.println(ss);
 //		    	int posYN=Integer.parseInt(ss);
 		    	//ss =indScan.getText();
-		    	String ss=RobotMainServer.idscanG;
+	//	    	String ss=RobotMainServer.idscanG;
 //		    	System.out.println(ss);
-		    	int indsN=Integer.parseInt(ss);
+		    	//int indsN=Integer.parseInt(ss);
 //	      InitPos initRobot = new InitPos();
 //	      initRobot.InitRobot(posX2, posY2, alpha, indsN);
 	  		PanneauGraphique.point(posX2,posY2,alpha);

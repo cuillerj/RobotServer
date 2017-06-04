@@ -382,16 +382,16 @@ public class Fenetre extends JFrame{
 	    public void actionPerformed(ActionEvent arg0) {
 	        RobotMainServer.idscanG= idscan.getText();
 	      label.setText("Init posX, posY, orientation");   
-	      System.out.println("posX " + angle.getText());
+	//      System.out.println("posX " + angle.getText());
 //	      System.out.println("posY " + move.getText());
 //	      System.out.println("idscan " + idscan.getText());
 	      int posX = Integer.parseInt(init_X.getText());
 	      int posY= Integer.parseInt(init_Y.getText());
-	      String idsTS=idscan.getText();
-	      System.out.println("idscan " + idsTS);
-	      String idsT=idsTS.replaceAll(" ","");
-	      System.out.println("idscan " + idsT);
-	      int ids= Integer.parseInt(idsT);
+//	      int ids= (int) idscan.getValue();
+	      String idsTS=new String(idscan.getText());
+	      idsTS=idsTS.replaceAll("[^a-zA-Z0-9\\s+]", "");
+	      System.out.println("idscan-- " + idsTS);
+	      int ids= Integer.parseInt(idsTS);
 	      int orien= Integer.parseInt(orient.getText());
 	      RobotMainServer.posX=posX;
 	      RobotMainServer.posY=posY;
@@ -400,6 +400,7 @@ public class Fenetre extends JFrame{
 	      initRobot.InitRobot(posX, posY, orien, ids);
 	      SendUDP snd = new SendUDP();
 	      snd.SendUDPInit(posX,posY,orien,RobotMainServer.currentLocProb);
+
 	      Fenetre2.ValidePosition(posX, posY, orien);
 	      go();
 	    }
@@ -477,12 +478,16 @@ public void MajActionRetcode(String string) {
 }
 public static void RefreshStat() {
 	// TODO Auto-generated method stub
-	if (EchoRobot.pendingEcho>2)
+	if (EchoRobot.pendingEcho>2 && RobotMainServer.simulation==0)
 	{
-		robotStat="timout";
+		robotStat="timeout";
 		RobotMainServer.runningStatus=-1;
 	}
-	
+	if (RobotMainServer.simulation==1)
+	{
+		robotStat="Simultation ";
+		RobotMainServer.runningStatus=-1;
+	}
     go();
 }
 }

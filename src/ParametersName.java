@@ -36,7 +36,7 @@ public class ParametersName {
 				 				while (rs.next()) {	 					
 				 					name=rs.getString("name");
 					 				 mess="found parameter "+ID+" name:"+name;
-	//				 				Trace.TraceLog(pgmId,mess);
+					 				Trace.TraceLog(pgmId,mess);
 				 				}
 				 				mess="End";
 	//			 				Trace.TraceLog(pgmId,mess);

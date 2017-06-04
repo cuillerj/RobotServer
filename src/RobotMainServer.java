@@ -37,7 +37,7 @@ public class RobotMainServer
 	public static int gyroHeading=0;
 	public static byte actStat=0x00;
 	public static String stationStatus="";
-	public static String ipRobot="192.168.1.133";  // en cible a lire en BD 
+	public static String ipRobot="192.168.1.30";  // en cible a lire en BD 
 	public static int shiftEchoVsRotationCenter = 6;  // en cible a lire en BD 
 	public static int[][] scanArray = new int [15][3];
 	public static int scanStepCount=0;
@@ -78,8 +78,9 @@ public class RobotMainServer
 	public static final byte moveRetcodeEncoderRightLowLevel= 2;
 	public static final byte moveRetcodeEncoderLeftHighLevel =3;
 	public static final byte moveRetcodeEncoderRightHighLevel =4;
+	public static final byte  moveWheelSpeedInconsistancy=1;
 	public static final byte moveUnderLimitation =5;
-	public static final byte moveKoDueToSpeedInconsistancy =10;
+	public static final byte moveKoDueToWheelStopped =10;
 	public static final byte moveKoDueToObstacle =7;
 	public static final byte moveKoDueToNotEnoughSpace = 11;
 	public static final byte rotationKoToManyRetry =(byte) 0xfe;
@@ -118,8 +119,9 @@ public class RobotMainServer
 	public static float echoClosestStdBack=0;
 	public static int echoClosestCount=0;
 	public static int echoClosestDistance=0;
-	public static float noiseLevel=0;
-	public static boolean noiseRetCode=true;
+	public static float noiseLevel=0;         // level of noise on rotation & move 
+	public static boolean noiseRetCode=false;  // is there noise on move retCode
+	public static int noiseRetValue=1;   // if noise on move retcode define random limit (higher lower the noise)
 	public static byte BNOMode=0x00;
 	public static byte BNOCalStat=0x00;
 	public static byte BNOSysStat=0x00;
@@ -135,6 +137,8 @@ public class RobotMainServer
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
 	public static PrintStream stdout = System.out;
+	public static int retCodeDetail=0;
+
 public static void main(String args[]) throws Exception
 			{
 	String pgmId="Mainserver";
@@ -300,9 +304,14 @@ public static void LaunchSimu()
 	SetSimulationMode(1);
 	initEventTable();
 	StartTimeoutManagement();
+	Fenetre ihm = new Fenetre();
+	Fenetre2 ihm2 = new Fenetre2();
 	FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
-//	ihm2.SetInitialPosition();
-	ihm3.SetInitialPosition();  // au moins une fenetre active avant de detacher le batch
+	ihm2.SetInitialPosition();
+	ihm3.SetInitialPosition();
+	TraceEvents trace=new TraceEvents();
+//	trace.TraceEvents();
+	trace.start();
 			//InitRobot();
 //	RobotBatchServer batch = new RobotBatchServer();
 //	Thread myThread = new Thread(batch);

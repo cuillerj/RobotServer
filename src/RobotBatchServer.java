@@ -353,6 +353,13 @@ public class RobotBatchServer implements Runnable {
 							{
 								RobotMainServer.gyroHeading=-RobotMainServer.gyroHeading;
 							}
+							oct0=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[30]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[35]&0x7F)-(byte)(sentence2[31]&0x80);
+							RobotMainServer.retCodeDetail=256*oct0+oct1;
+							if (sentence2[33]==0x2d)
+							{
+								RobotMainServer.retCodeDetail=-RobotMainServer.retCodeDetail;
+							}
 							/*
 							oct0=(byte)(sentence2[33]&0x7F)-(byte)(sentence2[33]&0x80); // manip car byte consideré signé
 							oct1=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80);			
@@ -361,7 +368,7 @@ public class RobotBatchServer implements Runnable {
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
-							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode:"+retCode;
+							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode:"+retCode+" detail:"+RobotMainServer.retCodeDetail;
 							Trace.TraceLog(pgmId,mess);
 	//						System.out.println("refresh hard on screen");
 							
@@ -617,7 +624,7 @@ public class RobotBatchServer implements Runnable {
 					sbn=sentence2[13];
 					if (sbn==255)   // robot just reboot
 					{
-						RobotMainServer.currentLocProb=0;
+					//	RobotMainServer.currentLocProb=0;
 						RobotMainServer.hardJustReboot=true;
 					}
 					sbnb=(byte)sbn;
@@ -680,7 +687,7 @@ public class RobotBatchServer implements Runnable {
 						RobotMainServer.serverJustRestarted=false;
 					}
 	//			ihm2.ValidePosition(RobotMainServer.hardPosX,RobotMainServer.hardPosY,RobotMainServer.hardAlpha);
-					mess="posX:"+RobotMainServer.hardPosX+ " posY:"+RobotMainServer.hardPosY+" angle:"+ RobotMainServer.hardAlpha;
+					mess="posX:"+RobotMainServer.hardPosX+ " posY:"+RobotMainServer.hardPosY+" angle:"+ RobotMainServer.hardAlpha+" prob:"+RobotMainServer.currentLocProb;
 					Trace.TraceLog(pgmId,mess);
 				if 	(RobotMainServer.octaveRequestPending==true && RobotMainServer.octavePendingRequest==1)
 				{

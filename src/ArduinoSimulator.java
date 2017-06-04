@@ -17,23 +17,57 @@ public class ArduinoSimulator{
 
 		Random rand = new Random();
 		int retCode=0;
-		if (RobotMainServer.noiseRetCode)
+		if (RobotMainServer.noiseRetCode && reqCode==RobotMainServer.moveEnd)
 		{
-			retCode=rand.nextInt(11); // generate a random return code for the action
+			retCode=rand.nextInt(RobotMainServer.noiseRetValue); // generate a random return code for the action
+			
 		}
-
+		if (retCode==1)
+		{
+			retCode=RobotMainServer.moveWheelSpeedInconsistancy;
+		}
+		if (retCode==2)
+		{
+			retCode=RobotMainServer.moveUnderLimitation;
+		}
+		else if (retCode==3)
+		{
+			retCode=RobotMainServer.moveKoDueToWheelStopped;
+		}
+		else if (retCode==4)
+		{
+			retCode=RobotMainServer.moveKoDueToObstacle;
+		}
+		else if (retCode==5)
+		{
+			retCode=RobotMainServer.moveKoDueToNotEnoughSpace;
+		}
+		else
+		{
+			retCode=0;
+		}
 		TraceLog Trace = new TraceLog();
-//		String mess1="randDom retCode:"+retCode;
-//		Trace.TraceLog(pgmId,mess1);
+		String mess1="randDom retCode:"+retCode+" reqCode:"+reqCode;
+		Trace.TraceLog(pgmId,mess1);
 
 		if (reqCode==RobotMainServer.moveEnd )
 		{
-			if (retCode == RobotMainServer.moveKoDueToSpeedInconsistancy || retCode == RobotMainServer.moveKoDueToObstacle)
+			if (retCode == RobotMainServer.moveKoDueToWheelStopped || retCode == RobotMainServer.moveKoDueToObstacle)
 				{
 				savedDistance=savedDistance/2;
 				String mess2="randDom retCode Ko:"+retCode+" dist:"+savedDistance;
 				Trace.TraceLog(pgmId,mess2);
 				}
+			else if (retCode == RobotMainServer.moveKoDueToNotEnoughSpace)
+			{
+				RobotMainServer.retCodeDetail=(int) (savedDistance*.75);
+				savedDistance=0;
+				savedRotation=0;
+				savedGyro=0;
+
+				String mess2="randDom retCode Ko:"+retCode+" dist:"+savedDistance+" rot:"+savedRotation;
+				Trace.TraceLog(pgmId,mess2);			
+			}
 			else
 			{
 				retCode=0;	
@@ -111,7 +145,7 @@ public class ArduinoSimulator{
 			RobotMainServer.hardPosX=RobotMainServer.posX;
 			RobotMainServer.hardPosY=RobotMainServer.posY;
 			RobotMainServer.hardAlpha=RobotMainServer.alpha;
-			String mess="Arduino robot updated posX:" + RobotMainServer.hardPosX + " posY:" + RobotMainServer.hardPosY+ " heading:" + RobotMainServer.hardAlpha+ " gyroHeading:" + RobotMainServer.gyroHeading+ " retCode:"+retCode;
+			String mess="Arduino robot updated posX:" + RobotMainServer.hardPosX + " posY:" + RobotMainServer.hardPosY+ " heading:" + RobotMainServer.hardAlpha+ " gyroHeading:" + RobotMainServer.gyroHeading+ " retCode:"+retCode + " prob:" + RobotMainServer.currentLocProb;
 			Trace.TraceLog(pgmId,mess);
 		}
 		if (reqCode==RobotMainServer.robotInfoUpdated)
