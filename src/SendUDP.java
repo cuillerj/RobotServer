@@ -37,7 +37,7 @@ public class SendUDP extends Thread{
 	  String mess="stop";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
-		RobotMainServer.runningStatus=2001; // pending stop
+		RobotMainServer.runningStatus=-1; // pending stop
 //	      DatagramSocket clientSocket = new DatagramSocket();
 //	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 	      byte[] sendData = new byte[3];
@@ -367,6 +367,33 @@ public class SendUDP extends Thread{
 	   
 	   finally{}
 		}
+	public void SetSlowPWMRatio(int value) {
+		try{
+	  String mess="set SetSlowPWMRatio";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+//	/      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[7];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x3f;   // : 
+			 sendData[3]=0x72;   //  r
+			 sendData[4]=0x00;   // 
+			 sendData[5]=(byte) (Math.abs(value/256));   // 
+			 sendData[6]=(byte) value;
+		     sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+///	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
 	public void SetGyroSelectedRange(int value) {
 		if (value==00||value==1||value==2)
 		{
@@ -499,6 +526,32 @@ public class SendUDP extends Thread{
 	   
 	   finally{}
 		}
+	public void SendRequestBNOData() {
+		try{
+	  String mess="SendRequestBNOData";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[3];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=0x7c;   // : 
+		     sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}	
+	
+	
+	
 	public void GetSubsytemLocation() {
 		try{
 	  String mess="GetSubsytemLocation";
@@ -959,6 +1012,7 @@ public class SendUDP extends Thread{
 		}
 	byte[] SecurSendUdp(byte[] sendData)
 	{
+		while (CheckLastFrame());				;
 //		System.out.println(" in: 0x"+byteToHex(sendData[0])+" - "+byteToHex(sendData[1])+" - "+byteToHex(sendData[2]));
 	      DatagramSocket clientSocket = null;
 		try {
@@ -1010,7 +1064,7 @@ public class SendUDP extends Thread{
 		}
 
 		System.out.println(" resend: 0x"+byteToHex(copySentData[0])+" - "+byteToHex(copySentData[1])+" - "+byteToHex(copySentData[2]));
-		RobotMainServer.pendingAcqUdp=true;
+//		RobotMainServer.pendingAcqUdp=false;
 		RobotBatchServer.statusFrameCount=0;
 	      DatagramPacket sendPacket = new DatagramPacket(copySentData, copySentData.length, IPAddress, 8888);
 	      try {
@@ -1020,6 +1074,37 @@ public class SendUDP extends Thread{
 			e.printStackTrace();
 		}
 	      clientSocket.close();
+
+	}
+	static boolean CheckLastFrame()
+	{
+		if(RobotMainServer.simulation==1)
+		{
+			RobotMainServer.pendingAcqUdp=false;
+			return false;
+		}
+			
+		if (RobotMainServer.pendingAcqUdp==true)
+		{
+			try {
+				Thread.sleep(2000);
+				if (RobotMainServer.pendingAcqUdp==true)  
+				{
+					ResendLastFrame();	
+					Thread.sleep(1000);
+					RobotMainServer.pendingAcqUdp=false; // just one retry
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+			
+		}
+		else{
+			return false;
+		}
+
 
 	}
 	  public static String byteToHex(byte b) {

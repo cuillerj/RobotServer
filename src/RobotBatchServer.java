@@ -7,10 +7,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+import java.util.Arrays;
 
 public class RobotBatchServer implements Runnable {
 	public static int statusFrameCount=0;
+	byte[] prevSentence=new byte[1024];
 	public void run()
 	{
 		String pgmId="RobotBatchServer";
@@ -23,7 +24,7 @@ public class RobotBatchServer implements Runnable {
 		Fenetre ihm = new Fenetre();
 		Fenetre2 ihm2 = new Fenetre2();
 		FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
-		ihm2.SetInitialPosition();
+//		ihm2.SetInitialPosition();
 		ihm3.SetInitialPosition();
 //		FenetreGraphique graph = new FenetreGraphique();
 //		PanneauGraphique.point(posXG,posYG);
@@ -75,6 +76,10 @@ public class RobotBatchServer implements Runnable {
 //				String sentence = new String( receivePacket.getData());
 
 				 sentence2 =  receivePacket.getData();
+			if(!Arrays.equals(sentence2, prevSentence)) // not a duplicated frame
+			 {
+				prevSentence=sentence2;					 
+
 				 InpLen=(byte)sentence2[4];
 				
 
@@ -93,7 +98,7 @@ public class RobotBatchServer implements Runnable {
 				 	System.out.println();
 			 	}
 				int idx=Type;
-				if(RobotMainServer.runningStatus<=0)
+				if(RobotMainServer.runningStatus>=0)
 				{
 					RobotMainServer.runningStatus=1;
 				}
@@ -353,8 +358,8 @@ public class RobotBatchServer implements Runnable {
 							{
 								RobotMainServer.gyroHeading=-RobotMainServer.gyroHeading;
 							}
-							oct0=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[30]&0x80); // manip car byte consideré signé
-							oct1=(byte)(sentence2[35]&0x7F)-(byte)(sentence2[31]&0x80);
+							oct0=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[35]&0x7F)-(byte)(sentence2[35]&0x80);
 							RobotMainServer.retCodeDetail=256*oct0+oct1;
 							if (sentence2[33]==0x2d)
 							{
@@ -459,9 +464,9 @@ public class RobotBatchServer implements Runnable {
 						EventManagement.UpdateEvent(RobotMainServer.robotInfoUpdated,0,RobotMainServer.eventOctave,RobotMainServer.eventArduino);  // reqCode,retCode,source, dest
 						EventManagement.UpdateEvent(RobotMainServer.robotUpdatedEnd,0,RobotMainServer.eventOctave,RobotMainServer.eventArduino);  // reqCode,retCode,source, dest
 					}
-					if (RobotMainServer.pendingAcqUdp=false)
+					if (RobotMainServer.pendingAcqUdp==true)
 					{
-						if (sentence2[28]==SendUDP.countUdp)
+						if (sentence2[34]==SendUDP.countUdp)
 						{
 							RobotMainServer.pendingAcqUdp=false;
 							statusFrameCount=0;
@@ -469,7 +474,7 @@ public class RobotBatchServer implements Runnable {
 						else
 						{
 							statusFrameCount++;
-							if (sentence2[28]>SendUDP.countUdp || statusFrameCount >3)
+							if (statusFrameCount >3)
 							{
 								SendUDP.ResendLastFrame();
 							}
@@ -477,10 +482,7 @@ public class RobotBatchServer implements Runnable {
 					}
 	//			    RobotMainServer.javaRequestStatusPending=false;
 	//				System.out.print("echo response: ");
-					if (RobotMainServer.runningStatus==0)
-					{
-						RobotMainServer.runningStatus=1;
-					}
+
 					ihm.MajRobotStat("connected");
 					if (sentence2[8]==0x66){
 	//					System.out.print("scan running ");
@@ -694,27 +696,43 @@ public class RobotBatchServer implements Runnable {
 					RobotMainServer.octavePendingRequest=0;
 					RobotMainServer.octaveRequestPending=false;
 				}
-						
+				if (sentence2[7]==0xff)   // app status  equal not started or stopped
+				{
+					RobotMainServer.runningStatus=-1;
+				}
+				else{
+				
+					if (RobotMainServer.runningStatus==0 || RobotMainServer.runningStatus==-1 )
+						{
+							RobotMainServer.runningStatus=1;
+						}
+					}						
 				}
 	// end of status info
 				
 				
 				if (sentence2[6]==0x70){  // power info
 					EchoRobot.pendingEcho=0;
-				int power1=sentence2[7]*10;
-				if (power1<0)
-				{
-					power1=256-power1;
-				}
-				int power2=sentence2[8]*10;
-				if (power2<0)
-				{
-					power2=256-power2;
-				}
-				RobotMainServer.power9V=power1;
-				RobotMainServer.power5V=power2;
+					int power1=((byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80))*10;
+					int power2=((byte)(sentence2[8]&0x7F)-(byte)(sentence2[8]&0x80))*10;
+					int power3=((byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80))*10;
+					int power4=((byte)(sentence2[11]&0x7F)-(byte)(sentence2[11]&0x80))*10;
+					int power5=((byte)(sentence2[13]&0x7F)-(byte)(sentence2[13]&0x80))*10;
+					int power6=((byte)(sentence2[14]&0x7F)-(byte)(sentence2[14]&0x80))*10;
+					RobotMainServer.voltage1=power1;
+					RobotMainServer.voltage2=power2;
+					RobotMainServer.voltage3=power3;
+					RobotMainServer.voltage4=power4;
+					RobotMainServer.voltage5=power5;
+					RobotMainServer.voltage6=power6;
 //				System.out.println("power1: "+power1+"cV power2: "+power2+"cV power3: "+power3+"cV");
-				ihm.MajRobotPower(Integer.toString(power1)+ "cV "+Integer.toString(power2)+ "cV ");
+					ihm.MajRobotPower(Integer.toString(power1)+ "cV "+Integer.toString(power2)+ "cV ");
+					String sql="INSERT INTO powerHistoric VALUES (now(), "
+						+ ""+RobotMainServer.voltage1+","+RobotMainServer.voltage2+","+RobotMainServer.voltage3+","+RobotMainServer.voltage4+","+RobotMainServer.voltage5+","
+								+ ""+RobotMainServer.voltage6+")";
+					RobotMainServer.prevCumulativeLeftHoles=RobotMainServer.cumulativeLeftHoles ;
+					RobotMainServer.prevCumulativeRightHoles=RobotMainServer.cumulativeRightHoles ;
+					InsertSqlData(sql);				
 				}
 				
 				if (sentence2[6]==0x71 || sentence2[6]==0x72|| sentence2[6]==0x73 || sentence2[6]==0x74){  // encoder & motor values
@@ -848,7 +866,11 @@ public class RobotBatchServer implements Runnable {
 					RobotMainServer.rightPWM=value;
 					break;
 					}
-
+						case (3):
+						{
+					RobotMainServer.SlowPWMRatio=value;
+					break;
+					}
 					}
 					}
 
@@ -881,7 +903,7 @@ public class RobotBatchServer implements Runnable {
 				if (sentence2[6]==0x74 && (RobotMainServer.cumulativeLeftHoles != RobotMainServer.prevCumulativeLeftHoles || RobotMainServer.cumulativeRightHoles!= RobotMainServer.prevCumulativeRightHoles))
 				{
 					String sql="INSERT INTO encodersStatistics VALUES (now(), 1,"
-							+ ""+RobotMainServer.cumulativeLeftHoles+","+RobotMainServer.cumulativeRightHoles+","+RobotMainServer.leftPWM+","+RobotMainServer.rightPWM+","+RobotMainServer.PWMRatio+","
+							+ ""+RobotMainServer.cumulativeLeftHoles+","+RobotMainServer.cumulativeRightHoles+","+RobotMainServer.leftPWM+","+RobotMainServer.rightPWM+","+RobotMainServer.SlowPWMRatio+","
 									+ ""+RobotMainServer.leftMaxLevel+","+RobotMainServer.leftMinLevel+","+RobotMainServer.rightMaxLevel+","+RobotMainServer.rightMinLevel+""
 							+ ","+RobotMainServer.leftLowThreshold+","+RobotMainServer.leftHighThreshold+","+RobotMainServer.rightLowThreshold+","+RobotMainServer.rightHighThreshold+")";
 					RobotMainServer.prevCumulativeLeftHoles=RobotMainServer.cumulativeLeftHoles ;
@@ -919,8 +941,8 @@ public class RobotBatchServer implements Runnable {
 					}
 				}
 			}
+		}
 	}
-
 	void UpdateScanRefOrientation(int northOrientation)
 	{
 		int idscan=Fenetre.ids();

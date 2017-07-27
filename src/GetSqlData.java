@@ -93,7 +93,7 @@ public class GetSqlData {
 	//			    			 Trace.TraceLog(pgmId,sql);
 				    			 boolean hadResults = cStmt.execute();
 				    			 mess="after exe";
-				    				Trace.TraceLog(pgmId,mess);
+//				    				Trace.TraceLog(pgmId,mess);
 				    				 RobotMainServer.echoClosestRefX=cStmt.getInt(5);
 				    				 mess="found x: "+RobotMainServer.echoClosestRefX;
 				    				 RobotMainServer.echoClosestRefY=cStmt.getInt(6);

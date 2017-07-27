@@ -68,6 +68,7 @@ public class RobotMainServer
 	public static final int northAlignEnd=107;
 	public static final int servoAlignEnd=108;
 	public static final int pingFBEnd=109;
+	public static final int requestBNOEnd=118;
 	public static final int robotNOUpdated=123;
 	public static final int eventJava=0;
 	public static final int eventOctave=10;
@@ -106,6 +107,7 @@ public class RobotMainServer
 	public static int leftPWM=0;
 	public static int rightPWM=0;
 	public static int PWMRatio=0;
+	public static int SlowPWMRatio=0;
 	public static int leftMaxLevel=0;
 	public static int leftMinLevel=0;
 	public static int rightMaxLevel=0;
@@ -133,6 +135,13 @@ public class RobotMainServer
 	public static int BNORightPosY=0;
 	public static int BNOLocFlag=0;
 	public static int BNOLocHeading=0;
+	public static int voltage1=0;
+	public static int voltage2=0;
+	public static int voltage3=0;
+	public static int voltage4=0;
+	public static int voltage5=0;
+	public static int voltage6=0;
+	public static int voltage7=0;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
@@ -336,7 +345,6 @@ public static void initEventTable()
 	eventTimeoutTable[pingFBEnd][1]=10;  // simulation mode
 	eventTimeoutTable[robotNOUpdated][0]=500; // normal mode
 	eventTimeoutTable[robotNOUpdated][1]=20;  // simulation mode
-	
 	actionSimulable[robotInfoUpdated][0]=1;   // simulation enable
 	actionSimulable[robotInfoUpdated][1]=1;  // simulation shift value
 	actionSimulable[robotUpdatedEnd][0]=1; 
@@ -347,6 +355,7 @@ public static void initEventTable()
 	actionSimulable[northAlignEnd][1]=1;
 	actionSimulable[pingFBEnd][0]=1;
 	actionSimulable[pingFBEnd][1]=1;
+
 	}
 public static int GetScanAngle(int idx)
 {
@@ -571,6 +580,10 @@ public static boolean GetOctaveRequestPending ()
 {
 return octaveRequestPending;
 }
+public static int GetRetcodeDetail ()
+{
+return retCodeDetail;
+}
 public static void SetCurrentLocProb (int value)
 {
 currentLocProb=value;
@@ -598,6 +611,14 @@ EventManagement.AddPendingEvent(robotInfoUpdated,timeout,eventOctave,eventArduin
 octaveRequestPending=true;
 SendUDP snd = new SendUDP();
 snd.SendEcho();
+	}
+public static void requestBNOData()
+{
+int timeout=eventTimeoutTable[robotInfoUpdated][simulation];
+EventManagement.AddPendingEvent(robotInfoUpdated,timeout,eventOctave,eventArduino+simulation*actionSimulable[robotInfoUpdated][0]*actionSimulable[robotInfoUpdated][1]);
+octaveRequestPending=true;
+SendUDP snd = new SendUDP();
+snd.SendRequestBNOData();
 	}
 public static void ResetRobotStatus()
 {
@@ -724,6 +745,11 @@ public static void SetPWMMotor(boolean Left,int value)
 {             // duration in seconds up to 254
 	SendUDP snd = new SendUDP();
 	snd.SetPWMMotor(Left,value);
+}
+public static void SetSlowPWMRatio(int value)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.SetSlowPWMRatio(value);
 }
 public static void QueryEncodersValues()
 {             // duration in seconds up to 254
