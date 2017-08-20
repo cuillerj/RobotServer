@@ -199,6 +199,7 @@ public class RobotBatchServer implements Runnable {
 						sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
 						sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
 						ihm.MajActionRetcode(" 0x"+sbb4);
+						RobotMainServer.actionRetcode=(byte)(sentence2[10]);
 						int retCode=sentence2[10];
 				    	if (sentence2[9]==0x66){                    // scan en cours
 							EchoRobot.pendingEcho=0;
@@ -374,6 +375,94 @@ public class RobotBatchServer implements Runnable {
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
 							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode:"+retCode+" detail:"+RobotMainServer.retCodeDetail;
+							Trace.TraceLog(pgmId,mess);
+	//						System.out.println("refresh hard on screen");
+							
+							RobotMainServer.RefreshHardPositionOnScreen();
+							if (RobotMainServer.actStat==0x02){ 
+								Fenetre2.ValidePosition(RobotMainServer.posX,RobotMainServer.posY,RobotMainServer.alpha);
+								
+				//				PanneauGraphique.point(200+posXG/10,200+posYG/10);
+				//				graph.repaint();
+								}
+						RobotMainServer.actStat=0x03;
+							}
+						if (sentence2[9]==RobotMainServer.moveAcrossPassEnded){                    // 
+							EchoRobot.pendingEcho=0;
+	//						int ang=ihm.ang();
+	//						int mov=ihm.mov();
+	//						Fenetre2.PosActualise(ang,mov);
+							RobotMainServer.actStat=0x02; 
+							int eventType=(byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80);
+							mess="event type:"+eventType;
+							Trace.TraceLog(pgmId,mess);
+							int actionRetcode=(byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80);
+							ihm.MajRobotStat("move APath ended");
+							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
+							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
+//							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
+							RobotMainServer.runningStatus=4;
+							int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé
+							int oct1=(byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80);
+							RobotMainServer.hardPosX=256*oct0+oct1;
+							if (sentence2[14]==0x2d)
+							{
+								RobotMainServer.hardPosX=-RobotMainServer.hardPosX;
+							}
+							oct0=(byte)(sentence2[18]&0x7F)-(byte)(sentence2[18]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[19]&0x7F)-(byte)(sentence2[19]&0x80);
+							RobotMainServer.hardPosY=256*oct0+oct1;
+							if (sentence2[17]==0x2d)
+							{
+								RobotMainServer.hardPosY=-RobotMainServer.hardPosY;
+							}
+							oct0=(byte)(sentence2[21]&0x7F)-(byte)(sentence2[21]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[22]&0x7F)-(byte)(sentence2[22]&0x80);
+							RobotMainServer.hardAlpha=256*oct0+oct1;
+							if (sentence2[20]==0x2d)
+							{
+								RobotMainServer.hardAlpha=-RobotMainServer.hardAlpha;
+							}
+							oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
+							RobotMainServer.deltaNORotation=256*oct0+oct1;
+							if (sentence2[23]==0x2d)
+							{
+								RobotMainServer.deltaNORotation=-RobotMainServer.deltaNORotation;
+							}
+							oct0=(byte)(sentence2[27]&0x7F)-(byte)(sentence2[27]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[28]&0x7F)-(byte)(sentence2[28]&0x80);
+							RobotMainServer.deltaNOMoving=256*oct0+oct1;
+							if (sentence2[26]==0x2d)
+							{
+								RobotMainServer.deltaNOMoving=-RobotMainServer.deltaNOMoving;
+							}
+							oct0=(byte)(sentence2[12]&0x7F)-(byte)(sentence2[12]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[13]&0x7F)-(byte)(sentence2[13]&0x80);
+							RobotMainServer.northOrientation=256*oct0+oct1;
+							oct0=(byte)(sentence2[30]&0x7F)-(byte)(sentence2[30]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[31]&0x7F)-(byte)(sentence2[31]&0x80);
+							RobotMainServer.gyroHeading=256*oct0+oct1;
+							if (sentence2[29]==0x2d)
+							{
+								RobotMainServer.gyroHeading=-RobotMainServer.gyroHeading;
+							}
+							oct0=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[35]&0x7F)-(byte)(sentence2[35]&0x80);
+							RobotMainServer.retCodeDetail=256*oct0+oct1;
+							if (sentence2[33]==0x2d)
+							{
+								RobotMainServer.retCodeDetail=-RobotMainServer.retCodeDetail;
+							}
+							/*
+							oct0=(byte)(sentence2[33]&0x7F)-(byte)(sentence2[33]&0x80); // manip car byte consideré signé
+							oct1=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80);			
+							RobotMainServer.cumulativeRightHoles=256*oct0+oct1;
+							*/
+							String XString=Integer.toString(RobotMainServer.hardPosX);
+							String YString=Integer.toString(RobotMainServer.hardPosY);
+							String HString=Integer.toString(RobotMainServer.hardAlpha);
+							mess="move across path ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode:"+retCode+" detail:"+RobotMainServer.retCodeDetail;
 							Trace.TraceLog(pgmId,mess);
 	//						System.out.println("refresh hard on screen");
 							

@@ -40,11 +40,11 @@ public class GetSqlData {
 	    			 String connectionUser = "jean";
 	    			 String connectionPassword = "manu7890";
 	    			 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
-	    			 mess="BD connected";
-  //  				Trace.TraceLog(pgmId,mess);
+	//    			 mess="BD connected";
+    //				Trace.TraceLog(pgmId,mess);
 					cStmt = conn.prepareCall("{call apeRobotGetClosestEcho(?, ?, ?, ?,?,?,?,?,?,?,?,?,?)}");
 	    			 mess="call prepared";
-//	    			 Trace.TraceLog(pgmId,mess);
+	    			 Trace.TraceLog(pgmId,mess);
 	    			 cStmt.registerOutParameter(5, java.sql.Types.INTEGER);
 	    			 cStmt.registerOutParameter(6, java.sql.Types.INTEGER);
 	    			 cStmt.registerOutParameter(7, java.sql.Types.INTEGER);
@@ -54,8 +54,8 @@ public class GetSqlData {
 	    			 cStmt.registerOutParameter(11, java.sql.Types.FLOAT);
 	    			 cStmt.registerOutParameter(12, java.sql.Types.INTEGER);
 	    			 cStmt.registerOutParameter(13, java.sql.Types.INTEGER);
-	    			 mess="out param";
-//   				Trace.TraceLog(pgmId,mess);
+//	    			 mess="out param";
+ //  				Trace.TraceLog(pgmId,mess);
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -112,7 +112,7 @@ public class GetSqlData {
 				    				 mess=mess+" count: "+RobotMainServer.echoClosestCount;
 				    				 RobotMainServer.echoClosestDistance=cStmt.getInt(13);
 				    				 mess=mess+" dist: "+RobotMainServer.echoClosestDistance;
-//				    				 Trace.TraceLog(pgmId,mess);
+				    				 Trace.TraceLog(pgmId,mess);
 				    				 mess="End";
 
 			//	 				Trace.TraceLog(pgmId,mess);

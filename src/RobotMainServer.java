@@ -37,7 +37,7 @@ public class RobotMainServer
 	public static int gyroHeading=0;
 	public static byte actStat=0x00;
 	public static String stationStatus="";
-	public static String ipRobot="192.168.1.30";  // en cible a lire en BD 
+	public static String ipRobot="192.168.1.35";  // en cible a lire en BD 
 	public static int shiftEchoVsRotationCenter = 6;  // en cible a lire en BD 
 	public static int[][] scanArray = new int [15][3];
 	public static int scanStepCount=0;
@@ -59,6 +59,7 @@ public class RobotMainServer
 	public static boolean interactive=false;
 	public static int simulation=0;
 	public static String fname="robotJavaTrace.txt";
+	public static int actionRetcode=0;
 	public static final int robotInfoUpdated=1;
 	public static final int robotUpdatedEnd=8;
 	public static final int scanning =102;   // 0x66
@@ -68,6 +69,7 @@ public class RobotMainServer
 	public static final int northAlignEnd=107;
 	public static final int servoAlignEnd=108;
 	public static final int pingFBEnd=109;
+	public static final int moveAcrossPassEnded=112;
 	public static final int requestBNOEnd=118;
 	public static final int robotNOUpdated=123;
 	public static final int eventJava=0;
@@ -416,6 +418,33 @@ public static void Move(long ang,long mov)
     SendUDP snd = new SendUDP();
     snd.SendUDPMove((long)ang,(long) mov);
     Fenetre2.PosActualise(ang,mov);
+    }
+    RobotMainServer.actStat=0x01;  //demande mov
+}
+
+
+public static void MoveAcrossNarrowPass(int passDistance,int passWitdh, int passLength, int lenToDo,int echoToGet)
+{
+//	System.out.println("Move requested");
+//    RobotMainServer.idscanG= Fenetre.idscan.getText();
+	BNOLocFlag=255;
+	octaveRequestPending=true;
+	int action=moveEnd;
+    Fenetre.label.setText("Move requested");   
+	RobotMainServer.runningStatus=4;
+	if (simulation!=0)
+	{
+		ArduinoSimulator.SaveMoveRequest(0,lenToDo);
+		ArduinoSimulator.SaveNorthAlignRequest((northOrientation)%360);
+	}
+	int timeout=eventTimeoutTable[action][simulation];
+//	System.out.println("timeout:"+timeout);
+	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
+    if ((lenToDo!=0 || passDistance!=0) && simulation*actionSimulable[action][0]==0)
+    {
+    SendUDP snd = new SendUDP();
+    snd.SendMoveAcrossNarrowPass(passDistance, passWitdh, passLength, lenToDo,echoToGet);
+    Fenetre2.PosActualise(0,lenToDo);
     }
     RobotMainServer.actStat=0x01;  //demande mov
 }

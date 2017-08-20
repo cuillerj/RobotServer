@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 public class SendUDP extends Thread{
 	Thread t;
 	String pgmId="SendUDP";
+	public static final byte moveAcrossPass=0x6e;
 	public static byte countUdp=0x00;
 	public static byte [] copySentData;
  
@@ -1111,7 +1112,67 @@ public class SendUDP extends Thread{
 		    int i = b & 0xFF;
 		    return Integer.toHexString(i);
 		  }
+	public void SendMoveAcrossNarrowPass(int passDistance, int passWitdh, int passLength,
+			int lenToDo ,int echoToGet) {
+		try{
+			RobotMainServer.runningStatus=1003; // pending move
+			  String mess="passDistance:"+passDistance+" passWitdh:"+passWitdh+" passLength:"+passLength+ " move:"+lenToDo+" echoToGet:"+echoToGet;
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+			      DatagramSocket clientSocket = new DatagramSocket();
+			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] cmde = new byte[20];
+			      byte[] sendData = new byte[20];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=moveAcrossPass;     //m
+			      if (passDistance>=0){
+				      cmde[3]=0x2b;
+			      }
+			      else {
+				      cmde[3]=0x2d;
+				      passDistance=-passDistance;
+			      }
+			      cmde[4]=(byte)(passDistance);
+			      cmde[6]=(byte)(passWitdh);
+			      cmde[8]=(byte)(passLength);
+			      if (lenToDo>=0){
+				      cmde[9]=0x2b;
+			      }
+			      else {
+				      cmde[9]=0x2d;
+				      lenToDo=-lenToDo;
+			      }
+			      cmde[10]=(byte)(lenToDo/256);
+			      cmde[11]=(byte)(lenToDo);
+			      cmde[13]=(byte)(echoToGet/256);
+			      cmde[14]=(byte)(echoToGet);			      
+	//		      int i;
+//			      for (i=9;i<20;i++)
+//			      	{
+//			    	  cmde[i]=0x00;
+//			      	}
+//			      String startCmde="c4m";
+		      sendData = cmde;
+		      sendData=SecurSendUdp(sendData);
+//		      System.out.println(byteArrayToHex(sendData));
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
+			//   System.exit(0);
+			  		  	 
+			   
+			   
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+		// TODO Auto-generated method stub
+		
 	}
+	
 	
 
 
