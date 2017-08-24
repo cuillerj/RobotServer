@@ -144,6 +144,15 @@ public class RobotMainServer
 	public static int voltage5=0;
 	public static int voltage6=0;
 	public static int voltage7=0;
+	public static byte requestPingFrontBack=0x70;
+	public static byte requestUpdateNO=0x7b;
+	public static byte requestBNOData=0x7c;
+	public static byte requestNarrowPathMesurments=0x7d;
+	public static byte requestNarrowPathEchos =0x7e;
+	public static byte respBNOSubsytemStatus=0x75;
+	public static byte respBNOLocation=0x76;
+	public static byte respNarrowPathMesurments=0x77;
+	public static byte respNarrowPathEchos=0x78;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
@@ -864,6 +873,22 @@ public static void setBNOMode(int mode)
 	else
 	{
 		BNOMode=(byte)mode;
+	}
+}
+public static void RequestNarrowPathMesurments()
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendUDPRequestNarrowaPathMesurments();
+	}
+}
+public static void RequestNarrowPathEchos()
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendUDPRequestNarrowPathEchos();
 	}
 }
 }

@@ -264,7 +264,7 @@ public class SendUDP extends Thread{
 //	      sendData = startCmde.getBytes();
 			 sendData[0]=0x63;  // c
 			 sendData[1]=0x34;  // 4
-			 sendData[2]=0x70;   // p 
+			 sendData[2]=RobotMainServer.requestPingFrontBack;   // p 
 		      sendData=SecurSendUdp(sendData);
 //	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 //	      clientSocket.send(sendPacket);
@@ -275,6 +275,40 @@ public class SendUDP extends Thread{
 	   
 	   finally{}
 		}
+	public void SendUDPRequestNarrowaPathMesurments() {
+		try{
+	  String mess="RequestNarrowaPathMesurments";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	  RobotMainServer.runningStatus=2005; // pending reset
+      byte[] sendData = new byte[3];
+      sendData[0]=0x63;  // c
+      sendData[1]=0x34;  // 4
+      sendData[2]=RobotMainServer.requestNarrowPathMesurments;   // p 
+      sendData=SecurSendUdp(sendData);
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+	public void SendUDPRequestNarrowPathEchos() {
+		try{
+	  String mess="requestNarrowPathEchos";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+	  RobotMainServer.runningStatus=2005; // pending reset
+      byte[] sendData = new byte[3];
+      sendData[0]=0x63;  // c
+      sendData[1]=0x34;  // 4
+      sendData[2]=RobotMainServer.requestNarrowPathEchos;   // p 
+      sendData=SecurSendUdp(sendData);
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}	
 	public void SendUDPPowerOnOffEncoder(byte encoderOn) {
 		try{
 	  String mess="encode OnOff";

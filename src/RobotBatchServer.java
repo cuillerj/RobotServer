@@ -1000,7 +1000,7 @@ public class RobotBatchServer implements Runnable {
 					InsertSqlData(sql);
 				}
 				}
-				if(sentence2[6]==0x75)
+				if(sentence2[6]==RobotMainServer.respBNOSubsytemStatus)
 				{
 
 					int i=0;
@@ -1016,7 +1016,29 @@ public class RobotBatchServer implements Runnable {
 				Trace.TraceLog(pgmId,mess);
 				Fenetre2.RefreshBNO();
 				}
+				if(sentence2[6]==RobotMainServer.respNarrowPathMesurments)
+				{
+					int pathDist=(byte) ((byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80))*256;
+					pathDist=pathDist+(byte) ((byte)(sentence2[8]&0x7F)-(byte)(sentence2[8]&0x80));
+					int pathLen=(byte) ((byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80))*256;
+					pathLen=pathLen+(byte) ((byte)(sentence2[11]&0x7F)-(byte)(sentence2[11]&0x80));
+					mess=" path distance:"+pathDist+" lenght:"+pathLen;
+					Trace.TraceLog(pgmId,mess);
+				}
+				if(sentence2[6]==RobotMainServer.respNarrowPathEchos)
+				{
 
+					for (int i=0;i<9;i++)
+					{
+						mess=" path echos:";
+						int oct1=(byte) ((byte)(sentence2[7+3*i]&0x7F)-(byte)(sentence2[7+3*i]&0x80));
+						int oct2=(byte) ((byte)(sentence2[7+3*i+1]&0x7F)-(byte)(sentence2[7+3*i+1]&0x80));
+						mess=mess+oct1+"-"+oct2;
+						Trace.TraceLog(pgmId,mess);
+					}
+
+					Trace.TraceLog(pgmId,mess);
+				}
 				if(sentence2[6]==0x80)
 				{
 					System.out.print("subsystem registers ");
