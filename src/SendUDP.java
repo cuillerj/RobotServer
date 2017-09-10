@@ -1146,11 +1146,11 @@ public class SendUDP extends Thread{
 		    int i = b & 0xFF;
 		    return Integer.toHexString(i);
 		  }
-	public void SendMoveAcrossNarrowPass(int passDistance, int passWitdh, int passLength,
+	public void SendMoveAcrossNarrowPass(int distance, int witdh, int length,int startToEntryDistance,int northOrientation,
 			int lenToDo ,int echoToGet) {
 		try{
 			RobotMainServer.runningStatus=1003; // pending move
-			  String mess="passDistance:"+passDistance+" passWitdh:"+passWitdh+" passLength:"+passLength+ " move:"+lenToDo+" echoToGet:"+echoToGet;
+			  String mess="passDistance:"+distance+" passWitdh:"+witdh+" passLength:"+length+ " startToEntryDistance:"+startToEntryDistance+" northOrientation:"+northOrientation+" move:"+lenToDo+" echoToGet:"+echoToGet;
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();
@@ -1160,16 +1160,16 @@ public class SendUDP extends Thread{
 			      cmde[0]=0x63;
 			      cmde[1]=0x34;
 			      cmde[2]=moveAcrossPass;     //m
-			      if (passDistance>=0){
+			      if (distance>=0){
 				      cmde[3]=0x2b;
 			      }
 			      else {
 				      cmde[3]=0x2d;
-				      passDistance=-passDistance;
+				      distance=-distance;
 			      }
-			      cmde[4]=(byte)(passDistance);
-			      cmde[6]=(byte)(passWitdh);
-			      cmde[8]=(byte)(passLength);
+			      cmde[4]=(byte)(distance);
+			      cmde[6]=(byte)(witdh);
+			      cmde[8]=(byte)(length);
 			      if (lenToDo>=0){
 				      cmde[9]=0x2b;
 			      }
@@ -1180,7 +1180,10 @@ public class SendUDP extends Thread{
 			      cmde[10]=(byte)(lenToDo/256);
 			      cmde[11]=(byte)(lenToDo);
 			      cmde[13]=(byte)(echoToGet/256);
-			      cmde[14]=(byte)(echoToGet);			      
+			      cmde[14]=(byte)(echoToGet);
+			      cmde[16]=(byte)(northOrientation/256);
+			      cmde[17]=(byte)(northOrientation);	
+			      cmde[19]=(byte)(startToEntryDistance);	
 	//		      int i;
 //			      for (i=9;i<20;i++)
 //			      	{

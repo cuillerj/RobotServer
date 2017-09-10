@@ -356,6 +356,8 @@ public static void initEventTable()
 	eventTimeoutTable[pingFBEnd][1]=10;  // simulation mode
 	eventTimeoutTable[robotNOUpdated][0]=500; // normal mode
 	eventTimeoutTable[robotNOUpdated][1]=20;  // simulation mode
+	eventTimeoutTable[moveAcrossPassEnded][0]=1200; // normal mode
+	eventTimeoutTable[moveAcrossPassEnded][1]=60;  // simulation mode
 	actionSimulable[robotInfoUpdated][0]=1;   // simulation enable
 	actionSimulable[robotInfoUpdated][1]=1;  // simulation shift value
 	actionSimulable[robotUpdatedEnd][0]=1; 
@@ -432,14 +434,14 @@ public static void Move(long ang,long mov)
 }
 
 
-public static void MoveAcrossNarrowPass(int passDistance,int passWitdh, int passLength, int lenToDo,int echoToGet)
+public static void MoveAcrossNarrowPass(int distance,int witdh, int length,int startToEntryDistance,int northOrientation, int lenToDo,int echoToGet)
 {
 //	System.out.println("Move requested");
 //    RobotMainServer.idscanG= Fenetre.idscan.getText();
 	BNOLocFlag=255;
 	octaveRequestPending=true;
-	int action=moveEnd;
-    Fenetre.label.setText("Move requested");   
+	int action=moveAcrossPassEnded;
+    Fenetre.label.setText("Move APath requested");   
 	RobotMainServer.runningStatus=4;
 	if (simulation!=0)
 	{
@@ -449,10 +451,10 @@ public static void MoveAcrossNarrowPass(int passDistance,int passWitdh, int pass
 	int timeout=eventTimeoutTable[action][simulation];
 //	System.out.println("timeout:"+timeout);
 	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
-    if ((lenToDo!=0 || passDistance!=0) && simulation*actionSimulable[action][0]==0)
+    if ((lenToDo!=0 || distance!=0) && simulation*actionSimulable[action][0]==0)
     {
     SendUDP snd = new SendUDP();
-    snd.SendMoveAcrossNarrowPass(passDistance, passWitdh, passLength, lenToDo,echoToGet);
+    snd.SendMoveAcrossNarrowPass(distance, witdh, length,startToEntryDistance,northOrientation, lenToDo,echoToGet);
     Fenetre2.PosActualise(0,lenToDo);
     }
     RobotMainServer.actStat=0x01;  //demande mov
