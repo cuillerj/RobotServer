@@ -200,7 +200,7 @@ public class RobotBatchServer implements Runnable {
 						sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
 						ihm.MajActionRetcode(" 0x"+sbb4);
 						RobotMainServer.actionRetcode=(byte)(sentence2[10]);
-						int retCode=sentence2[10];
+						byte retCode=sentence2[10];
 				    	if (sentence2[9]==0x66){                    // scan en cours
 							EchoRobot.pendingEcho=0;
 			//				System.out.println("scan running");
@@ -374,7 +374,7 @@ public class RobotBatchServer implements Runnable {
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
-							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode:"+retCode+" detail:"+RobotMainServer.retCodeDetail;
+							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode: 0x"+byteToHex(retCode)+" detail:"+RobotMainServer.retCodeDetail;
 							Trace.TraceLog(pgmId,mess);
 	//						System.out.println("refresh hard on screen");
 							
@@ -462,7 +462,7 @@ public class RobotBatchServer implements Runnable {
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
-							mess="move across path ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode:"+retCode+" detail:"+RobotMainServer.retCodeDetail;
+							mess="move across path ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode: 0x"+byteToHex(retCode)+" detail:"+RobotMainServer.retCodeDetail;
 							Trace.TraceLog(pgmId,mess);
 	//						System.out.println("refresh hard on screen");
 							
@@ -1022,7 +1022,10 @@ public class RobotBatchServer implements Runnable {
 					pathDist=pathDist+(byte) ((byte)(sentence2[8]&0x7F)-(byte)(sentence2[8]&0x80));
 					int pathLen=(byte) ((byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80))*256;
 					pathLen=pathLen+(byte) ((byte)(sentence2[11]&0x7F)-(byte)(sentence2[11]&0x80));
-					mess=" path distance:"+pathDist+" lenght:"+pathLen;
+					byte lastStepId=(byte) ((byte)(sentence2[13]&0x7F)-(byte)(sentence2[13]&0x80));
+					byte traceStepId=(byte) ((byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80));
+					byte interruptStepId=(byte) ((byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80));
+					mess=" path distance:"+pathDist+" lenght:"+pathLen+" lestStepID: 0x"+byteToHex(lastStepId)+" traceStepId: 0x"+byteToHex(traceStepId)+" interruptStepId: 0x"+byteToHex(interruptStepId);
 					Trace.TraceLog(pgmId,mess);
 				}
 				if(sentence2[6]==RobotMainServer.respNarrowPathEchos)
@@ -1084,8 +1087,13 @@ public class RobotBatchServer implements Runnable {
 		}
 	}
 	  public static String byteToHex(byte b) {
-		    int i = b & 0xFF;
-		    return Integer.toHexString(i);
+		    StringBuilder sb = new StringBuilder();
+		    sb.append(Integer.toHexString(b));
+		    if (sb.length() < 2) {
+		        sb.insert(0, '0'); // pad with leading zero if needed
+		    }
+		    String hex = sb.toString();
+		    return hex;
 		  }
 	  public void InsertSqlData(String sql)
 	  {
