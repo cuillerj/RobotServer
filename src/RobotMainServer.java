@@ -38,8 +38,9 @@ public class RobotMainServer
 	public static byte actStat=0x00;
 	public static String stationStatus="";
 	public static String ipRobot="192.168.1.35";  // en cible a lire en BD 
-	public static int shiftEchoVsRotationCenter = 6;  // en cible a lire en BD 
-	public static int[][] scanArray = new int [15][3];
+	public static int shiftparameterid=8;
+	public static double shiftEchoVsRotationCenter = 0;  // to be read in DB
+	public static int[][] scanArray = new int [15][4];
 	public static int scanStepCount=0;
 	public static int power9V;
 	public static int power5V;
@@ -58,6 +59,9 @@ public class RobotMainServer
 	public static int octavePendingRequest=0;
 	public static boolean interactive=false;
 	public static int simulation=0;
+	public static int simulatedHardX=0;     // used in simulation corresponding to hard location to guess
+	public static int simulatedHardY=0;
+	public static int simulatedHardH=0;
 	public static String fname="robotJavaTrace.txt";
 	public static int actionRetcode=0;
 	public static final int robotInfoUpdated=1;
@@ -324,13 +328,16 @@ public static void LaunchSimu()
 	SetSimulationMode(1);
 	initEventTable();
 	StartTimeoutManagement();
-	Fenetre ihm = new Fenetre();
-	Fenetre2 ihm2 = new Fenetre2();
+//	Fenetre ihm = new Fenetre();
+//	Fenetre2 ihm2 = new Fenetre2();
 	FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
-	ihm2.SetInitialPosition();
+//	ihm2.SetInitialPosition();
 	ihm3.SetInitialPosition();
 	TraceEvents trace=new TraceEvents();
 //	trace.TraceEvents();
+	RobotBatchServer batch = new RobotBatchServer();
+	Thread myThread = new Thread(batch);
+	myThread.setDaemon(true); // important, otherwise JVM does not exit at end of main()
 	trace.start();
 			//InitRobot();
 //	RobotBatchServer batch = new RobotBatchServer();
@@ -344,11 +351,11 @@ public static void initEventTable()
 	eventTimeoutTable[robotInfoUpdated][1]=20;  // simulation mode
 	eventTimeoutTable[robotUpdatedEnd][0]=1200; // normal mode
 	eventTimeoutTable[robotUpdatedEnd][1]=20;  // simulation mode
-	eventTimeoutTable[scanEnd][0]=1200; // normal mode
-	eventTimeoutTable[scanEnd][1]=1200;  // simulation mode
-	eventTimeoutTable[moveEnd][0]=600; // normal mode
+	eventTimeoutTable[scanEnd][0]=1800; // normal mode
+	eventTimeoutTable[scanEnd][1]=100;  // simulation mode
+	eventTimeoutTable[moveEnd][0]=1800; // normal mode
 	eventTimeoutTable[moveEnd][1]=30;  // simulation mode
-	eventTimeoutTable[northAlignEnd][0]=900; // normal mode
+	eventTimeoutTable[northAlignEnd][0]=2400; // normal mode
 	eventTimeoutTable[northAlignEnd][1]=30;  // simulation mode
 	eventTimeoutTable[servoAlignEnd][0]=100; // normal mode
 	eventTimeoutTable[servoAlignEnd][1]=10;  // simulation mode
@@ -368,6 +375,8 @@ public static void initEventTable()
 	actionSimulable[northAlignEnd][1]=1;
 	actionSimulable[pingFBEnd][0]=1;
 	actionSimulable[pingFBEnd][1]=1;
+	actionSimulable[scanEnd][0]=1;
+	actionSimulable[scanEnd][1]=1;
 
 	}
 public static int GetScanAngle(int idx)
@@ -382,6 +391,10 @@ public static int GetScanDistFront(int idx)
 public static int GetScanDistBack(int idx)
 {
 	return scanArray[idx][2];
+}
+public static int GetScanNorthOrientation(int idx)
+{
+	return scanArray[idx][3];
 }
 public static int GetEventTimeout(int idx)
 {
@@ -406,6 +419,14 @@ public static void Scan360()
 		SendUDP snd = new SendUDP();
 		snd.SendUDPScan();
 	}
+	else{
+		GetScanRawData(simulatedHardX,simulatedHardY);
+	}
+}
+public static int GetScanRawData(int inX,int inY)
+{
+    int retCode=GetSqlData.GetScanRawData(inX,inY);
+    return retCode;
 }
 public static void Move(long ang,long mov)
 {
@@ -418,8 +439,8 @@ public static void Move(long ang,long mov)
 	RobotMainServer.runningStatus=4;
 	if (simulation!=0)
 	{
-		ArduinoSimulator.SaveMoveRequest(ang,mov);
 		ArduinoSimulator.SaveNorthAlignRequest((northOrientation+ang)%360);
+		ArduinoSimulator.SaveMoveRequest(ang,mov);
 	}
 	int timeout=eventTimeoutTable[action][simulation];
 //	System.out.println("timeout:"+timeout);
@@ -893,4 +914,70 @@ public static void RequestNarrowPathEchos()
 		snd.SendUDPRequestNarrowPathEchos();
 	}
 }
+public static void InitRobotValues()
+{
+	BNOLeftPosX=0;
+	BNOLeftPosY=0;
+	BNORightPosX=0;
+	BNORightPosY=0;
+	BNOLocFlag=0;
+	BNOLocHeading=0;
+	BNOMode=0x00;
+	BNOCalStat=0x00;
+	BNOSysStat=0x00;
+	BNOSysError=0x00;
+	posX=0;
+	posY=0;
+	alpha=0;
+	hardPosX=0;
+	hardPosY=0;
+	hardAlpha=0;
+	northOrientation=0;
+	absoluteOrientation=0;
+	scanStepCount=0;
+	power9V=0;
+	power5V=0;
+	powerDiag=0;
+	motorDiag=0;
+	connectionDiag=0;
+	robotDiag=0;
+	runningStatus=0;
+	currentLocProb=0;
+	voltage1=0;
+	voltage2=0;
+	voltage3=0;
+	voltage4=0;
+	voltage5=0;
+	voltage6=0;
+	voltage7=0;
+	cumulativeLeftHoles=0;
+	prevCumulativeLeftHoles=0;
+	cumulativeRightHoles=0;
+	prevCumulativeRightHoles=0;
+	lastSentTime= 0;
+	leftHighThreshold=0;
+	leftLowThreshold=0;
+	rightHighThreshold=0;
+	rightLowThreshold=0;
+	leftPWM=0;
+	rightPWM=0;
+	PWMRatio=0;
+	SlowPWMRatio=0;
+	leftMaxLevel=0;
+	leftMinLevel=0;
+	rightMaxLevel=0;
+	rightMinLevel=0;
+	echoClosestRefX=0;
+	echoClosestRefY=0;
+	echoClosestRefServoHeading=0;
+	echoClosestRefDistFront=0;
+	echoClosestRefDistBack=0;
+	echoClosestStdFront=0;
+	echoClosestStdBack=0;
+	echoClosestCount=0;
+	echoClosestDistance=0;
+	shiftEchoVsRotationCenter=ParametersSetting.GetParametersNumValue(shiftparameterid)/10;
+	ArduinoSimulator.InitSimulatorValues();
+	}
 }
+

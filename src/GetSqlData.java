@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Random;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -9,13 +10,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.CallableStatement;
-
+import java.util.Random;
 public class GetSqlData {
 	@SuppressWarnings("resource")
 	public static int GetClosestEchoGetClosestReferenceEcho(int inX,int inY,int servoHeading,int tileSize) 
 	{
 		String pgmId="GetSqlData";
-		String mess="Start";
+		String mess="Start GetClosestEchoGetClosestReferenceEcho";
 		TraceLog Trace = new TraceLog();
 //		Trace.TraceLog(pgmId,mess);
 
@@ -36,9 +37,12 @@ public class GetSqlData {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-	    			 String connectionUrl = "jdbc:mysql://jserver:3306/robot";
-	    			 String connectionUser = "jean";
-	    			 String connectionPassword = "manu7890";
+	    		//	 String connectionUrl = "jdbc:mysql://jserver:3306/robot";
+	    	//		 String connectionUser = "jean";
+	    	//		 String connectionPassword = "manu7890";
+	    			String connectionUrl = GetSqlConnection.GetRobotDB();
+	    			String connectionUser = GetSqlConnection.GetUser();
+	    			String connectionPassword = GetSqlConnection.GetPass();
 	    			 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
 	//    			 mess="BD connected";
     //				Trace.TraceLog(pgmId,mess);
@@ -129,5 +133,112 @@ public class GetSqlData {
 				    		 	}
 		return(0);		    	 	
 	}
-	
+	@SuppressWarnings("null")
+	public static int GetScanRawData(int inX,int inY) 
+	{
+		String pgmId="GetSqlData";
+		String mess="Start GetScanRawData.";
+		TraceLog Trace = new TraceLog();
+		Trace.TraceLog(pgmId,mess);
+
+		String connectionUrl = GetSqlConnection.GetRobotDB();
+		String connectionUser = GetSqlConnection.GetUser();
+		String connectionPassword = GetSqlConnection.GetPass();
+		/*
+		 String connectionUrl = "jdbc:mysql://jserver:3306/robot";
+		 String connectionUser = "jean";
+		 String connectionPassword = "manu7890";
+		 */
+		int[] idscanArray=new int[100];
+				Connection conn = null;
+				Statement stmt1 = null;
+				ResultSet rs = null;
+				try {
+	    			 try {
+						Class.forName("com.mysql.jdbc.Driver").newInstance();
+					} catch (InstantiationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	    			 try {
+						conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
+		    			stmt1 = conn.createStatement();
+						mess=connectionUrl;
+						Trace.TraceLog(pgmId,mess);
+					} catch (SQLException e) {
+						mess="pb db connecxion";
+						Trace.TraceLog(pgmId,mess);
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	    			try {
+						String sql="SELECT idscan FROM scanResult WHERE posX = "+inX+" AND posY = "+inY+" AND idscan !=0 group by idscan limit 100";
+//						Trace.TraceLog(pgmId,sql);
+						rs = stmt1.executeQuery(sql);
+
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	    			int idx=0;
+	    			try {
+						while (rs.next()) {
+						//	mess="idx: "+idx;
+						//	Trace.TraceLog(pgmId,mess);
+							idscanArray[idx] = rs.getInt("idscan");
+							idx++;
+						}
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	    			try {
+						rs.close();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	    		    Random randomGenerator = new Random();
+	    		    int randomScanId = randomGenerator.nextInt(idx-1);
+					mess="randomly choose scanId:"+idscanArray[randomScanId];
+					Trace.TraceLog(pgmId,mess);
+	    			try {
+					rs = stmt1.executeQuery("SELECT distFront,distBack,angle FROM scanResult WHERE idscan ="+idscanArray[randomScanId]+" order by angle limit 15" );
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	    			idx=0;
+	    		    RandomGaussian gaussian = new RandomGaussian();
+	    		    double varianceEcho = 2.0f*RobotMainServer.noiseLevel;
+	    			try {
+						while (rs.next()) {
+							RobotMainServer.scanArray[idx][1] = (int)(gaussian.getGaussian(rs.getInt("distFront"),varianceEcho));
+							RobotMainServer.scanArray[idx][2] = (int)(gaussian.getGaussian(rs.getInt("distBack"),varianceEcho));
+							RobotMainServer.scanArray[idx][0] = rs.getInt("angle");
+							idx++;
+						}
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	    			try {
+						rs.close();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				finally {
+
+    		 		try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+    		 	}
+		return(0);		    	 	
+	}
 }

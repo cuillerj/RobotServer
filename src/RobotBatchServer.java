@@ -156,6 +156,7 @@ public class RobotBatchServer implements Runnable {
 				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][0]=angle;
 				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][1]=distFront;
 				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][2]=distBack;
+				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][3]=RobotMainServer.northOrientation;
 				    		 	RobotMainServer.scanStepCount++;
 				    	 	}
 				    	 if (lastTrameNumber!=trameNumber)

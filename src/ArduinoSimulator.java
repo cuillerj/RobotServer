@@ -7,6 +7,7 @@ public class ArduinoSimulator{
 	public static long savedDistance=0;
 	public static long savedNorthOrientation=0;
 	public static long savedGyro=0;
+	public static boolean retCodeSupported=false;
 	public static String pgmId="Simulator";
 
 	// [reqId,code,timeout,source,dest,retcode,countTimer]
@@ -14,13 +15,11 @@ public class ArduinoSimulator{
 
 	public static int  ActionEnd(int reqCode,int reqSource,int reqDest)
 	{
-
 		Random rand = new Random();
 		int retCode=0;
-		if (RobotMainServer.noiseRetCode && reqCode==RobotMainServer.moveEnd)
+		if (RobotMainServer.noiseRetCode && reqCode==RobotMainServer.moveEnd && retCodeSupported)
 		{
-			retCode=rand.nextInt(RobotMainServer.noiseRetValue); // generate a random return code for the action
-			
+			retCode=rand.nextInt(RobotMainServer.noiseRetValue); // generate a random return code for the action		
 		}
 		if (retCode==1)
 		{
@@ -63,8 +62,6 @@ public class ArduinoSimulator{
 				RobotMainServer.retCodeDetail=(int) (savedDistance*.75);
 				savedDistance=0;
 				savedRotation=0;
-				savedGyro=0;
-
 				String mess2="randDom retCode Ko:"+retCode+" dist:"+savedDistance+" rot:"+savedRotation;
 				Trace.TraceLog(pgmId,mess2);			
 			}
@@ -93,22 +90,27 @@ public class ArduinoSimulator{
 			String mess="noised move result wheels rotation:"+savedRotation+" distance:"+savedDistance+" heading:"+heading+ " north orientation:"+northOrientation+ " gyro:"+savedGyro+" retCode:"+retCode;
 			Trace.TraceLog(pgmId,mess);
 			double radians=Math.toRadians(degrees);
-			double currentH=Math.cos(Math.toRadians(RobotMainServer.hardAlpha));
+			double currentH=Math.toRadians(RobotMainServer.hardAlpha);
+			double posXnext=RobotMainServer.posX-RobotMainServer.shiftEchoVsRotationCenter*Math.cos(currentH)+(savedDistance+RobotMainServer.shiftEchoVsRotationCenter)*Math.cos(radians);
+			double posYnext=RobotMainServer.posY-RobotMainServer.shiftEchoVsRotationCenter*Math.sin(currentH)+(savedDistance+RobotMainServer.shiftEchoVsRotationCenter)*Math.sin(radians);
 //		    System.out.println("random:"+gaussian.getGaussian(mean, variance));
-			double posCenterX= (RobotMainServer.posX-RobotMainServer.shiftEchoVsRotationCenter*Math.cos(Math.toRadians(currentH)));
-			double posCenterY= (RobotMainServer.posY-RobotMainServer.shiftEchoVsRotationCenter*Math.sin(Math.toRadians(currentH)));
+			/*
+			double posCenterX= (RobotMainServer.posX-RobotMainServer.shiftEchoVsRotationCenter*Math.cos(currentH));
+			double posCenterY= (RobotMainServer.posY-RobotMainServer.shiftEchoVsRotationCenter*Math.sin(currentH));
 			double rotX=posCenterX+Math.cos(radians)*RobotMainServer.shiftEchoVsRotationCenter;
 			double rotY=posCenterY+Math.sin(radians)*RobotMainServer.shiftEchoVsRotationCenter;
-			int posXnext=(int)(rotX+(Math.cos(radians)*savedDistance));
-			int posYnext=(int)(rotY+(Math.sin(radians)*savedDistance));
-//			int posXnext=(int) (Math.cos(radians)*savedDistance);					
-//			int posYnext=(int) (Math.sin(radians)*savedDistance);
-			RobotMainServer.hardPosX=posXnext;
-			RobotMainServer.hardPosY=posYnext;
-			RobotMainServer.hardAlpha=(int) (heading);
-			RobotMainServer.northOrientation=(int) northOrientation;
-			RobotMainServer.gyroHeading= (int) savedGyro;
-			savedGyro=0;
+			int posXnext=(int)(Math.round((rotX+(Math.cos(radians)*savedDistance))));
+			int posYnext=(int)(Math.round((rotY+(Math.sin(radians)*savedDistance))));
+			*/
+//			int posXnext=RobotMainServer.posX +(int) (Math.cos(radians)*savedDistance);					
+//			int posYnext=RobotMainServer.posY +(int) (Math.sin(radians)*savedDistance);
+			RobotMainServer.hardPosX=(int)Math.round(posXnext);
+			RobotMainServer.hardPosY=(int)Math.round(posYnext);
+			RobotMainServer.hardAlpha=(int) Math.round((heading));
+			RobotMainServer.northOrientation=(int) Math.round(northOrientation);
+			RobotMainServer.gyroHeading= (int) Math.round(savedGyro);
+			RobotMainServer.BNOLocHeading= (int) Math.round(savedGyro);
+	//		savedGyro=0;
 			savedRotation=0;
 			savedDistance=0;
 		}
@@ -124,20 +126,20 @@ public class ArduinoSimulator{
 //			String mess="Arduino move :"+reqCode+ " "+ reqSource +" "+ reqDest;
 //			Trace.TraceLog(pgmId,mess);
 		    savedRotation=(long) ((gaussian.getGaussian(meanRotation, varianceRotation)));
-			long heading=(RobotMainServer.alpha+savedRotation)%360;
-			long northOrientation=(long) ((gaussian.getGaussian(meanNorthOrientation, varianceNO)));
+			long heading=Math.round((RobotMainServer.alpha+savedRotation)%360);
+			long northOrientation=(long) Math.round(((gaussian.getGaussian(meanNorthOrientation, varianceNO))));
 			String mess="noised NO result rotation:"+savedRotation+" heading:"+heading+ " north orientation:"+northOrientation;
 			Trace.TraceLog(pgmId,mess);
 			double degrees=heading;
 			double radians=Math.toRadians(degrees);
 
 //		    System.out.println("random:"+gaussian.getGaussian(mean, variance));
-			int posXnext=(int) (Math.cos(radians)*savedDistance);					
-			int posYnext=(int) (Math.sin(radians)*savedDistance);
+			int posXnext=(int) Math.round((Math.cos(radians)*savedDistance));					
+			int posYnext=(int) Math.round((Math.sin(radians)*savedDistance));
 			RobotMainServer.hardPosX=posXnext+RobotMainServer.posX;
 			RobotMainServer.hardPosY=posYnext+RobotMainServer.posY;
-			RobotMainServer.hardAlpha=(int) (heading);
-			RobotMainServer.northOrientation=(int) northOrientation;
+			RobotMainServer.hardAlpha=(int) Math.round((heading));
+			RobotMainServer.northOrientation=(int) Math.round(northOrientation);
 		}
 		if (reqCode==RobotMainServer.robotUpdatedEnd)
 		{
@@ -156,6 +158,12 @@ public class ArduinoSimulator{
 		{
 			retCode=90;	
 		}
+		if (reqCode==RobotMainServer.scanEnd)
+		{
+			String mess="Scan ended";
+			Trace.TraceLog(pgmId,mess);
+			retCode=0;	
+		}
 		return retCode;
 		
 	}
@@ -164,6 +172,7 @@ public class ArduinoSimulator{
 		savedRotation=ang;
 		savedDistance=mov;
 //		savedGyro=0;
+		retCodeSupported=true;
 		TraceLog Trace = new TraceLog();
 		String mess="Arduino move simulation request:"+savedRotation+ " "+ savedDistance ;
 		Trace.TraceLog(pgmId,mess);
@@ -171,8 +180,9 @@ public class ArduinoSimulator{
 	public static void SaveGyroRequest(long ang)
 	{
 //		savedRotation=0;
+		retCodeSupported=false;
 		savedRotation=ang;
-		savedGyro=ang;
+		savedGyro=(RobotMainServer.gyroHeading+ang)%360;
 		TraceLog Trace = new TraceLog();
 		String mess="Arduino Gyro simulation request:"+savedGyro ;
 		Trace.TraceLog(pgmId,mess);
@@ -181,8 +191,15 @@ public class ArduinoSimulator{
 	{
 		savedNorthOrientation=(ang+savedNorthOrientation)%360;
 //		savedGyro=0;
+		retCodeSupported=false;
 		TraceLog Trace = new TraceLog();
 		String mess="Arduino North Align simulation request:"+savedNorthOrientation ;
 		Trace.TraceLog(pgmId,mess);
+	}
+	public static void InitSimulatorValues(){
+		savedRotation=0;
+		savedDistance=0;
+		savedNorthOrientation=0;
+		savedGyro=0;
 	}
 }
