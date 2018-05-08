@@ -157,6 +157,9 @@ public class RobotMainServer
 	public static byte respBNOLocation=0x76;
 	public static byte respNarrowPathMesurments=0x77;
 	public static byte respNarrowPathEchos=0x78;
+	public static byte requestTrace = (byte) 0x90;
+	public static byte requestStopTrace = (byte) 0x91;
+	public static byte respTrace=(byte) 0x90;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
@@ -217,6 +220,7 @@ public static void GetCurrentPosition(String ids) {
 //		Fenetre ihm = new Fenetre();
 //		JFormattedTextField ids=indScan;
 //	String ids =indScan.getText();
+    ids=ids.replaceAll("\\W", ""); 
 	int indscan=Integer.parseInt(ids);
 
 //	  System.out.println("actualise position:"+indscan);
@@ -832,6 +836,18 @@ public static void SetObstacleDetection(boolean value)
 {             // 0 off 1 on
 	SendUDP snd = new SendUDP();
 	snd.SendUDPObstacleDetection(value);
+}
+public static void SetTrace(boolean value)
+{             // 0 off 1 on
+	SendUDP snd = new SendUDP();
+	if(value)
+	{
+		snd.SendUDPTrace((byte) 0x01);		
+	}
+	else{
+		snd.SendUDPTrace((byte) 0x00);				
+	}
+
 }
 public static void SetGyroSelectedRange(int value)
 {             // duration in seconds up to 254

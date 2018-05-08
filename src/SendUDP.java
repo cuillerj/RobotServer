@@ -333,6 +333,23 @@ public class SendUDP extends Thread{
 	   
 	   finally{}
 		}
+	public void SendUDPTrace(byte value) {
+		try{
+			  String mess="trace OnOff";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+			  byte[] sendData = new byte[4];
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=RobotMainServer.requestTrace;   // : 
+			 sendData[3]=value;   // 
+		     sendData=SecurSendUdp(sendData);
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
 	public void SetEncoderThreshold(boolean Left,int lowValue, int highValue) {
 		try{
 	  String mess="set encoder thresholds";

@@ -44,7 +44,7 @@ public class Fenetre extends JFrame{
   static JFormattedTextField  angle = new JFormattedTextField(NumberFormat.getIntegerInstance());
   static JFormattedTextField  move = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  orient= new JFormattedTextField(NumberFormat.getIntegerInstance());
-  static JFormattedTextField  idscan = new JFormattedTextField(NumberFormat.getIntegerInstance());
+  public static JFormattedTextField  idscan = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  init_X = new JFormattedTextField(NumberFormat.getIntegerInstance());
   private JFormattedTextField  init_Y = new JFormattedTextField(NumberFormat.getIntegerInstance());
 
@@ -312,7 +312,8 @@ public class Fenetre extends JFrame{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
 	    RobotMainServer.countScan=20;
-	    int newIdScan=Integer.parseInt(idscan.getText())+1;
+	   
+	    int newIdScan=Integer.parseInt(idscan.getText().replaceAll("\\W", ""))+1;
 	      RobotMainServer.idscanG= Integer.toString(newIdScan);
 	      idscan.setText(RobotMainServer.idscanG);
 	      label.setText("Demarrage du scan serie");   
@@ -325,7 +326,7 @@ public class Fenetre extends JFrame{
   class BoutonMoveListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-	        RobotMainServer.idscanG= idscan.getText();
+	        RobotMainServer.idscanG= idscan.getText().replaceAll("\\W", "");;
 	      label.setText("Move");   
 	      
 //	      System.out.println("angle " + angle.getText());
@@ -353,7 +354,7 @@ public class Fenetre extends JFrame{
   class BoutonGotoListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-	        RobotMainServer.idscanG= idscan.getText();
+	      RobotMainServer.idscanG= idscan.getText().replaceAll("\\W", "");;
 	      label.setText("GoTo");   
 //	      System.out.println("angle " + angle.getText());
 //	      System.out.println("move " + move.getText());
@@ -380,7 +381,7 @@ public class Fenetre extends JFrame{
   class BoutonInitListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-	        RobotMainServer.idscanG= idscan.getText();
+	        RobotMainServer.idscanG= idscan.getText().replaceAll("\\W", "");
 	      label.setText("Init posX, posY, orientation");   
 	//      System.out.println("posX " + angle.getText());
 //	      System.out.println("posY " + move.getText());
@@ -389,7 +390,8 @@ public class Fenetre extends JFrame{
 	      int posY= Integer.parseInt(init_Y.getText());
 //	      int ids= (int) idscan.getValue();
 	      String idsTS=new String(idscan.getText());
-	      idsTS=idsTS.replaceAll("[^a-zA-Z0-9\\s+]", "");
+	      idsTS=idsTS.replaceAll("\\W", "");
+	     // idsTS=idsTS.replaceAll("[^a-zA-Z0-9\\s+]", "");
 	      System.out.println("idscan-- " + idsTS);
 	      int ids= Integer.parseInt(idsTS);
 	      int orien= Integer.parseInt(orient.getText());
@@ -412,7 +414,12 @@ public int ang() {
 }
 public static int ids() {
 	// TODO Auto-generated method stub
-    int ids = Integer.parseInt(idscan.getText());
+	String Scanid=idscan.getText();
+    Scanid=Scanid.replaceAll("\\W", "");
+	int ids = Integer.parseInt(Scanid);
+//	int ids = Integer.parseInt(Scanid.replaceAll("[^a-zA-Z0-9]", ""));
+  //  ids = Integer.parseInt(Scanid.replaceAll("[\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]",""));
+
 	return ids;
 }
 public int mov() {
@@ -432,8 +439,8 @@ public int mov() {
 	 RobotMainServer.hexaPrint(nbB[i]);
 	}
 	*/
-	String nb=nbS.replaceAll("[\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]","");
-
+	//String nb=nbS.replaceAll("[\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]","");
+	String nb=nbS.replaceAll("\\W", "");
 	 int mov=0;
 	try{
      mov = Integer.parseInt(nb);
@@ -449,7 +456,7 @@ public int mov() {
 }
 public static String idsString() {
 	// TODO Auto-generated method stub
-    String ids = idscan.getText();
+    String ids = idscan.getText().replaceAll("\\W", "");
 	return ids;
 }
 public void MajRobotStat(String mess) {
