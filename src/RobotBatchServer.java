@@ -486,7 +486,7 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest							
 							if (actionRetcode==0)
 							{
-								int i2=10;
+								int i2=12;
 				//				int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
 				//				int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 								RobotMainServer.northOrientation=((sentence2[i2] << 8) & 0x0000ff00) | (sentence2[i2+1] & 0x000000ff);
