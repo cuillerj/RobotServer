@@ -216,7 +216,7 @@ public class GetSqlData {
 					}
 	    			idx=0;
 	    		    RandomGaussian gaussian = new RandomGaussian();
-	    		    double varianceEcho = 2.0f*RobotMainServer.noiseLevel;
+	    		    double varianceEcho = RobotMainServer.scanNoiseLevel;
 	    			try {
 						while (rs.next()) {
 							RobotMainServer.scanArray[idx][1] = (int)(gaussian.getGaussian(rs.getInt("distFront"),varianceEcho));

@@ -19,6 +19,7 @@ import java.io.PrintStream;
 
 public class RobotMainServer 
 	{
+	public static float version=(float) 2.3;
 	public static int posXG=0;
 	public static int posYG=0;
 	public static int orientG=0;
@@ -81,15 +82,16 @@ public class RobotMainServer
 	public static final int eventArduino=20;
 	public static int[][] actionSimulable=new int[200][2];    // row 1 (simulable 0 ou 1) row 2 shift dest si simu
 	public static int[][] eventTimeoutTable=new int[200][3]; // row 1 normal mode and up to 2 simulator mode 3 reserved
-	public static final byte moveRetcodeEncoderLeftLowLevel =1;
-	public static final byte moveRetcodeEncoderRightLowLevel= 2;
-	public static final byte moveRetcodeEncoderLeftHighLevel =3;
-	public static final byte moveRetcodeEncoderRightHighLevel =4;
-	public static final byte  moveWheelSpeedInconsistancy=1;
-	public static final byte moveUnderLimitation =5;
-	public static final byte moveKoDueToWheelStopped =10;
-	public static final byte moveKoDueToObstacle =7;
-	public static final byte moveKoDueToNotEnoughSpace = 11;
+	public static final byte moveRetcodeEncoderLeftLowLevel =0x01;
+	public static final byte moveRetcodeEncoderRightLowLevel= 0x02;
+	public static final byte moveRetcodeEncoderLeftHighLevel =0x03;
+	public static final byte moveRetcodeEncoderRightHighLevel =0x04;
+	public static final byte moveWheelSpeedInconsistancy=0x10;
+	public static final byte moveUnderLimitation =0x05;
+	public static final byte moveKoDueToWheelStopped =0x0a;
+	public static final byte moveKoDueToObstacle =0x07;
+	public static final byte moveKoDueToNotEnoughSpace = 0x0b;
+	public static final String [] moveRetcodeList= new String[20];
 	public static final byte rotationKoToManyRetry =(byte) 0xfe;
 	public static final byte diagMotorPbLeft= 0;
 	public static final byte diagMotorPbRight =1;
@@ -128,6 +130,7 @@ public class RobotMainServer
 	public static int echoClosestCount=0;
 	public static int echoClosestDistance=0;
 	public static float noiseLevel=0;         // level of noise on rotation & move 
+	public static float scanNoiseLevel=0;         // level of noise on rotation & move 	
 	public static boolean noiseRetCode=false;  // is there noise on move retCode
 	public static int noiseRetValue=1;   // if noise on move retcode define random limit (higher lower the noise)
 	public static byte BNOMode=0x00;
@@ -158,22 +161,25 @@ public class RobotMainServer
 	public static byte respNarrowPathMesurments=0x77;
 	public static byte respNarrowPathEchos=0x78;
 	public static byte requestTrace = (byte) 0x90;
-	public static byte requestStopTrace = (byte) 0x91;
+	public static byte requestTraceNO = (byte) 0x91;
 	public static byte respTrace=(byte) 0x90;
+	public static byte respTraceNO=(byte) 0x91;
+	public static byte requestSleep=(byte) 0x92;
+	
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
 	public static PrintStream stdout = System.out;
 	public static int retCodeDetail=0;
-
+	public static String pgmId="Mainserver";
+	
 public static void main(String args[]) throws Exception
 			{
-	String pgmId="Mainserver";
-	String mess="start robot main server";
-    TraceLog Trace = new TraceLog();
-    Trace.TraceLog(pgmId,mess);
+
+	System.out.println("start robot main server version: "+version);
+
 	PrintStream console = System.out;
-	
+
 //	File file = new File(fname);
 //	FileOutputStream fos = new FileOutputStream(file);
 //	PrintStream ps = new PrintStream(fos);
@@ -227,9 +233,12 @@ public static void GetCurrentPosition(String ids) {
 try {
 
 Class.forName("com.mysql.jdbc.Driver").newInstance();
-String connectionUrl = "jdbc:mysql://jserver:3306/robot";
-String connectionUser = "jean";
-String connectionPassword = "manu7890";
+//String connectionUrl = "jdbc:mysql://jserver:3306/robot";
+//String connectionUser = "jean";
+//String connectionPassword = "manu7890";
+String connectionUrl = GetSqlConnection.GetRobotDB();
+String connectionUser = GetSqlConnection.GetUser();
+String connectionPassword = GetSqlConnection.GetPass();
 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
 //conn.setAutoCommit(false);
 stmtR1 = conn.createStatement();
@@ -326,6 +335,10 @@ public static void LaunchBatch()
 	Thread myThread = new Thread(batch);
 	myThread.setDaemon(true); // important, otherwise JVM does not exit at end of main()
 	myThread.start(); 
+	MonitorUDPLink monitUDP=new MonitorUDPLink();
+	Thread udpThread = new Thread(monitUDP);
+	udpThread.setDaemon(true); // important, otherwise JVM does not exit at end of main()
+	udpThread.start(); 
 	}
 public static void LaunchSimu()
 {
@@ -359,7 +372,7 @@ public static void initEventTable()
 	eventTimeoutTable[scanEnd][1]=100;  // simulation mode
 	eventTimeoutTable[moveEnd][0]=1800; // normal mode
 	eventTimeoutTable[moveEnd][1]=30;  // simulation mode
-	eventTimeoutTable[northAlignEnd][0]=2400; // normal mode
+	eventTimeoutTable[northAlignEnd][0]=3000; // normal mode
 	eventTimeoutTable[northAlignEnd][1]=30;  // simulation mode
 	eventTimeoutTable[servoAlignEnd][0]=100; // normal mode
 	eventTimeoutTable[servoAlignEnd][1]=10;  // simulation mode
@@ -394,6 +407,17 @@ public static int GetScanDistFront(int idx)
 }
 public static int GetScanDistBack(int idx)
 {
+	return scanArray[idx][2];
+}
+public static int SetScanDistFront(int idx,int value)
+{
+	scanArray[idx][1]=value;
+	return scanArray[idx][1];
+
+}
+public static int SetScanDistBack(int idx, int value)
+{
+	scanArray[idx][2]=value;
 	return scanArray[idx][2];
 }
 public static int GetScanNorthOrientation(int idx)
@@ -628,7 +652,7 @@ public static void SetTraceFileOn (boolean value)
 		}
 		PrintStream ps = new PrintStream(fos);
 		System.setOut(ps);
-		System.out.println("create trace");
+		System.out.println(pgmId+" version: "+version+" > create trace");
 	}
 	else
 	{
@@ -816,10 +840,27 @@ public static void SetSlowPWMRatio(int value)
 	SendUDP snd = new SendUDP();
 	snd.SetSlowPWMRatio(value);
 }
+public static void SetMotorPulseLenght(int value)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	snd.SetMotorPulseLenght(value);
+}
 public static void QueryEncodersValues()
 {             // duration in seconds up to 254
 	SendUDP snd = new SendUDP();
 	snd.QueryEncodersValues();
+}
+public static void SetPowerEncoder(boolean on)
+{             // duration in seconds up to 254
+	SendUDP snd = new SendUDP();
+	if (on)
+	{
+		snd.SendUDPPowerOnOffEncoder((byte) 0x01);	
+	}
+	else{
+		snd.SendUDPPowerOnOffEncoder((byte) 0x00);			
+	}
+
 }
 public static void QueryMotorsPWM()
 {             // duration in seconds up to 254
@@ -837,7 +878,7 @@ public static void SetObstacleDetection(boolean value)
 	SendUDP snd = new SendUDP();
 	snd.SendUDPObstacleDetection(value);
 }
-public static void SetTrace(boolean value)
+public static void SetUdpTrace(boolean value)
 {             // 0 off 1 on
 	SendUDP snd = new SendUDP();
 	if(value)
@@ -849,6 +890,18 @@ public static void SetTrace(boolean value)
 	}
 
 }
+public static void SetUdpTraceNO(boolean value)
+{             // 0 off 1 on
+	SendUDP snd = new SendUDP();
+	if(value)
+	{
+		snd.SendUDPTraceNO((byte) 0x01);		
+	}
+	else{
+		snd.SendUDPTraceNO((byte) 0x00);				
+	}
+}
+
 public static void SetGyroSelectedRange(int value)
 {             // duration in seconds up to 254
 	SendUDP snd = new SendUDP();
@@ -914,6 +967,19 @@ public static void setBNOMode(int mode)
 		BNOMode=(byte)mode;
 	}
 }
+public static void setSleepMode(boolean OnOff)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		EchoRobot.pendingEcho=-10;
+		SendUDP snd = new SendUDP();
+		snd.SendUDPSleep(OnOff);
+	}
+	else
+	{
+
+	}
+}
 public static void RequestNarrowPathMesurments()
 {             // duration in seconds up to 254
 	if (simulation==0)
@@ -929,6 +995,63 @@ public static void RequestNarrowPathEchos()
 		SendUDP snd = new SendUDP();
 		snd.SendUDPRequestNarrowPathEchos();
 	}
+}
+@SuppressWarnings("null")
+public static int UpdateCurrentShiftNorthOrientation(int value)
+{
+	Connection conn = null;
+	Statement stmtS = null;
+	Statement stmtU = null;
+	ResultSet rs = null;
+	try {
+		 try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	//	 String connectionUrl = "jdbc:mysql://jserver:3306/robot";
+//		 String connectionUser = "jean";
+//		 String connectionPassword = "manu7890";
+		String connectionUrl = GetSqlConnection.GetRobotDB();
+		String connectionUser = GetSqlConnection.GetUser();
+		String connectionPassword = GetSqlConnection.GetPass();
+		conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
+		String pgmId="Mainserver";
+	    TraceLog Trace = new TraceLog();
+		int prevValue=0;
+		int idparameter=0;
+		String sql="SELECT * FROM parameters where name='currentShiftNorthOrientation' limit 1";
+	    Trace.TraceLog(pgmId,sql);
+		stmtS = conn.createStatement();
+		rs = stmtS.executeQuery(sql);
+		while (rs.next()) {
+		  prevValue = rs.getInt("numValue");
+		  idparameter = rs.getInt("idparameter");
+		}
+		rs.close();
+		sql="UPDATE parameters set numValue="+value+" where idparameter="+idparameter+"";
+	    Trace.TraceLog(pgmId,sql);
+		String mess=" update shift NO prev value:"+prevValue+ " new value:"+value+"";
+	    Trace.TraceLog(pgmId,mess);
+		stmtU = conn.createStatement();
+		stmtU.executeUpdate(sql); 
+	
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	finally {
+
+ 		try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+ 	}
+return value;
 }
 public static void InitRobotValues()
 {
@@ -992,6 +1115,16 @@ public static void InitRobotValues()
 	echoClosestStdBack=0;
 	echoClosestCount=0;
 	echoClosestDistance=0;
+	moveRetcodeList[0]="ok";
+	moveRetcodeList[1]="moveRetcodeEncoderLeftLowLevel";
+	moveRetcodeList[2]="moveRetcodeEncoderRightLowLevel";
+	moveRetcodeList[3]="moveRetcodeEncoderLeftHighLevel";
+	moveRetcodeList[4]="moveRetcodeEncoderRightHighLevel";
+	moveRetcodeList[5]="moveUnderLimitation";
+	moveRetcodeList[7]="moveKoDueToObstacle";
+	moveRetcodeList[10]="moveKoDueToWheelStopped";
+	moveRetcodeList[11]="moveKoDueToNotEnoughSpace";
+	moveRetcodeList[16]="moveWheelSpeedInconsistancy";
 	shiftEchoVsRotationCenter=ParametersSetting.GetParametersNumValue(shiftparameterid)/10;
 	ArduinoSimulator.InitSimulatorValues();
 	}

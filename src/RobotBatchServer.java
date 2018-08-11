@@ -67,6 +67,7 @@ public class RobotBatchServer implements Runnable {
 				byte[] sentence2=new byte[1024];
 		//		byte[] sendData = new byte[1024];
 				DatagramPacket receivePacket = new DatagramPacket(sentence2, sentence2.length);
+
 				try {
 					serverSocket.receive(receivePacket);
 				} catch (IOException e1) {
@@ -79,7 +80,7 @@ public class RobotBatchServer implements Runnable {
 			if(!Arrays.equals(sentence2, prevSentence)) // not a duplicated frame
 			 {
 				prevSentence=sentence2;					 
-
+				EchoRobot.pendingEcho=0;
 				 InpLen=(byte)sentence2[4];
 				
 
@@ -375,7 +376,7 @@ public class RobotBatchServer implements Runnable {
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
-							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode: 0x"+byteToHex(retCode)+" detail:"+RobotMainServer.retCodeDetail;
+							mess="move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode: 0x"+byteToHex(retCode)+" "+RobotMainServer.moveRetcodeList[retCode]+" detail:"+RobotMainServer.retCodeDetail;
 							Trace.TraceLog(pgmId,mess);
 	//						System.out.println("refresh hard on screen");
 							
@@ -802,7 +803,7 @@ public class RobotBatchServer implements Runnable {
 				
 				
 				if (sentence2[6]==0x70){  // power info
-					EchoRobot.pendingEcho=0;
+
 					int power1=((byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80))*10;
 					int power2=((byte)(sentence2[8]&0x7F)-(byte)(sentence2[8]&0x80))*10;
 					int power3=((byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80))*10;
@@ -1074,6 +1075,22 @@ public class RobotBatchServer implements Runnable {
 					int rightEncoder=((sentence2[19] << 8) & 0x0000ff00) | (sentence2[20] & 0x000000ff);
 					mess="power 1:"+power1+" 2:"+power2+" 3:"+power3+" 4:"+power4+" 5:"+power5+" 6:"+power6+ " leftEncoder:"+leftEncoder+ " rightEncoder:"+rightEncoder;
 					Trace.TraceLog(pgmId,mess);
+				}
+				if(sentence2[6]==RobotMainServer.respTraceNO)
+				{
+					int NO=((sentence2[7] << 8) & 0x0000ff00) | (sentence2[8] & 0x000000ff);
+					RobotMainServer.northOrientation=NO;
+
+					RobotMainServer.BNOMode=(byte) ((byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80));
+					RobotMainServer.BNOCalStat=(byte) ((byte)(sentence2[11]&0x7F)-(byte)(sentence2[11]&0x80));
+					RobotMainServer.BNOSysStat=(byte) ((byte)(sentence2[13]&0x7F)-(byte)(sentence2[13]&0x80));
+					RobotMainServer.BNOSysError=(byte) ((byte)(sentence2[14]&0x7F)-(byte)(sentence2[14]&0x80));
+					int AO=((sentence2[16] << 8) & 0x0000ff00) | (sentence2[17] & 0x000000ff);
+					RobotMainServer.absoluteOrientation=AO;
+					mess="North orientation:" + NO + " abs Orientation: "+RobotMainServer.absoluteOrientation+ " BNOMode:"+byteToHex(RobotMainServer.BNOMode) + " BNOCalStat:"+byteToHex(RobotMainServer.BNOCalStat) +" BNOSysStat:"+byteToHex(RobotMainServer.BNOSysStat) +" BNOSysError:"+byteToHex(RobotMainServer.BNOSysError);
+					Trace.TraceLog(pgmId,mess);
+					Fenetre2.RefreshBNO();
+					Fenetre2.RefreshHardPosition();
 				}
 			}
 		}
