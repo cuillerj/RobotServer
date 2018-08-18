@@ -19,17 +19,11 @@ public class RobotBatchServer implements Runnable {
 		String mess="lastid:"+RobotMainServer.idscanG+" "+RobotMainServer.posXG+ " "+RobotMainServer.posYG;
 		TraceLog Trace = new TraceLog();
 		Trace.TraceLog(pgmId,mess);
-//		System.out.println(pgmId+": "+"lastid:"+RobotMainServer.idscanG+" "+RobotMainServer.posXG+ " "+RobotMainServer.posYG);
-
 		Fenetre ihm = new Fenetre();
 		Fenetre2 ihm2 = new Fenetre2();
 		FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
-//		ihm2.SetInitialPosition();
 		ihm3.SetInitialPosition();
-//		FenetreGraphique graph = new FenetreGraphique();
-//		PanneauGraphique.point(posXG,posYG);
-//		graph.repaint();
-//		graph.SetInitialPosition();
+
 			DatagramSocket serverSocket = null;
 			try {
 				serverSocket = new DatagramSocket(1830);
@@ -37,23 +31,14 @@ public class RobotBatchServer implements Runnable {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} 
-			//byte[] receiveData = new byte[1024];
-			//byte[] sendData = new byte[1024];
 			int ID=0; // station ID
 			byte Type=0; // station type
 			int InpLen=0; // input datalength - lue dans la trame UDP
 			int trameNumber=0;
 			byte lastTrameNumber=0;
 			EchoRobot echo=new EchoRobot();
-		//	echo.EchoRobot();
 			echo.start();
-			//	EchoRobot echo=new EchoRobot();
-//			echo.EchoRobot();
-				//echo.start();
-//		      SendUDP snd = new SendUDP();
-//		      snd.SendEcho();
 			TraceEvents trace=new TraceEvents();
-//			trace.TraceEvents();
 			trace.start();
 			while(true)
 			{
@@ -136,20 +121,11 @@ public class RobotBatchServer implements Runnable {
 					if (sentence2[8]==0x46){       // scan data
 				    	 int i2=9;
 				    	 int distFront=((sentence2[i2] << 8) & 0x0000ff00) | (sentence2[i2+1] & 0x000000ff);
-//				    	 int oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
-	//			    	 int oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
-		//		    	 int distFront=256*oct0+oct1;
 				    	 i2=12;
-//				    	 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
-//				    	 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 				    	 int distBack=((sentence2[i2] << 8) & 0x0000ff00) | (sentence2[i2+1] & 0x000000ff);
 				    	 i2=15;
-	//			    	 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
-	//			    	 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 				    	 int angle=((sentence2[i2] << 8) & 0x0000ff00) | (sentence2[i2+1] & 0x000000ff);;
 				    	 i2=19;
-		//		    	 oct0=(byte)(sentence2[i2]&0x7F)-(byte)(sentence2[i2]&0x80); // manip car byte consideré signé
-		//		    	 oct1=(byte)(sentence2[i2+1]&0x7F)-(byte)(sentence2[i2+1]&0x80);
 				    	 RobotMainServer.northOrientation=((sentence2[i2] << 8) & 0x0000ff00) | (sentence2[i2+1] & 0x000000ff);
 				    	 RobotMainServer.RefreshHardPositionOnScreen();
 				    	 if (RobotMainServer.scanStepCount!=0)
@@ -160,6 +136,8 @@ public class RobotBatchServer implements Runnable {
 				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][3]=RobotMainServer.northOrientation;
 				    		 	RobotMainServer.scanStepCount++;
 				    	 	}
+				    	 RobotMainServer.lastEchoFront=distFront;
+				    	 RobotMainServer.lastEchoBack=distBack;
 				    	 if (lastTrameNumber!=trameNumber)
 				    	 	{
 				    		 try {
@@ -175,6 +153,7 @@ public class RobotBatchServer implements Runnable {
 				    			 String idsG=RobotMainServer.idscanG;
 				    			 RobotMainServer.GetCurrentPosition(idsG);
 			//	    			 int angl=RobotMainServer.orientG;
+				    			 RobotMainServer.scanReceiveCount++;
 				    			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+RobotMainServer.northOrientation+","+RobotMainServer.idCarto+",0)";
 				    			 //System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
 				    			Trace.TraceLog(pgmId,sql);
@@ -1091,6 +1070,40 @@ public class RobotBatchServer implements Runnable {
 					Trace.TraceLog(pgmId,mess);
 					Fenetre2.RefreshBNO();
 					Fenetre2.RefreshHardPosition();
+				}
+			}
+			else
+			{
+				if (sentence2[6] == 0x01) { // means need a ack
+					InetAddress IPAddress = receivePacket.getAddress();
+				    DatagramSocket clientSocket = null;
+					try {
+						clientSocket = new DatagramSocket();				
+						} 
+					catch (SocketException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+						}
+				    byte[] sendData = new byte[4];
+				    sendData[0]=0x63;
+				    sendData[1]=SendUDP.countUdp;
+				    sendData[2]=0x61;
+				    sendData[3]=sentence2[7];
+				    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+				    try {
+						clientSocket.send(sendPacket);
+				    	} 
+				    catch (IOException e1) {
+						e1.printStackTrace();
+						}
+					EchoRobot.pendingEcho=0;
+					try {
+						Thread.sleep(300);
+				 		} 
+					catch (InterruptedException e1) {
+						e1.printStackTrace();
+				 		}
+					clientSocket.close();
 				}
 			}
 		}

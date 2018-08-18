@@ -858,10 +858,6 @@ public class SendUDP extends Thread{
 			 DataToSend[2]=0x7b;   // I
 			 sendData = DataToSend;
 	      sendData=SecurSendUdp(sendData);
-//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
-//	      clientSocket.send(sendPacket);
-//	      clientSocket.close();
-  	 	   
 	   
 		}
 	   catch(Exception e)

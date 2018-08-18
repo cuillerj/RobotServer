@@ -25,6 +25,7 @@ public class RobotMainServer
 	public static int orientG=0;
 	public static String idscanG="0";
 	public static int countScan=0;
+	public static int scanSeqLen=20;
 	public static int posX;
 	public static int posY;
 	public static int alpha;
@@ -41,8 +42,12 @@ public class RobotMainServer
 	public static String ipRobot="192.168.1.35";  // en cible a lire en BD 
 	public static int shiftparameterid=8;
 	public static double shiftEchoVsRotationCenter = 0;  // to be read in DB
-	public static int[][] scanArray = new int [15][4];
+	public static int scanArraySize = 15;
+	public static int[][] scanArray = new int [scanArraySize][4];
 	public static int scanStepCount=0;
+	public static int scanReceiveCount=0;
+	public static int lastEchoFront=0;
+	public static int lastEchoBack=0;	
 	public static int power9V;
 	public static int power5V;
 	public static int powerDiag;
@@ -304,6 +309,45 @@ try { if (stmtI1 != null) stmtI1.close(); } catch (SQLException e) { e.printStac
 try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }}
 
 }
+public static int  GetMaxScanID() {
+	Connection conn = null;
+	Statement stmtR1 = null;
+	Statement stmtI1 = null;
+	int maxScanId=-1;
+//		Fenetre ihm = new Fenetre();
+//		JFormattedTextField ids=indScan;
+//	String ids =indScan.getText();
+//	int indscan=Integer.parseInt(ids);
+
+//	  System.out.println("actualise position:"+indscan);
+try {
+
+Class.forName("com.mysql.jdbc.Driver").newInstance();
+String connectionUrl = "jdbc:mysql://jserver:3306/robot";
+String connectionUser = "jean";
+String connectionPassword = "manu7890";
+conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
+//conn.setAutoCommit(false);
+stmtR1 = conn.createStatement();
+stmtI1 = conn.createStatement();
+ResultSet rs = null;
+rs = stmtR1.executeQuery("SELECT max(idscan) as max FROM scanResult"); 
+
+while (rs.next()) {
+	maxScanId= rs.getInt("max");
+//  System.out.println("x:"+posXG+" Y:"+posYG+" orient:"+orientG);
+}
+rs.close();
+
+} catch (Exception e) {
+e.printStackTrace();
+} 
+finally {
+try { if (stmtR1 != null) stmtR1.close(); } catch (SQLException e) { e.printStackTrace(); }
+try { if (stmtI1 != null) stmtI1.close(); } catch (SQLException e) { e.printStackTrace(); }
+try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }}
+return maxScanId;
+}
 /*public void RefreshAff() {
 	// TODO Auto-generated method stub
     ihm.RefreshStat();
@@ -409,6 +453,17 @@ public static int GetScanDistBack(int idx)
 {
 	return scanArray[idx][2];
 }
+public static int GetScanNOOrientation()
+{
+	int i;
+	int average=0;
+	for (i=0;i<scanArraySize;i++)
+	{
+		average=average+scanArray[i][3];
+	}
+	average=average/scanArraySize;
+	return average;
+}
 public static int SetScanDistFront(int idx,int value)
 {
 	scanArray[idx][1]=value;
@@ -419,6 +474,12 @@ public static int SetScanDistBack(int idx, int value)
 {
 	scanArray[idx][2]=value;
 	return scanArray[idx][2];
+}
+public static void SetScanId(int value)
+{
+    RobotMainServer.idscanG= Integer.toString(value);
+    Fenetre.idscan.setText(RobotMainServer.idscanG);
+    Fenetre.label.setText("Init scanID");  
 }
 public static int GetScanNorthOrientation(int idx)
 {
@@ -431,6 +492,7 @@ public static int GetEventTimeout(int idx)
 public static void Scan360()
 {
     int newIdScan=0;
+    scanReceiveCount=0;
 	octaveRequestPending=true;
 	RobotMainServer.runningStatus=2;
     RobotMainServer.idscanG= Integer.toString(newIdScan);
@@ -438,7 +500,6 @@ public static void Scan360()
     RobotMainServer.countScan=0;
     Fenetre.idscan.setText(RobotMainServer.idscanG);
     Fenetre.label.setText("Scan 360 requested");   
- //   System.out.println(RobotMainServer.idscanG);
 	int action=scanEnd;
 	int timeout=eventTimeoutTable[action][simulation];
 	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
@@ -451,6 +512,29 @@ public static void Scan360()
 		GetScanRawData(simulatedHardX,simulatedHardY);
 	}
 }
+public static void Scan360Id (int value)
+{
+	octaveRequestPending=true;
+    scanReceiveCount=0;
+	RobotMainServer.runningStatus=2;
+    RobotMainServer.idscanG= Integer.toString(value);
+    RobotMainServer.scanStepCount=1;
+    RobotMainServer.countScan=0;
+    Fenetre.idscan.setText(RobotMainServer.idscanG);
+    Fenetre.label.setText("ScanId 360  requested");   
+	int action=scanEnd;
+	int timeout=eventTimeoutTable[action][simulation];
+	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
+	if(simulation*actionSimulable[action][0]==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendUDPScan();
+	}
+	else{
+		GetScanRawData(simulatedHardX,simulatedHardY);
+	}
+}
+
 public static int GetScanRawData(int inX,int inY)
 {
     int retCode=GetSqlData.GetScanRawData(inX,inY);
@@ -763,6 +847,9 @@ public static void PingEchoFrontBack()
 {             // 
 int action=pingFBEnd;
 int timeout=eventTimeoutTable[action][simulation];
+RobotMainServer.idscanG= Integer.toString(0);
+Fenetre.idscan.setText(RobotMainServer.idscanG);
+Fenetre.label.setText("Init scanID"); 
 EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 octaveRequestPending=true;
 RobotMainServer.scanStepCount=1;  // use robot.GetScanDist...(0) to get front and echo distance

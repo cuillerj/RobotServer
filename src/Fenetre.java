@@ -215,7 +215,10 @@ public class Fenetre extends JFrame{
   class BoutonPingFBListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-	        RobotMainServer.idscanG= idscan.getText();
+	    	RobotMainServer.idscanG= Integer.toString(0);
+	    	Fenetre.idscan.setText(RobotMainServer.idscanG);
+	    	Fenetre.label.setText("Init scanID"); 
+//	        RobotMainServer.idscanG= idscan.getText();
 	      label.setText("Ping FB");   
 	      SendUDP snd = new SendUDP();
 	      snd.SendUDPPingEchoFrontBack();
@@ -311,14 +314,13 @@ public class Fenetre extends JFrame{
   class BoutonScanSeqListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-	    RobotMainServer.countScan=20;
-	   
+	    RobotMainServer.countScan=RobotMainServer.scanSeqLen;	   
 	    int newIdScan=Integer.parseInt(idscan.getText().replaceAll("\\W", ""))+1;
 	      RobotMainServer.idscanG= Integer.toString(newIdScan);
 	      idscan.setText(RobotMainServer.idscanG);
 	      label.setText("Demarrage du scan serie");   
 	      System.out.println(RobotMainServer.idscanG);
-	     SendUDP snd = new SendUDP();
+	      SendUDP snd = new SendUDP();
 	      snd.SendUDPScan();
 	      go();
 	    }
