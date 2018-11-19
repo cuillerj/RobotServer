@@ -869,7 +869,7 @@ public class SendUDP extends Thread{
 		// TODO Auto-generated method stub
 		try{
 			RobotMainServer.runningStatus=1003; // pending move
-			  String mess="angle:"+angle+ " move:"+move;
+			  String mess="move angle:"+angle+ " move:"+move;
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();
@@ -1036,6 +1036,30 @@ public class SendUDP extends Thread{
 			   
 			   finally{}
 				}
+	public void SendRequestVersion() {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="request for arduino version";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[3];
+			      byte[] cmde = new byte[3];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.requestVersion;  // 
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
 	public void SendUDPShiftPulse(int value) {
 		// TODO Auto-generated method stub
 		try{
@@ -1116,10 +1140,12 @@ public class SendUDP extends Thread{
 		 	java.util.Date date= new java.util.Date();
 		 	date =new Timestamp(date.getTime());
 		 	long millis=date.getTime() - RobotMainServer.lastSentTime;
-		 	if (millis<300 && RobotMainServer.lastSentTime!=0)
+		 	if (millis<500 && RobotMainServer.lastSentTime!=0)
 		 	{
-			   Thread.sleep(300-millis);         // to let arduino time for treatment
-			   System.out.println("UDP Send wait time:"+ millis);
+			   Thread.sleep(500-millis);         // to let arduino time for treatment
+			   String mess="wait for:"+ millis+ "ms to send";
+			   TraceLog Trace = new TraceLog();
+			   Trace.TraceLog(pgmId,mess);
 		 	}
 		 	RobotMainServer.lastSentTime=date.getTime();
 
@@ -1204,7 +1230,8 @@ public class SendUDP extends Thread{
 	}
 	static void ResendLastFrame()
 	{
-	      DatagramSocket clientSocket = null;
+		String pgmId="SendUDP";
+	     DatagramSocket clientSocket = null;
 		try {
 			clientSocket = new DatagramSocket();
 		} catch (SocketException e2) {
@@ -1218,8 +1245,10 @@ public class SendUDP extends Thread{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
-		System.out.println(" resend: 0x"+byteToHex(copySentData[0])+" - "+byteToHex(copySentData[1])+" - "+byteToHex(copySentData[2]));
+		  String mess=" resend: 0x"+byteToHex(copySentData[0])+" - "+byteToHex(copySentData[1])+" command:"+byteToHex(copySentData[2]);
+		  TraceLog Trace = new TraceLog();
+		  Trace.TraceLog(pgmId,mess);
+//		System.out.println(" resend: 0x"+byteToHex(copySentData[0])+" - "+byteToHex(copySentData[1])+" - "+byteToHex(copySentData[2]));
 //		RobotMainServer.pendingAcqUdp=false;
 		RobotBatchServer.statusFrameCount=0;
 	      DatagramPacket sendPacket = new DatagramPacket(copySentData, copySentData.length, IPAddress, 8888);

@@ -34,7 +34,7 @@ public class RobotBatchServer implements Runnable {
 			int ID=0; // station ID
 			byte Type=0; // station type
 			int InpLen=0; // input datalength - lue dans la trame UDP
-			int trameNumber=0;
+			byte trameNumber=0;
 			byte lastTrameNumber=0;
 			EchoRobot echo=new EchoRobot();
 			echo.start();
@@ -103,6 +103,12 @@ public class RobotBatchServer implements Runnable {
 				    sendData[1]=SendUDP.countUdp;
 				    sendData[2]=0x61;
 				    sendData[3]=sentence2[7];
+					try {
+						Thread.sleep(100);
+				 		} 
+					catch (InterruptedException e1) {
+						e1.printStackTrace();
+				 		}
 				    DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 				    try {
 						clientSocket.send(sendPacket);
@@ -154,7 +160,7 @@ public class RobotBatchServer implements Runnable {
 				    			 RobotMainServer.GetCurrentPosition(idsG);
 			//	    			 int angl=RobotMainServer.orientG;
 				    			 RobotMainServer.scanReceiveCount++;
-				    			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+RobotMainServer.northOrientation+","+RobotMainServer.idCarto+",0)";
+				    			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+RobotMainServer.northOrientation+","+RobotMainServer.idCarto+","+RobotMainServer.trainBatch+")";
 				    			 //System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
 				    			Trace.TraceLog(pgmId,sql);
 				    //			 System.out.println(sql);
@@ -167,7 +173,7 @@ public class RobotBatchServer implements Runnable {
 				    		 		try { if (stmtI != null) stmtI.close(); } catch (SQLException e) { e.printStackTrace(); }
 				    		 		try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
 				    		 	}
-				    		 	lastTrameNumber=sentence2[15];
+				    		 	lastTrameNumber=trameNumber;
 				    	 	}
 				    	 PanneaugraphiqueSonar.point(RobotMainServer.posXG,RobotMainServer.posYG,RobotMainServer.northOrientation,distFront,distBack,angle);
 				    	 ihm3.repaint();
@@ -1071,6 +1077,14 @@ public class RobotBatchServer implements Runnable {
 					Fenetre2.RefreshBNO();
 					Fenetre2.RefreshHardPosition();
 				}
+				if (sentence2[6]==RobotMainServer.respVersion){  // version info
+					int version=(sentence2[7] & 0x000000ff);
+					RobotMainServer.arduinoVersion=version;
+					int subVersion=(sentence2[8] & 0x000000ff);
+					RobotMainServer.arduinoSubVersion=subVersion;
+					mess="Arduino version:" + version + "-"+subVersion;
+					Trace.TraceLog(pgmId,mess);
+				}
 			}
 			else
 			{
@@ -1106,7 +1120,9 @@ public class RobotBatchServer implements Runnable {
 					clientSocket.close();
 				}
 			}
+
 		}
+			
 	}
 	void UpdateScanRefOrientation(int northOrientation)
 	{

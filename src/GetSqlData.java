@@ -178,7 +178,7 @@ public class GetSqlData {
 						e.printStackTrace();
 					}
 	    			try {
-						String sql="SELECT idscan FROM scanResult WHERE posX = "+inX+" AND posY = "+inY+" AND idscan !=0 group by idscan limit 100";
+						String sql="SELECT idscan FROM scanResult WHERE posX = "+inX+" AND posY = "+inY+" AND idscan !=0 group by idscan order by time desc limit 100";
 //						Trace.TraceLog(pgmId,sql);
 						rs = stmt1.executeQuery(sql);
 

@@ -9,7 +9,6 @@ public class MonitorUDPLink implements Runnable {
 		{
 		   try {
 			Thread.sleep(5000);
-
 			SendUDP.CheckLastFrame();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

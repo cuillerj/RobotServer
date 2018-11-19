@@ -19,7 +19,7 @@ import java.io.PrintStream;
 
 public class RobotMainServer 
 	{
-	public static float version=(float) 2.3;
+	public static float version=(float) 2.4;
 	public static int posXG=0;
 	public static int posYG=0;
 	public static int orientG=0;
@@ -56,6 +56,7 @@ public class RobotMainServer
 	public static int robotDiag;
 	public static int runningStatus=0;
 	public static int idCarto=1;                   // a rendre modifiable
+	public static int trainBatch=0;
 	public static int currentLocProb=0;
 	public static boolean hardJustReboot=false;
 	public static boolean serverJustRestarted=false;
@@ -69,6 +70,7 @@ public class RobotMainServer
 	public static int simulatedHardY=0;
 	public static int simulatedHardH=0;
 	public static String fname="robotJavaTrace.txt";
+	public static Process TfProcess=null;
 	public static int actionRetcode=0;
 	public static final int robotInfoUpdated=1;
 	public static final int robotUpdatedEnd=8;
@@ -156,6 +158,8 @@ public class RobotMainServer
 	public static int voltage5=0;
 	public static int voltage6=0;
 	public static int voltage7=0;
+	public static int arduinoVersion=0;
+	public static int arduinoSubVersion=0;
 	public static byte requestPingFrontBack=0x70;
 	public static byte requestUpdateNO=0x7b;
 	public static byte requestBNOData=0x7c;
@@ -170,6 +174,8 @@ public class RobotMainServer
 	public static byte respTrace=(byte) 0x90;
 	public static byte respTraceNO=(byte) 0x91;
 	public static byte requestSleep=(byte) 0x92;
+	public static byte requestVersion=(byte) 0x93;
+	public static byte respVersion=(byte) 0x93;
 	
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
@@ -464,6 +470,12 @@ public static int GetScanNOOrientation()
 	average=average/scanArraySize;
 	return average;
 }
+public static int SetScanAngle(int idx,int value)
+{
+	scanArray[idx][0]=value;
+	return scanArray[idx][0];
+
+}
 public static int SetScanDistFront(int idx,int value)
 {
 	scanArray[idx][1]=value;
@@ -480,6 +492,10 @@ public static void SetScanId(int value)
     RobotMainServer.idscanG= Integer.toString(value);
     Fenetre.idscan.setText(RobotMainServer.idscanG);
     Fenetre.label.setText("Init scanID");  
+}
+public static void SetTrainBatch(int value)
+{
+    RobotMainServer.trainBatch= value;
 }
 public static int GetScanNorthOrientation(int idx)
 {
@@ -801,6 +817,14 @@ octaveRequestPending=true;
 SendUDP snd = new SendUDP();
 snd.SendUDPReset();
 	}
+public static void RequestVersion()
+{
+int timeout=eventTimeoutTable[robotInfoUpdated][simulation];
+EventManagement.AddPendingEvent(robotInfoUpdated,timeout,eventOctave,eventArduino+simulation*actionSimulable[robotInfoUpdated][0]*actionSimulable[robotInfoUpdated][1]);
+octaveRequestPending=true;
+SendUDP snd = new SendUDP();
+snd.SendRequestVersion();
+	}
 public static void RobotAlignServo(int value)
 {             // request servomotor alignment from 0 to 180°
 int timeout=eventTimeoutTable[servoAlignEnd][simulation];
@@ -1082,6 +1106,25 @@ public static void RequestNarrowPathEchos()
 		SendUDP snd = new SendUDP();
 		snd.SendUDPRequestNarrowPathEchos();
 	}
+}
+public static int StartTensorFlowPrediction()
+{             // duration in seconds up to 254
+	int retCode=-1;
+	if (TfProcess==null){
+		Process rc=StartTensorFlowPrediction.runProcess();
+		String mess="Start TensorFlow prediction:"+rc;;
+	    TraceLog Trace = new TraceLog();
+		Trace.TraceLog(pgmId,mess);
+		TfProcess=rc;
+		retCode=0;
+	}
+	else{
+		String mess="TensorFlow prediction aleardy active";
+	    TraceLog Trace = new TraceLog();
+		Trace.TraceLog(pgmId,mess);
+	}
+	return retCode;
+
 }
 @SuppressWarnings("null")
 public static int UpdateCurrentShiftNorthOrientation(int value)
