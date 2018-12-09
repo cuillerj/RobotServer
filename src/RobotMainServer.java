@@ -39,11 +39,13 @@ public class RobotMainServer
 	public static int gyroHeading=0;
 	public static byte actStat=0x00;
 	public static String stationStatus="";
-	public static String ipRobot="192.168.1.35";  // en cible a lire en BD 
+//	public static String ipRobot="192.168.1.35";  //
+	public static InetAddress ipRobot=null;  // 
 	public static int shiftparameterid=8;
 	public static double shiftEchoVsRotationCenter = 0;  // to be read in DB
 	public static int scanArraySize = 15;
 	public static int[][] scanArray = new int [scanArraySize][4];
+	public static int[] pingArray = new int [4];
 	public static int scanStepCount=0;
 	public static int scanReceiveCount=0;
 	public static int lastEchoFront=0;
@@ -66,6 +68,7 @@ public class RobotMainServer
 	public static int octavePendingRequest=0;
 	public static boolean interactive=false;
 	public static int simulation=0;
+	public static int batchTypeFlag=0;  // 0:no batch 1: real mode running  2 simulation mode running
 	public static int simulatedHardX=0;     // used in simulation corresponding to hard location to guess
 	public static int simulatedHardY=0;
 	public static int simulatedHardH=0;
@@ -81,6 +84,8 @@ public class RobotMainServer
 	public static final int northAlignEnd=107;
 	public static final int servoAlignEnd=108;
 	public static final int pingFBEnd=109;
+	public static final int gyroRotating=110;  // 0x6e
+	public static final int gyroRotateEnd=111;  // 0x6f
 	public static final int moveAcrossPassEnded=112;
 	public static final int requestBNOEnd=118;
 	public static final int robotNOUpdated=123;
@@ -176,6 +181,7 @@ public class RobotMainServer
 	public static byte requestSleep=(byte) 0x92;
 	public static byte requestVersion=(byte) 0x93;
 	public static byte respVersion=(byte) 0x93;
+	public static byte northAlignRequest=(byte) 0x45;
 	
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
@@ -373,13 +379,19 @@ public static void hexaPrint(byte y)
 {
 		System.out.print("-" + String.format("%x", y));
 	}
-public static void LaunchBatch()
+public static int  LaunchBatch()
 {
+	if (batchTypeFlag==1)
+	{
+		return 0;		
+	}
+	if (batchTypeFlag==0)
+	{	
 	initEventTable();
 	StartTimeoutManagement();
-	FenetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
+//enetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
 //	ihm2.SetInitialPosition();
-	ihm3.SetInitialPosition();  // au moins une fenetre active avant de detacher le batch
+//	ihm3.SetInitialPosition();  // au moins une fenetre active avant de detacher le batch
 			//InitRobot();
 	RobotBatchServer batch = new RobotBatchServer();
 	Thread myThread = new Thread(batch);
@@ -389,9 +401,21 @@ public static void LaunchBatch()
 	Thread udpThread = new Thread(monitUDP);
 	udpThread.setDaemon(true); // important, otherwise JVM does not exit at end of main()
 	udpThread.start(); 
+	batchTypeFlag=1;
+	return 0;	
 	}
-public static void LaunchSimu()
+	else{
+		return -1;  // can not switch between real and simulation mode
+	}
+	}
+public static int  LaunchSimu()
 {
+	if (batchTypeFlag==2)
+	{
+		return 0;		
+	}
+	if (batchTypeFlag==0)
+	{	
 	SetSimulationMode(1);
 	initEventTable();
 	StartTimeoutManagement();
@@ -406,23 +430,29 @@ public static void LaunchSimu()
 	Thread myThread = new Thread(batch);
 	myThread.setDaemon(true); // important, otherwise JVM does not exit at end of main()
 	trace.start();
+	batchTypeFlag=2;
 			//InitRobot();
 //	RobotBatchServer batch = new RobotBatchServer();
 //	Thread myThread = new Thread(batch);
 //	myThread.setDaemon(true); // important, otherwise JVM does not exit at end of main()
-//	myThread.start(); 
+//	myThread.start();
+	return 0;	
+	}
+	else{
+		return -1; // can not switch between real and simulation mode
+	}
 	}
 public static void initEventTable()
 {                                                // duration expressed in 1/10 of second
 	eventTimeoutTable[robotInfoUpdated][0]=100; // normal mode
 	eventTimeoutTable[robotInfoUpdated][1]=20;  // simulation mode
-	eventTimeoutTable[robotUpdatedEnd][0]=1200; // normal mode
+	eventTimeoutTable[robotUpdatedEnd][0]=600; // normal mode
 	eventTimeoutTable[robotUpdatedEnd][1]=20;  // simulation mode
-	eventTimeoutTable[scanEnd][0]=1800; // normal mode
+	eventTimeoutTable[scanEnd][0]=900; // normal mode
 	eventTimeoutTable[scanEnd][1]=100;  // simulation mode
-	eventTimeoutTable[moveEnd][0]=1800; // normal mode
+	eventTimeoutTable[moveEnd][0]=900; // normal mode
 	eventTimeoutTable[moveEnd][1]=30;  // simulation mode
-	eventTimeoutTable[northAlignEnd][0]=3000; // normal mode
+	eventTimeoutTable[northAlignEnd][0]=1800; // normal mode
 	eventTimeoutTable[northAlignEnd][1]=30;  // simulation mode
 	eventTimeoutTable[servoAlignEnd][0]=100; // normal mode
 	eventTimeoutTable[servoAlignEnd][1]=10;  // simulation mode
@@ -458,6 +488,17 @@ public static int GetScanDistFront(int idx)
 public static int GetScanDistBack(int idx)
 {
 	return scanArray[idx][2];
+}
+public static void ClearScanArray()
+{
+
+	for (int i=0;i<scanArraySize;i++)
+	{
+		scanArray[i][0]=0;
+		scanArray[i][1]=0;
+		scanArray[i][2]=0;
+		scanArray[i][3]=0;
+	}
 }
 public static int GetScanNOOrientation()
 {
@@ -508,6 +549,8 @@ public static int GetEventTimeout(int idx)
 public static void Scan360()
 {
     int newIdScan=0;
+    ClearScanArray();
+    PanneaugraphiqueSonar.razPoints();
     scanReceiveCount=0;
 	octaveRequestPending=true;
 	RobotMainServer.runningStatus=2;
@@ -532,6 +575,8 @@ public static void Scan360Id (int value)
 {
 	octaveRequestPending=true;
     scanReceiveCount=0;
+    ClearScanArray();
+    PanneaugraphiqueSonar.razPoints();
 	RobotMainServer.runningStatus=2;
     RobotMainServer.idscanG= Integer.toString(value);
     RobotMainServer.scanStepCount=1;
@@ -871,24 +916,44 @@ public static void PingEchoFrontBack()
 {             // 
 int action=pingFBEnd;
 int timeout=eventTimeoutTable[action][simulation];
+for (int i=0;i<4;i++)
+{
+	RobotMainServer.pingArray[i]=0;
+}
 RobotMainServer.idscanG= Integer.toString(0);
 Fenetre.idscan.setText(RobotMainServer.idscanG);
 Fenetre.label.setText("Init scanID"); 
 EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 octaveRequestPending=true;
-RobotMainServer.scanStepCount=1;  // use robot.GetScanDist...(0) to get front and echo distance
+RobotMainServer.scanStepCount=0;  // use robot.GetScanDist...(0) to get front and echo distance
 if ( simulation*actionSimulable[action][0]==0)
 	{
 	SendUDP snd = new SendUDP();
 	snd.SendUDPPingEchoFrontBack();
 	}
 }
+
+public static int GetPingAngle()
+{
+	return pingArray[0];
+}
+public static int GetPingFront()
+{
+	return pingArray[1];
+}
+public static int GetPingBack()
+{
+	return pingArray[2];
+}
 public static void NorthAlign(int northShift)
 {
 	int action=northAlignEnd;
 	int timeout=eventTimeoutTable[action][simulation];
-	ArduinoSimulator.SaveMoveRequest((northShift)%360,0);
-	ArduinoSimulator.SaveNorthAlignRequest((northShift)%360);
+	if (simulation!=0)
+	{
+		ArduinoSimulator.SaveMoveRequest((northShift)%360,0);
+		ArduinoSimulator.SaveNorthAlignRequest((northShift)%360);
+	}
 	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 //	RobotMainServer.octaveRequestPending=true;
 	octaveRequestPending=true;

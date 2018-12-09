@@ -756,7 +756,8 @@ public class SendUDP extends Thread{
 			Trace.TraceLog(pgmId,mess);
 			RobotMainServer.runningStatus=2000; // pending init
 			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      
 			      byte[] sendData = new byte[25];
 //			      String startCmde="c4I";
 //			      sendData = startCmde.getBytes();
@@ -873,7 +874,7 @@ public class SendUDP extends Thread{
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	//		      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] cmde = new byte[15];
 			      byte[] sendData = new byte[15];
 			      cmde[0]=0x63;
@@ -991,7 +992,7 @@ public class SendUDP extends Thread{
 			      byte[] sendData = new byte[15];
 			      cmde[0]=0x63;
 			      cmde[1]=0x34;
-			      cmde[2]=0x45;  // N command
+			      cmde[2]=RobotMainServer.northAlignRequest;  // N command
 			      cmde[3]=(byte)(angle/256);
 			      cmde[4]=(byte)(angle);
 
@@ -1167,6 +1168,7 @@ public class SendUDP extends Thread{
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
+		/*
 	      InetAddress IPAddress = null;
 		try {
 			IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -1174,6 +1176,7 @@ public class SendUDP extends Thread{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		*/
 //		System.out.println(" count:"+countUdp);
 		countUdp++;
 //		System.out.println(" count:"+countUdp);
@@ -1182,7 +1185,8 @@ public class SendUDP extends Thread{
 		copySentData=sendData;
 		RobotMainServer.pendingAcqUdp=true;
 		RobotBatchServer.statusFrameCount=0;
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+		 DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, RobotMainServer.ipRobot, 8888);
 	      try {
 			clientSocket.send(sendPacket);
 		} catch (IOException e) {
@@ -1203,6 +1207,7 @@ public class SendUDP extends Thread{
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
+		/*
 	      InetAddress IPAddress = null;
 		try {
 			IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -1210,6 +1215,7 @@ public class SendUDP extends Thread{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		*/
 //		System.out.println(" count:"+countUdp);
 		countUdp++;
 //		System.out.println(" count:"+countUdp);
@@ -1218,7 +1224,8 @@ public class SendUDP extends Thread{
 		copySentData=sendData;
 		RobotMainServer.pendingAcqUdp=false;
 		RobotBatchServer.statusFrameCount=0;
-	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, RobotMainServer.ipRobot, 8888);
 	      try {
 			clientSocket.send(sendPacket);
 		} catch (IOException e) {
@@ -1238,6 +1245,7 @@ public class SendUDP extends Thread{
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
+		/*
 	      InetAddress IPAddress = null;
 		try {
 			IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
@@ -1245,13 +1253,15 @@ public class SendUDP extends Thread{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		*/
 		  String mess=" resend: 0x"+byteToHex(copySentData[0])+" - "+byteToHex(copySentData[1])+" command:"+byteToHex(copySentData[2]);
 		  TraceLog Trace = new TraceLog();
 		  Trace.TraceLog(pgmId,mess);
 //		System.out.println(" resend: 0x"+byteToHex(copySentData[0])+" - "+byteToHex(copySentData[1])+" - "+byteToHex(copySentData[2]));
 //		RobotMainServer.pendingAcqUdp=false;
 		RobotBatchServer.statusFrameCount=0;
-	      DatagramPacket sendPacket = new DatagramPacket(copySentData, copySentData.length, IPAddress, 8888);
+	  //    DatagramPacket sendPacket = new DatagramPacket(copySentData, copySentData.length, IPAddress, 8888);
+	      DatagramPacket sendPacket = new DatagramPacket(copySentData, copySentData.length, RobotMainServer.ipRobot, 8888);
 	      try {
 			clientSocket.send(sendPacket);
 		} catch (IOException e) {
@@ -1302,7 +1312,7 @@ public class SendUDP extends Thread{
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
 			      DatagramSocket clientSocket = new DatagramSocket();
-			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
 			      byte[] cmde = new byte[20];
 			      byte[] sendData = new byte[20];
 			      cmde[0]=0x63;

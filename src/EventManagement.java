@@ -12,6 +12,7 @@ public class EventManagement{
 		ClearEventTable (reqCode,reqSource,reqDest);
 		RobotMainServer.octaveRequestPending=true;
 		RobotMainServer.octavePendingRequest=reqCode;
+		RobotBatchServer.waitForEndOf=reqCode;
 		pendingRequestTable[reqId%sizeTable][0]=reqId;     // a unique identifier
 		pendingRequestTable[reqId%sizeTable][1]=reqCode;   // request code type identifier
 		pendingRequestTable[reqId%sizeTable][2]=reqTimeout; //  timeout duration expressed in 1/10 second

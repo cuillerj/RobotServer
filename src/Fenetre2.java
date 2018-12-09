@@ -50,9 +50,9 @@ public class Fenetre2 extends JFrame{
 	  public Fenetre2(){
 	    this.setTitle("Statut du robot");
 	    this.setSize(250, 220);
-	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    this.setLocationRelativeTo(null);
-	    this.setLocation(100,20);
+	    this.setLocation(550,160);
 	    container.setBackground(Color.white);
 	    container.setLayout(new BorderLayout());
 	  //  container.add(pan, BorderLayout.CENTER);

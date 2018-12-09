@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 public class RobotBatchServer implements Runnable {
 	public static int statusFrameCount=0;
+	public static int waitForEndOf=0;
 	byte[] prevSentence=new byte[1024];
 	public void run()
 	{
@@ -52,9 +53,14 @@ public class RobotBatchServer implements Runnable {
 				byte[] sentence2=new byte[1024];
 		//		byte[] sendData = new byte[1024];
 				DatagramPacket receivePacket = new DatagramPacket(sentence2, sentence2.length);
-
 				try {
 					serverSocket.receive(receivePacket);
+					if (RobotMainServer.ipRobot==null)
+					{
+						RobotMainServer.ipRobot = receivePacket.getAddress();		
+		    			Trace.TraceLog(pgmId,"Receive first IP frame:"+RobotMainServer.ipRobot.toString());
+					}
+
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -142,6 +148,12 @@ public class RobotBatchServer implements Runnable {
 				    		 	RobotMainServer.scanArray[(RobotMainServer.scanStepCount-1)%15][3]=RobotMainServer.northOrientation;
 				    		 	RobotMainServer.scanStepCount++;
 				    	 	}
+				    	 else{
+				    		 RobotMainServer.pingArray[0]=angle;
+				    		 RobotMainServer.pingArray[1]=distFront;
+				    		 RobotMainServer.pingArray[2]=distBack;
+				    		 RobotMainServer.pingArray[3]=RobotMainServer.northOrientation;
+				    	 }
 				    	 RobotMainServer.lastEchoFront=distFront;
 				    	 RobotMainServer.lastEchoBack=distBack;
 				    	 if (lastTrameNumber!=trameNumber)
@@ -238,7 +250,7 @@ public class RobotBatchServer implements Runnable {
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
 							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
 							ihm.MajRobotStat("align ended:"+retCode);
-							mess="robot align ended"+" deltaNORot:"+RobotMainServer.deltaNORotation;
+							mess="robot align ended"+" deltaNORot:"+RobotMainServer.deltaNORotation+" retCode:"+retCode;
 							Trace.TraceLog(pgmId,mess);
 							RobotMainServer.runningStatus=2;
 							}
@@ -532,7 +544,7 @@ public class RobotBatchServer implements Runnable {
 //					Fenetre2.RefreshBNO();
 					}
 				}
-				if (sentence2[6]==0x65){                    // e echo status info
+				if (sentence2[6]==0x65){                    // e  status info
 					EchoRobot.pendingEcho=0;
 					if (RobotMainServer.javaRequestStatusPending==true)
 					{
@@ -555,23 +567,32 @@ public class RobotBatchServer implements Runnable {
 								SendUDP.ResendLastFrame();
 							}
 						}
+					if(RobotMainServer.octaveRequestPending==true && waitForEndOf==(sentence2[8] & 0x000000ff)) // end action missed
+
+					{
+						int eventType=(sentence2[8] & 0x000000ff); 
+						mess="We missed actionEnd message for:"+eventType;
+						Trace.TraceLog(pgmId,mess);
+						EventManagement.UpdateEvent(eventType,sentence2[27],RobotMainServer.eventOctave,
+								RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest							
+					}
 					}
 	//			    RobotMainServer.javaRequestStatusPending=false;
 	//				System.out.print("echo response: ");
 
 					ihm.MajRobotStat("connected");
-					if (sentence2[8]==0x66){
+					if (sentence2[8]==RobotMainServer.scanning){
 	//					System.out.print("scan running ");
 						if (RobotMainServer.runningStatus==2)  // scan required
 						{
 							RobotMainServer.runningStatus=102;
 						}
 
-						ihm.MajRobotStat("echo:scan running");
-						mess="echo:scan running";
+						ihm.MajRobotStat("Scan running");
+						mess="Scan running";
 						Trace.TraceLog(pgmId,mess);
 					}
-					if (sentence2[8]==0x67){
+					if (sentence2[8]==RobotMainServer.scanEnd){
 	//					System.out.print("scan ended ");
 
 						if (RobotMainServer.runningStatus==2 || RobotMainServer.runningStatus==102)
@@ -579,7 +600,7 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.runningStatus=103;
 						}
 						ihm.MajRobotStat("scan ended");
-						mess="echo:scan ended";
+						mess="Scan ended";
 						Trace.TraceLog(pgmId,mess);
 						/*
 						if (Integer.parseInt(Fenetre.idscan.getText())==0){  // scan id 0 means for localization
@@ -607,14 +628,14 @@ public class RobotBatchServer implements Runnable {
 						}
 
 					}
-					if (sentence2[8]==0x68){
+					if (sentence2[8]==RobotMainServer.moving){
 //						System.out.print("moving");
 						if (RobotMainServer.runningStatus==4)  // scan required
 						{
 							RobotMainServer.runningStatus=104;
 						}
 						ihm.MajRobotStat("moving");
-						mess="echo:moving";
+						mess="Moving";
 						Trace.TraceLog(pgmId,mess);
 						int ang=ihm.ang();
 						int mov=ihm.mov();
@@ -623,7 +644,7 @@ public class RobotBatchServer implements Runnable {
 			//			PanneauGraphique.point(150+posXG,150+posYG);
 			//			graph.repaint();
 					}
-					if (sentence2[8]==0x69){
+					if (sentence2[8]==RobotMainServer.moveEnd){
 						if (RobotMainServer.actStat==0x01){   // on a rate le statut moving
 							long ang=ihm.ang();
 							long mov=ihm.mov();
@@ -640,19 +661,19 @@ public class RobotBatchServer implements Runnable {
 							RobotMainServer.runningStatus=105;
 						}
 
-						ihm.MajRobotStat("move ended");
+						ihm.MajRobotStat("Move ended");
 
 						EventManagement.UpdateEvent(4,0,1,2);  // reqCode,retCode,source, dest
 //						System.out.println("echo:move ended");
 						RobotMainServer.actStat=0x03;
 					}
-					if (sentence2[8]==0x6a){
+					if (sentence2[8]==RobotMainServer.northAlignEnd){
 						if (RobotMainServer.runningStatus==6 )
 						{
 							RobotMainServer.runningStatus=106;
 						}
 						ihm.MajRobotStat("aligning");
-						mess="echo:aligning";
+						mess="Aligning";
 						Trace.TraceLog(pgmId,mess);
 						int ang=ihm.ang();
 						int mov=ihm.mov();
@@ -661,7 +682,7 @@ public class RobotBatchServer implements Runnable {
 			//			PanneauGraphique.point(150+posXG,150+posYG);
 			//			graph.repaint();
 					}
-					if (sentence2[8]==0x6b){
+					if (sentence2[8]==RobotMainServer.northAlignEnd){
 
 						if (RobotMainServer.octavePendingRequest==6 && RobotMainServer.runningStatus!=107);
 						{
@@ -669,7 +690,7 @@ public class RobotBatchServer implements Runnable {
 						}
 						RobotMainServer.runningStatus=107;
 						ihm.MajRobotStat("aligning ended");
-						mess="echo:robot align ended";
+						mess="Align ended";
 						Trace.TraceLog(pgmId,mess);
 						int ang=ihm.ang();
 						int mov=ihm.mov();
@@ -678,6 +699,36 @@ public class RobotBatchServer implements Runnable {
 			//			PanneauGraphique.point(150+posXG,150+posYG);
 			//			graph.repaint();
 					}
+					if (sentence2[8]==RobotMainServer.gyroRotating){
+
+						RobotMainServer.runningStatus=RobotMainServer.gyroRotating;
+						ihm.MajRobotStat("gyroRotating");
+						mess="gyroRotating";
+						Trace.TraceLog(pgmId,mess);
+						int ang=ihm.ang();
+						int mov=ihm.mov();
+						RobotMainServer.actStat=0x02;  
+						ihm2.PosActualise(ang,mov);
+			//			PanneauGraphique.point(150+posXG,150+posYG);
+			//			graph.repaint();
+					}
+					if (sentence2[8]==RobotMainServer.gyroRotateEnd){
+
+						if (RobotMainServer.octavePendingRequest==6 && RobotMainServer.runningStatus!=RobotMainServer.gyroRotating);
+						{
+							RobotMainServer.octaveRequestPending=false;
+						}
+						RobotMainServer.runningStatus=RobotMainServer.gyroRotateEnd;
+						ihm.MajRobotStat("gyroRotateEnd");
+						mess="gyroRotateEnd";
+						Trace.TraceLog(pgmId,mess);
+						int ang=ihm.ang();
+						int mov=ihm.mov();
+						RobotMainServer.actStat=0x02;  
+						ihm2.PosActualise(ang,mov);
+			//			PanneauGraphique.point(150+posXG,150+posYG);
+			//			graph.repaint();
+					}	
 					String sb ;
 
 					int sbn=sentence2[9];
@@ -712,7 +763,29 @@ public class RobotBatchServer implements Runnable {
 					sbb4.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
 					ihm.MajRobotDiag("0x"+sbb1+" 0x"+sbb2+" 0x"+sbb4+" 0x"+sbb3);
 	//				System.out.println(" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Connections:0x"+sbb3+"  Robot:0x"+sbb4);
-					mess=" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Robot:0x"+sbb4+"  I2C:0x"+sbb3;
+					mess=" diagPower:0x"+sbb1+"  Motors:0x"+sbb2+"  Robot:0x"+sbb4+"  SubSystem:0x"+sbb3;
+					Trace.TraceLog(pgmId,mess);
+					StringBuffer sbb12 = new StringBuffer(2);
+					StringBuffer sbb22 = new StringBuffer(2);
+					StringBuffer sbb32 = new StringBuffer(2);
+					StringBuffer sbb42 = new StringBuffer(2);
+					sbn=sentence2[23];
+					sbnb=(byte)sbn;
+					sbb12.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
+					sbb12.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
+					sbn=sentence2[27];
+					sbnb=(byte)sbn;
+					sbb22.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
+					sbb22.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
+					sbn=sentence2[31];
+					sbnb=(byte)sbn;
+					sbb32.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
+					sbb32.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
+					sbn=sentence2[33];
+					sbnb=(byte)sbn;
+					sbb42.append( RobotMainServer.TAB_BYTE_HEX[(sbnb>>4) & 0xf] );
+					sbb42.append( RobotMainServer.TAB_BYTE_HEX[(sbnb) & 0x0f] );
+					mess=" BNOMode:0x"+sbb12+"  LastRetCode:0x"+sbb22+"  PendingAction:0x"+sbb32+"  WaitFlag:0x"+sbb42;
 					Trace.TraceLog(pgmId,mess);
 					//
 					if (RobotMainServer.simulation==0)
@@ -761,16 +834,15 @@ public class RobotBatchServer implements Runnable {
 					if ( RobotMainServer.hardJustReboot==false && RobotMainServer.serverJustRestarted==true)
 					{
 				//		oct0=(byte)(sentence2[26]&0x7F)-(byte)(sentence2[26]&0x80);
-						RobotMainServer.currentLocProb=(sentence2[26] & 0x000000ff);
+			//			RobotMainServer.currentLocProb=(sentence2[26] & 0x000000ff);
 						RobotMainServer.serverJustRestarted=false;
 					}
 	//			ihm2.ValidePosition(RobotMainServer.hardPosX,RobotMainServer.hardPosY,RobotMainServer.hardAlpha);
-					mess="posX:"+RobotMainServer.hardPosX+ " posY:"+RobotMainServer.hardPosY+" angle:"+ RobotMainServer.hardAlpha+" prob:"+RobotMainServer.currentLocProb;
+					mess="posX:"+RobotMainServer.hardPosX+ " posY:"+RobotMainServer.hardPosY+" angle:"+ RobotMainServer.hardAlpha;
 					Trace.TraceLog(pgmId,mess);
 				if 	(RobotMainServer.octaveRequestPending==true && RobotMainServer.octavePendingRequest==1)
 				{
 					RobotMainServer.octavePendingRequest=0;
-					RobotMainServer.octaveRequestPending=false;
 				}
 				if (sentence2[7]==0xff)   // app status  equal not started or stopped
 				{

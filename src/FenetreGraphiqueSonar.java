@@ -2,12 +2,12 @@ import javax.swing.JFrame;
 
 public class FenetreGraphiqueSonar extends JFrame {
  public FenetreGraphiqueSonar(){   
-   this.setTitle("Echo location");
-   this.setSize(1000, 1000);
-   this.setLocation(150,00);               
-   this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+   this.setTitle("Echo Scale black:1m - yellow/green Front - red/blue back");
+   this.setSize(500, 500);
+   this.setLocation(60,160);               
+  // this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
    this.setContentPane(new PanneaugraphiqueSonar());
-   this.setVisible(false);
+   this.setVisible(true);
 //   System.out.println("fenetre echo loc Je suis exécutée !");
  }
 
