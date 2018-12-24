@@ -1061,6 +1061,296 @@ public class SendUDP extends Thread{
 			   
 			   finally{}
 				}
+	public void SendRequestPID() {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="request PID parameters";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[3];
+			      byte[] cmde = new byte[3];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.requestPID;  // 
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	public void SendPIDKp(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set PID Kp";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[7];
+			      byte[] cmde = new byte[7];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x00;  // Kx
+			      cmde[4]=0x00;  // Kp
+			      cmde[5]=(byte)(value/256);
+			      cmde[6]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	public void SendPIDKi(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set PID Ki";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[7];
+			      byte[] cmde = new byte[7];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x00;  // Kx
+			      cmde[4]=0x01;  // Ki
+			      cmde[5]=(byte)(value/256);
+			      cmde[6]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	public void SendPIDKd(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set PID Kd";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[7];
+			      byte[] cmde = new byte[7];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x00;  // Kx
+			      cmde[4]=0x02;  // Kd
+			      cmde[5]=(byte)(value/256);
+			      cmde[6]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	
+	public void SendLeftSetpoint(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set LeftSetpoint";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[7];
+			      byte[] cmde = new byte[7];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x02;  // Setpoint
+			      cmde[4]=0x00;  // left
+			      cmde[5]=(byte)(value/256);
+			      cmde[6]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	public void SendRightSetpoint(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set RightSetpoint";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[7];
+			      byte[] cmde = new byte[7];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x02;  // Setpoint
+			      cmde[4]=0x01;  // left
+			      cmde[5]=(byte)(value/256);
+			      cmde[6]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
+	//  {leftMinOut,rightMinOut,leftMaxOut,rightMaxOut, leftStartOut, rightStartOut}
+	public void SendLeftMinLimit(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set leftMinLimit";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[6];
+			      byte[] cmde = new byte[6];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x01;  // limit
+			      cmde[4]=0x00;  // leftMinLimit
+			      cmde[5]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}			   
+			   finally{}
+				}
+	public void SendRightMinLimit(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set RighttMinLimit";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[6];
+			      byte[] cmde = new byte[6];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x01;  // limit
+			      cmde[4]=0x01;  // RighttMinLimit
+			      cmde[5]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}			   
+			   finally{}
+				}
+	public void SendLeftMaxLimit(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set leftMaxLimit";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[6];
+			      byte[] cmde = new byte[6];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x01;  // limit
+			      cmde[4]=0x02;  // leftMaxLimit
+			      cmde[5]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}			   
+			   finally{}
+				}
+	public void SendRightMaxLimit(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set RighttMaxLimit";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[6];
+			      byte[] cmde = new byte[6];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x01;  // limit
+			      cmde[4]=0x03;  // RighttMaxLimit
+			      cmde[5]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}			   
+			   finally{}
+				}
+
+	public void SendLeftStartLimit(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set LeftStartLimit";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[6];
+			      byte[] cmde = new byte[6];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x01;  // limit
+			      cmde[4]=0x04;  // LeftStartMinLimit
+			      cmde[5]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}			   
+			   finally{}
+				}
+	public void SendRightStartLimit(int value) {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="set RightStartLimit";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[6];
+			      byte[] cmde = new byte[6];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.setPID;  // 
+			      cmde[3]=0x01;  // limit
+			      cmde[4]=0x05;  // RightStartMinLimit
+			      cmde[5]=(byte)(value);
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+				}
+			   catch(Exception e)
+			   {}			   
+			   finally{}
+				}
 	public void SendUDPShiftPulse(int value) {
 		// TODO Auto-generated method stub
 		try{

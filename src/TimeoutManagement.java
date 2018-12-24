@@ -5,7 +5,9 @@ public class TimeoutManagement extends Thread{
 
 	// [reqId,code,timeout,source,dest,retcode,countTimer]
 	// source dest 0 java, 10 octave 20 arduino 20+1(21) arduino simulator
+	String pgmId="TimeoutManagement";
 	public void run(){
+	TraceLog Trace = new TraceLog();
 	while(true)
 		{
 		try{
@@ -37,8 +39,19 @@ public class TimeoutManagement extends Thread{
 							EventManagement.pendingRequestTable[i][5]=retCode;
 						}
 						else{
-							EventManagement.pendingRequestTable[i][5]=-1;  // timeout
-							EventManagement.pendingRequestTable[i][2]=0;
+							if(RobotBatchServer.missedEventType==EventManagement.pendingRequestTable[i][1])
+							{
+								EventManagement.pendingRequestTable[i][5]=RobotBatchServer.missedEventRetcode;  // timeout
+								EventManagement.pendingRequestTable[i][2]=0;
+								String mess=" endAction missed for:"+EventManagement.pendingRequestTable[i][1]+" retCode:"+RobotBatchServer.missedEventRetcode+" added from status";
+								Trace.TraceLog(pgmId,mess);
+							}
+							else{
+								String mess=" Timeout for:"+EventManagement.pendingRequestTable[i][1];
+								Trace.TraceLog(pgmId,mess);
+								EventManagement.pendingRequestTable[i][5]=-1;  // timeout
+								EventManagement.pendingRequestTable[i][2]=0;	
+							}
 						}
 
 //						return;

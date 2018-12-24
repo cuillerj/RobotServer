@@ -182,6 +182,10 @@ public class RobotMainServer
 	public static byte requestVersion=(byte) 0x93;
 	public static byte respVersion=(byte) 0x93;
 	public static byte northAlignRequest=(byte) 0x45;
+	public static byte requestPID = (byte)0x94;
+	public static byte respPID = (byte)0x94;
+	public static byte setPID = (byte)0x95;
+
 	
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
@@ -448,7 +452,7 @@ public static void initEventTable()
 	eventTimeoutTable[robotInfoUpdated][1]=20;  // simulation mode
 	eventTimeoutTable[robotUpdatedEnd][0]=600; // normal mode
 	eventTimeoutTable[robotUpdatedEnd][1]=20;  // simulation mode
-	eventTimeoutTable[scanEnd][0]=900; // normal mode
+	eventTimeoutTable[scanEnd][0]=1200; // normal mode
 	eventTimeoutTable[scanEnd][1]=100;  // simulation mode
 	eventTimeoutTable[moveEnd][0]=900; // normal mode
 	eventTimeoutTable[moveEnd][1]=30;  // simulation mode
@@ -1170,6 +1174,102 @@ public static void RequestNarrowPathEchos()
 	{
 		SendUDP snd = new SendUDP();
 		snd.SendUDPRequestNarrowPathEchos();
+	}
+}
+public static void RequestPID()
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendRequestPID();
+	}
+}
+public static void setPIDKp(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendPIDKp(value);
+	}
+}
+public static void setPIDKi(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendPIDKi(value);
+	}
+}
+public static void setPIDKd(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendPIDKd(value);
+	}
+}
+public static void setLeftSetpoint(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendLeftSetpoint(value);
+	}
+}
+public static void setRightSetpoint(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendRightSetpoint(value);
+	}
+}
+public static void leftMinLimit(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendLeftMinLimit(value);
+	}
+}
+public static void rightMinLimit(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendRightMinLimit(value);
+	}
+}
+public static void leftMaxLimit(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendLeftMaxLimit(value);
+	}
+}
+public static void rightMaxLimit(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendRightMaxLimit(value);
+	}
+}
+public static void leftStartLimit(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendLeftStartLimit(value);
+	}
+}
+public static void rightStartLimit(int value)
+{             // duration in seconds up to 254
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendRightStartLimit(value);
 	}
 }
 public static int StartTensorFlowPrediction()

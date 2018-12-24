@@ -21,6 +21,8 @@ public class EventManagement{
 		pendingRequestTable[reqId%sizeTable][5]=99;      // initial value corresponding to waiting status
 		pendingRequestTable[reqId%sizeTable][6]=0;       // reserved for futur use
 		reqId++;
+		RobotBatchServer.missedEventType=0;              // clear batch server flags
+		RobotBatchServer.missedEventRetcode=0;          // clear batch server flags
 		if (reqCode==1 || reqCode==8)
 		{
 	    RobotMainServer.javaRequestStatusPending=true;
