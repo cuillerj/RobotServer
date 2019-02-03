@@ -360,6 +360,7 @@ public class RobotBatchServer implements Runnable {
 							{
 								RobotMainServer.gyroHeading=-RobotMainServer.gyroHeading;
 							}
+							RobotMainServer.alpha=(RobotMainServer.alpha+RobotMainServer.gyroHeading)%360;
 			//				oct0=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80); // manip car byte consideré signé
 			//				oct1=(byte)(sentence2[35]&0x7F)-(byte)(sentence2[35]&0x80);
 							RobotMainServer.retCodeDetail=((sentence2[34] << 8) & 0x0000ff00) | (sentence2[35] & 0x000000ff);
@@ -535,7 +536,7 @@ public class RobotBatchServer implements Runnable {
 						RobotMainServer.BNORightPosY=pos;
 		//				 oct0=(byte)(sentence2[23]&0x7F)-(byte)(sentence2[23]&0x80); // manip car byte consideré signé
 		//				 oct1=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80);
-						 pos=((sentence2[23] << 8) & 0x0000ff00) | (sentence2[4] & 0x000000ff);
+						 pos=((sentence2[23] << 8) & 0x0000ff00) | (sentence2[24] & 0x000000ff);
 						if (sentence2[22]==0x2d)
 						{
 							pos=-pos;

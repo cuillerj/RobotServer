@@ -211,7 +211,7 @@ public class Fenetre2 extends JFrame{
 		// TODO Auto-generated method stub
 	    posXHard.setText(Integer.toString(RobotMainServer.hardPosX));	
 	    posYHard.setText(Integer.toString(RobotMainServer.hardPosY));	
-	    orientHard.setText(Integer.toString(RobotMainServer.hardAlpha));	
+	    orientHard.setText(Integer.toString(RobotMainServer.alpha));	
 	    northOrientation.setText(Integer.toString(RobotMainServer.northOrientation));
 	    absoluteOrientation.setText(Integer.toString(RobotMainServer.absoluteOrientation));	
 

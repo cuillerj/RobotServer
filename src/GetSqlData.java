@@ -18,7 +18,6 @@ public class GetSqlData {
 		String pgmId="GetSqlData";
 		String mess="Start GetClosestEchoGetClosestReferenceEcho";
 		TraceLog Trace = new TraceLog();
-//		Trace.TraceLog(pgmId,mess);
 
 				Connection conn = null;
 				Statement stmtI = null;
@@ -37,18 +36,12 @@ public class GetSqlData {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-	    		//	 String connectionUrl = "jdbc:mysql://jserver:3306/robot";
-	    	//		 String connectionUser = "jean";
-	    	//		 String connectionPassword = "manu7890";
+
 	    			String connectionUrl = GetSqlConnection.GetRobotDB();
 	    			String connectionUser = GetSqlConnection.GetUser();
 	    			String connectionPassword = GetSqlConnection.GetPass();
 	    			 conn = DriverManager.getConnection(connectionUrl, connectionUser, connectionPassword);
-	//    			 mess="BD connected";
-    //				Trace.TraceLog(pgmId,mess);
 					cStmt = conn.prepareCall("{call apeRobotGetClosestEcho(?, ?, ?, ?,?,?,?,?,?,?,?,?,?)}");
-	    			 mess="call prepared";
-	    			 Trace.TraceLog(pgmId,mess);
 	    			 cStmt.registerOutParameter(5, java.sql.Types.INTEGER);
 	    			 cStmt.registerOutParameter(6, java.sql.Types.INTEGER);
 	    			 cStmt.registerOutParameter(7, java.sql.Types.INTEGER);
@@ -58,8 +51,7 @@ public class GetSqlData {
 	    			 cStmt.registerOutParameter(11, java.sql.Types.FLOAT);
 	    			 cStmt.registerOutParameter(12, java.sql.Types.INTEGER);
 	    			 cStmt.registerOutParameter(13, java.sql.Types.INTEGER);
-//	    			 mess="out param";
- //  				Trace.TraceLog(pgmId,mess);
+
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -90,11 +82,6 @@ public class GetSqlData {
 				}
 				    		 try {
 				    			 mess="before exe";
-	//			    				Trace.TraceLog(pgmId,mess);
-	//		    			    boolean hadResults = cStmt.execute();
-	//			    			 stmtI = conn.createStatement();
-//				    			 String sql="SELECT * from parameters where idparameter = "+ID+" limit 1";
-	//			    			 Trace.TraceLog(pgmId,sql);
 				    			 boolean hadResults = cStmt.execute();
 				    			 mess="after exe";
 //				    				Trace.TraceLog(pgmId,mess);
@@ -144,11 +131,7 @@ public class GetSqlData {
 		String connectionUrl = GetSqlConnection.GetRobotDB();
 		String connectionUser = GetSqlConnection.GetUser();
 		String connectionPassword = GetSqlConnection.GetPass();
-		/*
-		 String connectionUrl = "jdbc:mysql://jserver:3306/robot";
-		 String connectionUser = "jean";
-		 String connectionPassword = "manu7890";
-		 */
+
 		int[] idscanArray=new int[100];
 				Connection conn = null;
 				Statement stmt1 = null;
@@ -189,8 +172,6 @@ public class GetSqlData {
 	    			int idx=0;
 	    			try {
 						while (rs.next()) {
-						//	mess="idx: "+idx;
-						//	Trace.TraceLog(pgmId,mess);
 							idscanArray[idx] = rs.getInt("idscan");
 							idx++;
 						}
@@ -219,8 +200,8 @@ public class GetSqlData {
 	    		    double varianceEcho = RobotMainServer.scanNoiseLevel;
 	    			try {
 						while (rs.next()) {
-							RobotMainServer.scanArray[idx][1] = (int)(gaussian.getGaussian(rs.getInt("distFront"),varianceEcho));
-							RobotMainServer.scanArray[idx][2] = (int)(gaussian.getGaussian(rs.getInt("distBack"),varianceEcho));
+							RobotMainServer.scanArray[idx][1] = Math.max((int)(gaussian.getGaussian(rs.getInt("distFront"),varianceEcho)),0);
+							RobotMainServer.scanArray[idx][2] = Math.max((int)(gaussian.getGaussian(rs.getInt("distBack"),varianceEcho)),0);
 							RobotMainServer.scanArray[idx][0] = rs.getInt("angle");
 							idx++;
 						}
