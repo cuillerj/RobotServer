@@ -450,7 +450,7 @@ public static void initEventTable()
 {                                                // duration expressed in 1/10 of second
 	eventTimeoutTable[robotInfoUpdated][0]=100; // normal mode
 	eventTimeoutTable[robotInfoUpdated][1]=20;  // simulation mode
-	eventTimeoutTable[robotUpdatedEnd][0]=600; // normal mode
+	eventTimeoutTable[robotUpdatedEnd][0]=100; // normal mode
 	eventTimeoutTable[robotUpdatedEnd][1]=20;  // simulation mode
 	eventTimeoutTable[scanEnd][0]=1200; // normal mode
 	eventTimeoutTable[scanEnd][1]=100;  // simulation mode
@@ -781,9 +781,10 @@ public static void SetSimulationMode (int value)
 }
 public static void ValidHardPosition()
 {
+	
 SetPosX(hardPosX);
 SetPosY(hardPosY);
-SetHeading(hardAlpha);
+SetHeading(alpha);
 }
 public static void SetTraceFileOn (boolean value)
 {
@@ -830,6 +831,21 @@ Fenetre2.SetcurrentLocProb();
 public static void UpdateHardRobotLocation()
 {
 BNOLocFlag=255;
+int timeout=eventTimeoutTable[robotInfoUpdated][simulation];
+EventManagement.AddPendingEvent(robotInfoUpdated,timeout,eventOctave,eventArduino+simulation*actionSimulable[robotInfoUpdated][0]*actionSimulable[robotInfoUpdated][1]);
+octaveRequestPending=true;
+if(simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendUDPInit(posX,posY,alpha,currentLocProb);
+	}
+else
+	{
+		hardPosX=posX;
+		hardPosY=posY;
+		hardAlpha=alpha;
+	}
+/*
 int action=robotUpdatedEnd;
 int timeout=eventTimeoutTable[action][simulation*actionSimulable[action][0]];
 EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
@@ -840,6 +856,7 @@ if(simulation*actionSimulable[action][0]==0)
 	snd.SendUDPInit(posX,posY,alpha,currentLocProb);
 
 }
+*/
 Fenetre2.ValidePosition(posX, posY, alpha);
 	}
 public static void UpdateRobotStatus()
@@ -997,8 +1014,11 @@ public static int GetRetcode(int reqCode,int reqSource,int reqDest)
 }
 public static void Horn(int duration)
 {             // duration in seconds up to 254
-	SendUDP snd = new SendUDP();
-	snd.SendUDPHorn(duration);
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		snd.SendUDPHorn(duration);
+	}	
 }
 public static void SetShifPulse(int value)
 {             // duration in seconds up to 254
@@ -1287,7 +1307,21 @@ public static int StartTensorFlowPrediction()
 		String mess="TensorFlow prediction aleardy active";
 	    TraceLog Trace = new TraceLog();
 		Trace.TraceLog(pgmId,mess);
+		DeleteTensorFlowFiles();
 	}
+	return retCode;
+}
+public static int DeleteTensorFlowFiles()
+{             // duration in seconds up to 254
+	int retCode=-1;
+
+		Process rc=DeleteTensorFlowFiles.runProcess();
+		String mess="Delete tensor flow files:"+rc;;
+	    TraceLog Trace = new TraceLog();
+		Trace.TraceLog(pgmId,mess);
+		TfProcess=rc;
+		retCode=0;
+
 	return retCode;
 
 }
