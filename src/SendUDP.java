@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 public class SendUDP extends Thread{
 	Thread t;
 	String pgmId="SendUDP";
-	public static final byte moveAcrossPass=0x6e;
+
 	public static byte countUdp=0x00;
 	public static byte [] copySentData;
  
@@ -218,9 +218,9 @@ public class SendUDP extends Thread{
 	   
 	   finally{}
 		}
-	public void SendUDPGyroRotate(int value) {
+	public void SendUDPGyroRotate(long ang) {
 		try{
-	  String mess="rotate using gyro:"+value;
+	  String mess="rotate using gyro:"+ang;
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
 		RobotMainServer.runningStatus=2005; // pending reset
@@ -232,9 +232,9 @@ public class SendUDP extends Thread{
 			 sendData[0]=0x63;  // c
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x6f;   // rotation based on gyroscope
-			 sendData[3]=(byte) (Math.abs(value)/256);   // value in degre between 0 to 360
-			 sendData[4]=(byte) (Math.abs(value));   //
-			 if (value<0)
+			 sendData[3]=(byte) (Math.abs(ang)/256);   // value in degre between 0 to 360
+			 sendData[4]=(byte) (Math.abs(ang));   //
+			 if (ang<0)
 			 {
 				 sendData[3]=(byte) (sendData[3]|0b10000000);  // upper bit to one means negative rotation
 			 }
@@ -1607,7 +1607,7 @@ public class SendUDP extends Thread{
 			      byte[] sendData = new byte[20];
 			      cmde[0]=0x63;
 			      cmde[1]=0x34;
-			      cmde[2]=moveAcrossPass;     //m
+			      cmde[2]=(byte)RobotMainServer.moveAcrossPass;     
 			      if (distance>=0){
 				      cmde[3]=0x2b;
 			      }

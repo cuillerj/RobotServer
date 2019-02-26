@@ -302,77 +302,57 @@ public class RobotBatchServer implements Runnable {
 							}
 						if (sentence2[9]==0x69){                    // 
 							EchoRobot.pendingEcho=0;
-	//						int ang=ihm.ang();
-	//						int mov=ihm.mov();
-	//						Fenetre2.PosActualise(ang,mov);
 							RobotMainServer.actStat=0x02; 
 							int eventType=(sentence2[9] & 0x000000ff);
-		//					mess="event type:"+eventType;
-		//					Trace.TraceLog(pgmId,mess);
 							int actionRetcode=(sentence2[10] & 0x000000ff);
 							ihm.MajRobotStat("move ended");
 							EventManagement.UpdateEvent(eventType,actionRetcode,RobotMainServer.eventOctave,
 							RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest
-//							EventManagement.UpdateEvent(eventType,actionRetcode,1,2);  // reqCode,retCode,source, dest
 							RobotMainServer.runningStatus=4;
-			//				int oct0=(byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80); // manip car byte consideré signé
-			//				int oct1=(byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80);
+
 							RobotMainServer.hardPosX=((sentence2[15] << 8) & 0x0000ff00) | (sentence2[16] & 0x000000ff);
 							if (sentence2[14]==0x2d)
 							{
 								RobotMainServer.hardPosX=-RobotMainServer.hardPosX;
 							}
-	//						oct0=(byte)(sentence2[18]&0x7F)-(byte)(sentence2[18]&0x80); // manip car byte consideré signé
-	//						oct1=(byte)(sentence2[19]&0x7F)-(byte)(sentence2[19]&0x80);
+
 							RobotMainServer.hardPosY=((sentence2[18] << 8) & 0x0000ff00) | (sentence2[19] & 0x000000ff);
 							if (sentence2[17]==0x2d)
 							{
 								RobotMainServer.hardPosY=-RobotMainServer.hardPosY;
 							}
-						//	oct0=(byte)(sentence2[21]&0x7F)-(byte)(sentence2[21]&0x80); // manip car byte consideré signé
-						//	oct1=(byte)(sentence2[22]&0x7F)-(byte)(sentence2[22]&0x80);
+
 							RobotMainServer.hardAlpha=((sentence2[21] << 8) & 0x0000ff00) | (sentence2[22] & 0x000000ff);
 							if (sentence2[20]==0x2d)
 							{
 								RobotMainServer.hardAlpha=-RobotMainServer.hardAlpha;
 							}
-	//						oct0=(byte)(sentence2[24]&0x7F)-(byte)(sentence2[24]&0x80); // manip car byte consideré signé
-		//					oct1=(byte)(sentence2[25]&0x7F)-(byte)(sentence2[25]&0x80);
+
 							RobotMainServer.deltaNORotation=((sentence2[24] << 8) & 0x0000ff00) | (sentence2[25] & 0x000000ff);
 							if (sentence2[23]==0x2d)
 							{
 								RobotMainServer.deltaNORotation=-RobotMainServer.deltaNORotation;
 							}
-						//	oct0=(byte)(sentence2[27]&0x7F)-(byte)(sentence2[27]&0x80); // manip car byte consideré signé
-						//	oct1=(byte)(sentence2[28]&0x7F)-(byte)(sentence2[28]&0x80);
+
 							RobotMainServer.deltaNOMoving=((sentence2[27] << 8) & 0x0000ff00) | (sentence2[28] & 0x000000ff);
 							if (sentence2[26]==0x2d)
 							{
 								RobotMainServer.deltaNOMoving=-RobotMainServer.deltaNOMoving;
 							}
-				//			oct0=(byte)(sentence2[12]&0x7F)-(byte)(sentence2[12]&0x80); // manip car byte consideré signé
-				//			oct1=(byte)(sentence2[13]&0x7F)-(byte)(sentence2[13]&0x80);
+
 							RobotMainServer.northOrientation=((sentence2[12] << 8) & 0x0000ff00) | (sentence2[13] & 0x000000ff);
-				//			oct0=(byte)(sentence2[30]&0x7F)-(byte)(sentence2[30]&0x80); // manip car byte consideré signé
-				//			oct1=(byte)(sentence2[31]&0x7F)-(byte)(sentence2[31]&0x80);
+
 							RobotMainServer.gyroHeading=((sentence2[30] << 8) & 0x0000ff00) | (sentence2[31] & 0x000000ff);
 							if (sentence2[29]==0x2d)
 							{
 								RobotMainServer.gyroHeading=-RobotMainServer.gyroHeading;
 							}
-							RobotMainServer.alpha=(RobotMainServer.alpha+RobotMainServer.gyroHeading)%360;
-			//				oct0=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80); // manip car byte consideré signé
-			//				oct1=(byte)(sentence2[35]&0x7F)-(byte)(sentence2[35]&0x80);
 							RobotMainServer.retCodeDetail=((sentence2[34] << 8) & 0x0000ff00) | (sentence2[35] & 0x000000ff);
 							if (sentence2[33]==0x2d)
 							{
 								RobotMainServer.retCodeDetail=-RobotMainServer.retCodeDetail;
 							}
-							/*
-							oct0=(byte)(sentence2[33]&0x7F)-(byte)(sentence2[33]&0x80); // manip car byte consideré signé
-							oct1=(byte)(sentence2[34]&0x7F)-(byte)(sentence2[34]&0x80);			
-							RobotMainServer.cumulativeRightHoles=256*oct0+oct1;
-							*/
+
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
@@ -389,7 +369,7 @@ public class RobotBatchServer implements Runnable {
 								}
 						RobotMainServer.actStat=0x03;
 							}
-						if (sentence2[9]==RobotMainServer.moveAcrossPassEnded){                    // 
+						if ((sentence2[9]&0x7f)==(((byte)RobotMainServer.moveAcrossPassEnded)&0x7f)){                    // 
 							EchoRobot.pendingEcho=0;
 	//						int ang=ihm.ang();
 	//						int mov=ihm.mov();
@@ -732,7 +712,24 @@ public class RobotBatchServer implements Runnable {
 						ihm2.PosActualise(ang,mov);
 			//			PanneauGraphique.point(150+posXG,150+posYG);
 			//			graph.repaint();
-					}	
+					}
+					if ((sentence2[8]&0x7f)==(((byte)RobotMainServer.moveAcrossPassEnded)&0x7f)){
+
+						if (RobotMainServer.octavePendingRequest==6 && RobotMainServer.runningStatus!=RobotMainServer.gyroRotating);
+						{
+							RobotMainServer.octaveRequestPending=false;
+						}
+						RobotMainServer.runningStatus=RobotMainServer.gyroRotateEnd;
+						ihm.MajRobotStat("accrossPathEnd");
+						mess="accrossPathEnd";
+						Trace.TraceLog(pgmId,mess);
+						int ang=ihm.ang();
+						int mov=ihm.mov();
+						RobotMainServer.actStat=0x02;  
+						ihm2.PosActualise(ang,mov);
+			//			PanneauGraphique.point(150+posXG,150+posYG);
+			//			graph.repaint();
+					}
 					String sb ;
 
 					int sbn=sentence2[9];
@@ -911,6 +908,7 @@ public class RobotBatchServer implements Runnable {
 				{
 					mess="leftHoles RightHoles ";
 				}
+				boolean changeEncoderValues=false;
 				for (int i=1;i<=nbValue;i++)
 				{
 	//				int oct0=(byte)(sentence2[ix]&0x7F)-(byte)(sentence2[ix]&0x80); // manip car byte consideré signé
@@ -924,39 +922,68 @@ public class RobotBatchServer implements Runnable {
 					switch(i){
 						case (1):
 						{
-					RobotMainServer.leftHighThreshold=value;
-					break;
-					}
+							if (RobotMainServer.leftHighThreshold!=value)
+							{
+								RobotMainServer.leftHighThreshold=value;
+								changeEncoderValues=true;
+							}
+							break;
+						}
 						case (2):
 						{
-					RobotMainServer.leftLowThreshold=value;
-					break;
-					}
+						if (RobotMainServer.leftLowThreshold!=value)
+						{
+							RobotMainServer.leftLowThreshold=value;
+							changeEncoderValues=true;
+						}
+						break;
+						}
 						case (3):
 						{
-					RobotMainServer.rightHighThreshold=value;
-					break;
-					}
+						if (RobotMainServer.rightHighThreshold!=value)
+						{
+							RobotMainServer.rightHighThreshold=value;
+							changeEncoderValues=true;
+						}
+						break;
+						}
 						case (4):
 						{
-					RobotMainServer.rightLowThreshold=value;
-					break;
-					}
+						if (RobotMainServer.rightLowThreshold!=value)
+						{
+							RobotMainServer.rightLowThreshold=value;
+							changeEncoderValues=true;
+						}
+						break;
+						}
 						case (5):
 						{
-					RobotMainServer.leftPWM=value;
-					break;
-					}
+						if (RobotMainServer.leftPWM!=value)
+						{
+							RobotMainServer.leftPWM=value;
+							changeEncoderValues=true;
+						}
+						break;
+						}
 						case (6):
 						{
-					RobotMainServer.rightPWM=value;
-					break;
-					}
+						RobotMainServer.rightPWM=value;
+						if (RobotMainServer.rightPWM!=value)
+						{
+							RobotMainServer.rightPWM=value;
+							changeEncoderValues=true;
+						}
+						break;
+						}
 						case (7):
 						{
-					RobotMainServer.PWMRatio=value;
-					break;
-					}
+						if (RobotMainServer.PWMRatio!=value)
+						{
+							RobotMainServer.PWMRatio=value;
+							changeEncoderValues=true;
+						}
+						break;
+						}
 					}
 					}
 					if(sentence2[6]==0x72 )
@@ -1052,7 +1079,7 @@ public class RobotBatchServer implements Runnable {
 
 					}
 				Trace.TraceLog(pgmId,mess);
-				if (sentence2[6]==0x74 && (RobotMainServer.cumulativeLeftHoles != RobotMainServer.prevCumulativeLeftHoles || RobotMainServer.cumulativeRightHoles!= RobotMainServer.prevCumulativeRightHoles))
+				if (changeEncoderValues || RobotMainServer.cumulativeLeftHoles != RobotMainServer.prevCumulativeLeftHoles || RobotMainServer.cumulativeRightHoles!= RobotMainServer.prevCumulativeRightHoles)
 				{
 					String sql="INSERT INTO encodersStatistics VALUES (now(), 1,"
 							+ ""+RobotMainServer.cumulativeLeftHoles+","+RobotMainServer.cumulativeRightHoles+","+RobotMainServer.leftPWM+","+RobotMainServer.rightPWM+","+RobotMainServer.SlowPWMRatio+","
@@ -1081,14 +1108,17 @@ public class RobotBatchServer implements Runnable {
 				}
 				if(sentence2[6]==RobotMainServer.respNarrowPathMesurments)
 				{
-					int pathDist=(byte) ((byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80))*256;
-					pathDist=pathDist+(byte) ((byte)(sentence2[8]&0x7F)-(byte)(sentence2[8]&0x80));
-					int pathLen=(byte) ((byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80))*256;
-					pathLen=pathLen+(byte) ((byte)(sentence2[11]&0x7F)-(byte)(sentence2[11]&0x80));
-					byte lastStepId=(byte) ((byte)(sentence2[13]&0x7F)-(byte)(sentence2[13]&0x80));
-					byte traceStepId=(byte) ((byte)(sentence2[15]&0x7F)-(byte)(sentence2[15]&0x80));
-					byte interruptStepId=(byte) ((byte)(sentence2[16]&0x7F)-(byte)(sentence2[16]&0x80));
-					mess=" path distance:"+pathDist+" lenght:"+pathLen+" lestStepID: 0x"+byteToHex(lastStepId)+" traceStepId: 0x"+byteToHex(traceStepId)+" interruptStepId: 0x"+byteToHex(interruptStepId);
+					mess=" distances:";
+					for (int i=0;i<5;i++)
+					{
+						RobotMainServer.pathDistances[i]=(byte) ((byte)(sentence2[7+3*i]&0x7F))*256;
+						RobotMainServer.pathDistances[i]=RobotMainServer.pathDistances[i]+(byte) ((byte)(sentence2[8+3*i]&0x7F));
+						mess=mess+RobotMainServer.pathDistances[i]+"/";
+					}
+					byte lastStepId=(byte) ((byte)(sentence2[22]&0x7F));
+					byte traceStepId=(byte) ((byte)(sentence2[24]&0x7F));
+					byte interruptStepId=(byte) ((byte)(sentence2[25]&0x7F));
+					mess=mess+" lastStepID: 0x"+byteToHex(lastStepId)+" traceStepId: 0x"+byteToHex(traceStepId)+" interruptStepId: 0x"+byteToHex(interruptStepId);
 					Trace.TraceLog(pgmId,mess);
 				}
 				if(sentence2[6]==RobotMainServer.respNarrowPathEchos)
@@ -1097,9 +1127,9 @@ public class RobotBatchServer implements Runnable {
 					for (int i=0;i<9;i++)
 					{
 						mess=" path echos:";
-						int oct1=(byte) ((byte)(sentence2[7+3*i]&0x7F)-(byte)(sentence2[7+3*i]&0x80));
-						int oct2=(byte) ((byte)(sentence2[7+3*i+1]&0x7F)-(byte)(sentence2[7+3*i+1]&0x80));
-						mess=mess+oct1+"-"+oct2;
+						RobotMainServer.pathEchos[2*i]=(byte) ((byte)(sentence2[7+3*i]&0x7F));
+						RobotMainServer.pathEchos[2*i+1]=(byte) ((byte)(sentence2[7+3*i+1]&0x7F));
+						mess=mess+RobotMainServer.pathEchos[2*i]+"/"+RobotMainServer.pathEchos[2*i+1];
 						Trace.TraceLog(pgmId,mess);
 					}
 

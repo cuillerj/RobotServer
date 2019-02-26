@@ -215,6 +215,7 @@ public class Fenetre extends JFrame{
   class BoutonPingFBListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
+		    RobotMainServer.pendingAcqUdp=false;
 	    	RobotMainServer.idscanG= Integer.toString(0);
 	    	Fenetre.idscan.setText(RobotMainServer.idscanG);
 	    	Fenetre.label.setText("Init scanID"); 
@@ -228,7 +229,8 @@ public class Fenetre extends JFrame{
   class  BoutonPowerEncoderFBListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-	        RobotMainServer.idscanG= idscan.getText();
+		  RobotMainServer.pendingAcqUdp=false;
+	      RobotMainServer.idscanG= idscan.getText();
 	      label.setText("PowerEncoder");
 	      if (powerEncoderStatus==0)
 	      {
@@ -247,7 +249,8 @@ public class Fenetre extends JFrame{
   class BoutonStartListener implements ActionListener{
     //Redéfinition de la méthode actionPerformed()
     public void actionPerformed(ActionEvent arg0) {
-        RobotMainServer.idscanG= idscan.getText();
+	   RobotMainServer.pendingAcqUdp=false;
+       RobotMainServer.idscanG= idscan.getText();
       label.setText("Demarrage du robot");   
       SendUDP snd = new SendUDP();
       snd.SendUDPStart();
@@ -259,7 +262,8 @@ public class Fenetre extends JFrame{
   class BoutonStopListener implements ActionListener{
 
     public void actionPerformed(ActionEvent e) {
-        RobotMainServer.idscanG= idscan.getText();
+	   RobotMainServer.pendingAcqUdp=false;
+       RobotMainServer.idscanG= idscan.getText();
       label.setText("Arret du robot");
       SendUDP snd = new SendUDP();
       snd.SendUDPStop();
@@ -269,6 +273,7 @@ public class Fenetre extends JFrame{
   class BoutonResetListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
+		   RobotMainServer.pendingAcqUdp=false;	
 //	        RobotMainServer.idscanG= idscan.getText();
 	      label.setText("Reset du Robot");   
 	      SendUDP snd = new SendUDP();
@@ -279,6 +284,7 @@ public class Fenetre extends JFrame{
   class BoutonValidHardPos implements ActionListener{
 
 	    public void actionPerformed(ActionEvent e) {
+		    RobotMainServer.pendingAcqUdp=false;
 	    	RobotMainServer.ValidHardPosition();
 
 	    }
@@ -286,6 +292,7 @@ public class Fenetre extends JFrame{
   class BoutonCalibrateListener implements ActionListener{
 
 	    public void actionPerformed(ActionEvent e) {
+		    RobotMainServer.pendingAcqUdp=false;
 	        RobotMainServer.idscanG= idscan.getText();
 	      label.setText("Calibrate");
 	      SendUDP snd = new SendUDP();
@@ -296,7 +303,7 @@ public class Fenetre extends JFrame{
   class BoutonScanListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-    	
+		    RobotMainServer.pendingAcqUdp=false;
 	    	RobotMainServer.Scan360();
 	    	/*
 	    int newIdScan=0;
@@ -312,8 +319,10 @@ public class Fenetre extends JFrame{
 	    }
 	  }
   class BoutonScanSeqListener implements ActionListener{
+
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
+		RobotMainServer.pendingAcqUdp=false;
 	    RobotMainServer.countScan=RobotMainServer.scanSeqLen;	   
 	    int newIdScan=Integer.parseInt(idscan.getText().replaceAll("\\W", ""))+1;
 	      RobotMainServer.idscanG= Integer.toString(newIdScan);
@@ -328,9 +337,10 @@ public class Fenetre extends JFrame{
   class BoutonMoveListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
-	        RobotMainServer.idscanG= idscan.getText().replaceAll("\\W", "");;
+		   RobotMainServer.pendingAcqUdp=false;
+	       RobotMainServer.idscanG= idscan.getText().replaceAll("\\W", "");;
 	      label.setText("Move");   
-	      
+	      RobotMainServer.pendingAcqUdp=false;
 //	      System.out.println("angle " + angle.getText());
 //	      System.out.println("move " + move.getText());
 //	      int ang = Integer.parseInt(angle.getText());
@@ -339,11 +349,19 @@ public class Fenetre extends JFrame{
 	      Object ang = angle.getValue();
 	      Object mov = move.getValue();
 //	      System.out.println("angle2 " + ang);
-	      if (!mov.equals(null) || !ang.equals(null))
-	      {
 	      SendUDP snd = new SendUDP();
-	      snd.SendUDPMove((long)ang,(long) mov);
+	      if ( !ang.equals(null))
+	      {
+	    	  if ((long) ang!=0)
+	    	  {
+	    		  snd.SendUDPGyroRotate((long)ang);
+	    		  mov=0;
+	    	  }
 	      }
+	      if (!mov.equals(null) && (long)mov!=0)
+		   {
+		      snd.SendUDPMove(0,(long) mov);
+		   }
 //	      Fenetre2 f2 = new Fenetre2();
 //	      f2.SetcurrentInd(idscan.getText());
 //	      f2.SetInitialPosition();
@@ -356,6 +374,7 @@ public class Fenetre extends JFrame{
   class BoutonGotoListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
+		      RobotMainServer.pendingAcqUdp=false;
 	      RobotMainServer.idscanG= idscan.getText().replaceAll("\\W", "");;
 	      label.setText("GoTo");   
 //	      System.out.println("angle " + angle.getText());
@@ -383,6 +402,7 @@ public class Fenetre extends JFrame{
   class BoutonInitListener implements ActionListener{
 	    //Redéfinition de la méthode actionPerformed()
 	    public void actionPerformed(ActionEvent arg0) {
+		      RobotMainServer.pendingAcqUdp=false;
 	        RobotMainServer.idscanG= idscan.getText().replaceAll("\\W", "");
 	      label.setText("Init posX, posY, orientation");   
 	//      System.out.println("posX " + angle.getText());

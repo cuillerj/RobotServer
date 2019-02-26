@@ -46,6 +46,8 @@ public class RobotMainServer
 	public static int scanArraySize = 15;
 	public static int[][] scanArray = new int [scanArraySize][4];
 	public static int[] pingArray = new int [4];
+	public static int[] pathDistances = new int [5];
+	public static int[] pathEchos = new int [20];
 	public static int scanStepCount=0;
 	public static int scanReceiveCount=0;
 	public static int lastEchoFront=0;
@@ -86,7 +88,8 @@ public class RobotMainServer
 	public static final int pingFBEnd=109;
 	public static final int gyroRotating=110;  // 0x6e
 	public static final int gyroRotateEnd=111;  // 0x6f
-	public static final int moveAcrossPassEnded=112;
+	public static final int moveAcrossPass=128;
+	public static final int moveAcrossPassEnded=129;
 	public static final int requestBNOEnd=118;
 	public static final int robotNOUpdated=123;
 	public static final int eventJava=0;
@@ -478,6 +481,8 @@ public static void initEventTable()
 	actionSimulable[pingFBEnd][1]=1;
 	actionSimulable[scanEnd][0]=1;
 	actionSimulable[scanEnd][1]=1;
+	actionSimulable[moveAcrossPassEnded][0]=1; // normal mode
+	actionSimulable[moveAcrossPassEnded][1]=1;  // simulation mode
 
 	}
 public static int GetScanAngle(int idx)
@@ -605,6 +610,18 @@ public static int GetScanRawData(int inX,int inY)
     int retCode=GetSqlData.GetScanRawData(inX,inY);
     return retCode;
 }
+public static int GetPathDistances(int idx)
+{
+    return pathDistances[idx];
+}
+public static int GetPathEchosRight(int idx)
+{
+    return pathEchos[idx];
+}
+public static int GetPathEchosLeft(int idx)
+{
+    return pathEchos[idx+1];
+}
 public static void Move(long ang,long mov)
 {
 //	System.out.println("Move requested");
@@ -643,8 +660,13 @@ public static void MoveAcrossNarrowPass(int distance,int witdh, int length,int s
 	RobotMainServer.runningStatus=4;
 	if (simulation!=0)
 	{
-		ArduinoSimulator.SaveMoveRequest(0,lenToDo);
-		ArduinoSimulator.SaveNorthAlignRequest((northOrientation)%360);
+		ArduinoSimulator.accrossDistance=distance;
+		ArduinoSimulator.accrossWidth=witdh;
+		ArduinoSimulator.accrossLength=length;
+		ArduinoSimulator.accrossStartToEntryDistance=startToEntryDistance;
+		ArduinoSimulator.accrossnNorthOrientation=northOrientation;
+		ArduinoSimulator.accrossLenToDo=lenToDo;
+		ArduinoSimulator.accrossEchoToGet=echoToGet;
 	}
 	int timeout=eventTimeoutTable[action][simulation];
 //	System.out.println("timeout:"+timeout);
@@ -784,7 +806,7 @@ public static void ValidHardPosition()
 	
 SetPosX(hardPosX);
 SetPosY(hardPosY);
-SetHeading(alpha);
+SetHeading(hardAlpha);
 }
 public static void SetTraceFileOn (boolean value)
 {
@@ -1122,7 +1144,7 @@ public static void GetSubsytemRegisters(int register )
 	SendUDP snd = new SendUDP();
 	snd.GetSubsytemRegisters(register);
 }
-public static void GetSubsystemLocation( )
+public static void GetSubsystemLocation()
 {             // duration in seconds up to 254
 	SendUDP snd = new SendUDP();
 	BNOLocFlag=255;

@@ -8,6 +8,14 @@ public class ArduinoSimulator{
 	public static long savedNorthOrientation=0;
 	public static long savedGyro=0;
 	public static boolean retCodeSupported=false;
+	public static long accrossDistance=0;
+	public static long accrossWidth=0;
+	public static long accrossLength=0;
+	public static long accrossStartToEntryDistance=0;
+	public static long accrossnNorthOrientation=0;
+	public static long accrossLenToDo=0;
+	public static long accrossEchoToGet=0;
+	
 	public static String pgmId="Simulator";
 
 	// [reqId,code,timeout,source,dest,retcode,countTimer]
