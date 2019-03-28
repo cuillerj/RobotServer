@@ -122,6 +122,29 @@ public class ArduinoSimulator{
 			savedRotation=0;
 			savedDistance=0;
 		}
+		if (reqCode==RobotMainServer.moveAcrossPassEnded)
+		{
+			if(!RobotMainServer.noisePath)
+			{
+				retCode=rand.nextInt(RobotMainServer.noiseRetValue);
+				if (retCode==1)
+				{
+					retCode=RobotMainServer.moveAcrossPathKoDueToNotFindingStart;
+				}
+				else if (retCode==2)
+				{
+					retCode=RobotMainServer.moveAcrossPathKoDueToNotFindingEntry;
+				}
+				else if (retCode==3)
+				{
+					retCode=RobotMainServer.moveAcrossPathKoDueToNotFindingExit;
+				}
+				else
+				{
+					retCode=0;
+				}
+			}
+		}
 		if ( reqCode==RobotMainServer.northAlignEnd)
 		{
 			retCode=0;	

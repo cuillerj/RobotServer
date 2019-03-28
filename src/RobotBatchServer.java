@@ -176,7 +176,7 @@ public class RobotBatchServer implements Runnable {
 				    			 RobotMainServer.scanReceiveCount++;
 				    			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+RobotMainServer.northOrientation+","+RobotMainServer.idCarto+","+RobotMainServer.trainBatch+")";
 				    			 //System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
-				    			Trace.TraceLog(pgmId,sql);
+				    //			Trace.TraceLog(pgmId,sql);
 				    //			 System.out.println(sql);
 				    			 stmtI.executeUpdate(sql);
 				    		 	}
@@ -352,14 +352,13 @@ public class RobotBatchServer implements Runnable {
 							{
 								RobotMainServer.retCodeDetail=-RobotMainServer.retCodeDetail;
 							}
-
 							String XString=Integer.toString(RobotMainServer.hardPosX);
 							String YString=Integer.toString(RobotMainServer.hardPosY);
 							String HString=Integer.toString(RobotMainServer.hardAlpha);
 							mess="Received "+"event type:"+eventType+" move ended X:"+XString+" Y:"+YString+" Heading:"+HString+ " NO:"+RobotMainServer.northOrientation+" deltaNORot:"+RobotMainServer.deltaNORotation+" deltaNOMov:"+RobotMainServer.deltaNOMoving+" GyroHeading:"+RobotMainServer.gyroHeading+" retCode: 0x"+byteToHex(retCode)+" "+RobotMainServer.moveRetcodeList[retCode]+" detail:"+RobotMainServer.retCodeDetail;
 							Trace.TraceLog(pgmId,mess);
 	//						System.out.println("refresh hard on screen");
-							
+							AnalyseRetcode((byte)RobotMainServer.moveEnd, retCode,sentence2[33],sentence2[34],sentence2[35]);
 							RobotMainServer.RefreshHardPositionOnScreen();
 							if (RobotMainServer.actStat==0x02){ 
 								Fenetre2.ValidePosition(RobotMainServer.posX,RobotMainServer.posY,RobotMainServer.alpha);
@@ -710,8 +709,6 @@ public class RobotBatchServer implements Runnable {
 						int mov=ihm.mov();
 						RobotMainServer.actStat=0x02;  
 						ihm2.PosActualise(ang,mov);
-			//			PanneauGraphique.point(150+posXG,150+posYG);
-			//			graph.repaint();
 					}
 					if ((sentence2[8]&0x7f)==(((byte)RobotMainServer.moveAcrossPassEnded)&0x7f)){
 
@@ -727,9 +724,8 @@ public class RobotBatchServer implements Runnable {
 						int mov=ihm.mov();
 						RobotMainServer.actStat=0x02;  
 						ihm2.PosActualise(ang,mov);
-			//			PanneauGraphique.point(150+posXG,150+posYG);
-			//			graph.repaint();
 					}
+
 					String sb ;
 
 					int sbn=sentence2[9];
@@ -1078,7 +1074,7 @@ public class RobotBatchServer implements Runnable {
 			//	System.out.println();
 
 					}
-				Trace.TraceLog(pgmId,mess);
+			//	Trace.TraceLog(pgmId,mess);
 				if (changeEncoderValues || RobotMainServer.cumulativeLeftHoles != RobotMainServer.prevCumulativeLeftHoles || RobotMainServer.cumulativeRightHoles!= RobotMainServer.prevCumulativeRightHoles)
 				{
 					String sql="INSERT INTO encodersStatistics VALUES (now(), 1,"
@@ -1109,6 +1105,7 @@ public class RobotBatchServer implements Runnable {
 				if(sentence2[6]==RobotMainServer.respNarrowPathMesurments)
 				{
 					mess=" distances:";
+					RobotMainServer.pendingNarrowPathMesurments=false;
 					for (int i=0;i<5;i++)
 					{
 						RobotMainServer.pathDistances[i]=(byte) ((byte)(sentence2[7+3*i]&0x7F))*256;
@@ -1123,7 +1120,7 @@ public class RobotBatchServer implements Runnable {
 				}
 				if(sentence2[6]==RobotMainServer.respNarrowPathEchos)
 				{
-
+					RobotMainServer.pendingNarrowPathEchos=false;
 					for (int i=0;i<9;i++)
 					{
 						mess=" path echos:";
@@ -1165,7 +1162,7 @@ public class RobotBatchServer implements Runnable {
 					int leftEncoder=((sentence2[16] << 8) & 0x0000ff00) | (sentence2[17] & 0x000000ff);
 					int rightEncoder=((sentence2[19] << 8) & 0x0000ff00) | (sentence2[20] & 0x000000ff);
 					mess="power 1:"+power1+" 2:"+power2+" 3:"+power3+" 4:"+power4+" 5:"+power5+" 6:"+power6+ " leftEncoder:"+leftEncoder+ " rightEncoder:"+rightEncoder;
-					Trace.TraceLog(pgmId,mess);
+			//		Trace.TraceLog(pgmId,mess);
 				}
 				if(sentence2[6]==RobotMainServer.respTraceNO)
 				{
@@ -1215,6 +1212,14 @@ public class RobotBatchServer implements Runnable {
 
 					mess="setPoint left:" + leftSetpoint + " right:"+rightSetpoint;
 					Trace.TraceLog(pgmId,mess);
+				}
+				if ((sentence2[6]&0x7f)==(((byte)RobotMainServer.requestIRsensors)&0x7f)){
+					RobotMainServer.obstacleHeading=(int) ((byte)(sentence2[8]&0x7F)-(byte)(sentence2[8]&0x80))*256;
+					RobotMainServer.obstacleHeading=RobotMainServer.obstacleHeading+(int) ((byte)(sentence2[9]&0x7F)-(byte)(sentence2[9]&0x80));
+					RobotMainServer.IRMap=(byte)(sentence2[11]&0x7F);
+					mess="IRSensors heading:"+RobotMainServer.obstacleHeading+" map: 0x"+byteToHex(RobotMainServer.IRMap);
+					Trace.TraceLog(pgmId,mess);
+
 				}
 			}
 			else
@@ -1284,6 +1289,36 @@ public class RobotBatchServer implements Runnable {
 			}
 		}
 	}
+	void AnalyseRetcode(byte action, byte retCode, byte retCodeDetail1, byte retCodeDetail2,byte retCodeDetail3)
+	{
+		TraceLog Trace = new TraceLog();
+		String pgmid="RobotBatchServer/AnalyseRetCode";
+		String mess=" 0x"+byteToHex(action)+" 0x"+byteToHex(retCode)+" 0x"+byteToHex(retCodeDetail1)+" 0x"+byteToHex(retCodeDetail2)+" 0x"+byteToHex(retCodeDetail3);
+//		Trace.TraceLog(pgmid,mess);
+		switch(action)
+		{
+		case(RobotMainServer.moveEnd):
+			switch(retCode)
+			{
+				case(RobotMainServer.moveKoDueToObstacle):
+				{
+					switch(retCodeDetail1 & 0x80) 
+					{
+						case(0x80):
+							 mess="echoSensors moveKoDueToObstacle ";
+							Trace.TraceLog(pgmid,mess);
+						case(0x00):
+							RobotMainServer.obstacleHeading=(int) ((retCodeDetail1 & 0x7F)-(byte)(retCodeDetail1 & 0x80))*256;
+							RobotMainServer.obstacleHeading=RobotMainServer.obstacleHeading+(int) ((byte)(retCodeDetail2 &0x7F)-(byte)(retCodeDetail2 &0x80));
+							RobotMainServer.IRMap=(byte)(retCodeDetail3&0x7F);
+							mess="IRSensors moveKoDueToObstacle heading:"+RobotMainServer.obstacleHeading+" map: 0x"+byteToHex(RobotMainServer.IRMap);
+							Trace.TraceLog("RobotBatchServer/AnalyseRetCode",mess);
+					}
+				}
+			
+			}
+		}
+	}
 	  public static String byteToHex(byte b) {
 		    StringBuilder sb = new StringBuilder();
 		    sb.append(Integer.toHexString(b));
@@ -1313,7 +1348,7 @@ public class RobotBatchServer implements Runnable {
 			 int angl=RobotMainServer.orientG;
 //			 String sql="INSERT INTO scanResult VALUES ("+idscan+",now(),"+RobotMainServer.posX+","+RobotMainServer.posY+","+angle+","+distFront+","+distBack+","+angl+","+RobotMainServer.idCarto+")";
 			 //System.out.println("ind id "+IndIdS+", pos " + IndPos + ", len: " + IndLen+" value"+IndValue);
-			Trace.TraceLog(pgmId,sql);
+//			Trace.TraceLog(pgmId,sql);
 //			 System.out.println(sql);
 			 stmtI.executeUpdate(sql);
 		 	}

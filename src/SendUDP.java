@@ -35,7 +35,6 @@ public class SendUDP extends Thread{
 		}
 	public void SendUDPStop() {
 		try{
-	  CheckTimer();
 	  String mess="stop";
 	  TraceLog Trace = new TraceLog();
 	  Trace.TraceLog(pgmId,mess);
@@ -90,7 +89,6 @@ public class SendUDP extends Thread{
 	public void SendUDPStart() {
 		// TODO Auto-generated method stub
 		try{
-			  CheckTimer();
 			  String mess="start";
 			  TraceLog Trace = new TraceLog();
 			  Trace.TraceLog(pgmId,mess);
@@ -263,7 +261,7 @@ public class SendUDP extends Thread{
 			 sendData[0]=0x63;  // c
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=RobotMainServer.requestPingFrontBack;   // p 
-		      sendData=SecurSendUdp(sendData);
+		     sendData=SecurSendUdp(sendData);
 //	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 //	      clientSocket.send(sendPacket);
 //	      clientSocket.close();  
@@ -687,6 +685,30 @@ public class SendUDP extends Thread{
 			 sendData[1]=0x34;  // 4
 			 sendData[2]=0x40;   // : 
 		      sendData=SecurSendUdp(sendData);
+//	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//	      clientSocket.send(sendPacket);
+//	      clientSocket.close();  
+		}
+	   catch(Exception e)
+	   {}
+	   
+	   finally{}
+		}
+
+		public void SendUDPRequestSensors() {
+		try{
+	  String mess="query IR Sensors";
+	  TraceLog Trace = new TraceLog();
+	  Trace.TraceLog(pgmId,mess);
+//	      DatagramSocket clientSocket = new DatagramSocket();
+//	      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+	      byte[] sendData = new byte[3];
+//	      String startCmde="c4r";
+//	      sendData = startCmde.getBytes();
+			 sendData[0]=0x63;  // c
+			 sendData[1]=0x34;  // 4
+			 sendData[2]=RobotMainServer.requestIRsensors;   // 
+		     sendData=SecurSendUdp(sendData);
 //	      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
 //	      clientSocket.send(sendPacket);
 //	      clientSocket.close();  
@@ -1429,16 +1451,17 @@ public class SendUDP extends Thread{
 		try{
 	//	  System.out.println("argument: " + args[0]);
 		 	java.util.Date date= new java.util.Date();
-		 	date =new Timestamp(date.getTime());
-		 	long millis=date.getTime() - RobotMainServer.lastSentTime;
+		 	date =new Timestamp(date.getTime());		 	
+		 	long millis=date.getTime();
+			String mess="wait for:"+ millis+ "ms to send";
+			TraceLog Trace = new TraceLog();
+			millis=millis - RobotMainServer.lastSentTime;  
 		 	if (millis<500 && RobotMainServer.lastSentTime!=0)
 		 	{
 			   Thread.sleep(500-millis);         // to let arduino time for treatment
-			   String mess="wait for:"+ millis+ "ms to send";
-			   TraceLog Trace = new TraceLog();
 			   Trace.TraceLog(pgmId,mess);
 		 	}
-		 	RobotMainServer.lastSentTime=date.getTime();
+		 	RobotMainServer.lastSentTime=millis;
 
 		}
 	   catch(Exception e)
@@ -1573,6 +1596,9 @@ public class SendUDP extends Thread{
 		{
 			try {
 				Thread.sleep(2000);
+				  String mess="sleep";
+				  TraceLog Trace = new TraceLog();
+				  Trace.TraceLog("SendUDP/CheckLastFrames",mess);
 				if (RobotMainServer.pendingAcqUdp==true)  
 				{
 					ResendLastFrame();	

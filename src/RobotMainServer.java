@@ -106,6 +106,12 @@ public class RobotMainServer
 	public static final byte moveKoDueToWheelStopped =0x0a;
 	public static final byte moveKoDueToObstacle =0x07;
 	public static final byte moveKoDueToNotEnoughSpace = 0x0b;
+	public static final byte moveAcrossPathKoDueToWheelStopped = 0x6e;
+	public static final byte moveAcrossPathKoDueToObstacle = 0x6b;
+	public static final byte moveAcrossPathKoDueToNotEnoughSpace = 0x6f;
+	public static final byte moveAcrossPathKoDueToNotFindingStart = 0x70;
+	public static final byte moveAcrossPathKoDueToNotFindingEntry = 0x71; // 0x71
+	public static final byte moveAcrossPathKoDueToNotFindingExit = 0x72;
 	public static final String [] moveRetcodeList= new String[20];
 	public static final byte rotationKoToManyRetry =(byte) 0xfe;
 	public static final byte diagMotorPbLeft= 0;
@@ -147,6 +153,7 @@ public class RobotMainServer
 	public static float noiseLevel=0;         // level of noise on rotation & move 
 	public static float scanNoiseLevel=0;         // level of noise on rotation & move 	
 	public static boolean noiseRetCode=false;  // is there noise on move retCode
+	public static boolean noisePath=false;      // simulation noise going across path
 	public static int noiseRetValue=1;   // if noise on move retcode define random limit (higher lower the noise)
 	public static byte BNOMode=0x00;
 	public static byte BNOCalStat=0x00;
@@ -188,8 +195,12 @@ public class RobotMainServer
 	public static byte requestPID = (byte)0x94;
 	public static byte respPID = (byte)0x94;
 	public static byte setPID = (byte)0x95;
-
-	
+	public static byte requestIRsensors = (byte)0x96;
+	public static byte respIRsensors = (byte)0x96;
+	public static int obstacleHeading=0;
+	public static byte IRMap=0x00;
+	public static boolean pendingNarrowPathEchos=false;
+	public static boolean pendingNarrowPathMesurments=false;
 //	public static String ipRobot="aprobot";  // 138 ou 133
 	static char[] TAB_BYTE_HEX = { '0', '1', '2', '3', '4', '5', '6','7',
             '8', '9', 'A', 'B', 'C', 'D', 'E','F' };
@@ -616,11 +627,11 @@ public static int GetPathDistances(int idx)
 }
 public static int GetPathEchosRight(int idx)
 {
-    return pathEchos[idx];
+    return pathEchos[2*idx];
 }
 public static int GetPathEchosLeft(int idx)
 {
-    return pathEchos[idx+1];
+    return pathEchos[2*idx+1];
 }
 public static void Move(long ang,long mov)
 {
@@ -1110,7 +1121,6 @@ public static void SetUdpTrace(boolean value)
 	else{
 		snd.SendUDPTrace((byte) 0x00);				
 	}
-
 }
 public static void SetUdpTraceNO(boolean value)
 {             // 0 off 1 on
@@ -1206,6 +1216,7 @@ public static void RequestNarrowPathMesurments()
 {             // duration in seconds up to 254
 	if (simulation==0)
 	{
+		pendingNarrowPathMesurments=true;
 		SendUDP snd = new SendUDP();
 		snd.SendUDPRequestNarrowaPathMesurments();
 	}
@@ -1214,8 +1225,18 @@ public static void RequestNarrowPathEchos()
 {             // duration in seconds up to 254
 	if (simulation==0)
 	{
+		pendingNarrowPathEchos=true;
 		SendUDP snd = new SendUDP();
 		snd.SendUDPRequestNarrowPathEchos();
+	}
+}
+public static void GetIRSensors()
+{
+	if (simulation==0)
+	{
+
+		SendUDP snd = new SendUDP();
+		snd.SendUDPRequestSensors();
 	}
 }
 public static void RequestPID()
