@@ -1301,11 +1301,12 @@ public class RobotBatchServer implements Runnable {
 			switch(retCode)
 			{
 				case(RobotMainServer.moveKoDueToObstacle):
+					 
 				{
 					switch(retCodeDetail1 & 0x80) 
 					{
 						case(0x80):
-							 mess="echoSensors moveKoDueToObstacle ";
+							 mess="echoSensors:"+RobotMainServer.moveRetcodeList[retCode];
 							Trace.TraceLog(pgmid,mess);
 						case(0x00):
 							RobotMainServer.obstacleHeading=(int) ((retCodeDetail1 & 0x7F)-(byte)(retCodeDetail1 & 0x80))*256;

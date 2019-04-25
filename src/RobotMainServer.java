@@ -17,6 +17,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
+import StopTensorFlow.StopTensorFlow;
+
 public class RobotMainServer 
 	{
 	public static float version=(float) 2.4;
@@ -113,6 +115,8 @@ public class RobotMainServer
 	public static final byte moveAcrossPathKoDueToNotFindingEntry = 0x71; // 0x71
 	public static final byte moveAcrossPathKoDueToNotFindingExit = 0x72;
 	public static final String [] moveRetcodeList= new String[20];
+	public static final String [][] retcodeList= new String[256][256]; // [action,retCode]
+	public static final String [] actionList= new String[256]; // 
 	public static final byte rotationKoToManyRetry =(byte) 0xfe;
 	public static final byte diagMotorPbLeft= 0;
 	public static final byte diagMotorPbRight =1;
@@ -196,7 +200,7 @@ public class RobotMainServer
 	public static byte respPID = (byte)0x94;
 	public static byte setPID = (byte)0x95;
 	public static byte requestIRsensors = (byte)0x96;
-	public static byte respIRsensors = (byte)0x96;
+	public static int respIRsensors = (byte)0x96 & 0x000000ff;;
 	public static int obstacleHeading=0;
 	public static byte IRMap=0x00;
 	public static boolean pendingNarrowPathEchos=false;
@@ -776,7 +780,8 @@ return currentLocProb;
 }
 public static int GetEventArduinoDest(int reqType)
 {
-return (eventArduino+simulation*actionSimulable[reqType][0]*actionSimulable[reqType][1]);
+	reqType=reqType & 0x000000ff;
+	return (eventArduino+simulation*actionSimulable[reqType][0]*actionSimulable[reqType][1])& 0x000000ff;
 }
 public static void SetRunningStatus(int value)
 {
@@ -854,7 +859,7 @@ return octaveRequestPending;
 }
 public static int GetRetcodeDetail ()
 {
-return retCodeDetail;
+return retCodeDetail & 0x000000ff;
 }
 public static void SetCurrentLocProb (int value)
 {
@@ -951,6 +956,9 @@ if(simulation*actionSimulable[action][0]==0)
 }
 public static void RobotGyroRotate(int value)
 {             
+	TraceLog Trace = new TraceLog();
+	String mess="RobotGyroRotate:"+value;
+	Trace.TraceLog("RobotMainServer",mess);
 int action=moveEnd;
 int timeout=eventTimeoutTable[action][simulation];
 if (simulation!=0)
@@ -1023,7 +1031,7 @@ Fenetre2.RefreshHardPosition();
 	}
 public static void StopRobotServer()
 {
-System.exit(0);
+	StopTensorFlow();
 	}
 public static void StartTimeoutManagement()
 {
@@ -1043,7 +1051,7 @@ public static int GetRetcode(int reqCode,int reqSource,int reqDest)
 			retCode= EventManagement.pendingRequestTable[i][5];
 		}
 	}
-	return retCode;
+	return retCode & 0x000000ff;
 }
 public static void Horn(int duration)
 {             // duration in seconds up to 254
@@ -1156,9 +1164,12 @@ public static void GetSubsytemRegisters(int register )
 }
 public static void GetSubsystemLocation()
 {             // duration in seconds up to 254
-	SendUDP snd = new SendUDP();
-	BNOLocFlag=255;
-	snd.GetSubsytemLocation();
+	if (simulation==0)
+	{
+		SendUDP snd = new SendUDP();
+		BNOLocFlag=255;
+		snd.GetSubsytemLocation();
+	}
 }
 public static int GetParameterNumValue(int ID)
 {
@@ -1232,9 +1243,8 @@ public static void RequestNarrowPathEchos()
 }
 public static void GetIRSensors()
 {
-	if (simulation==0)
+	if(simulation==0)
 	{
-
 		SendUDP snd = new SendUDP();
 		snd.SendUDPRequestSensors();
 	}
@@ -1338,6 +1348,7 @@ public static void rightStartLimit(int value)
 public static int StartTensorFlowPrediction()
 {             // duration in seconds up to 254
 	int retCode=-1;
+
 	if (TfProcess==null){
 		Process rc=StartTensorFlowPrediction.runProcess();
 		String mess="Start TensorFlow prediction:"+rc;;
@@ -1366,7 +1377,18 @@ public static int DeleteTensorFlowFiles()
 		retCode=0;
 
 	return retCode;
+}
+public static int StopTensorFlow()
+{             // duration in seconds up to 254
+	int retCode=-1;
+		Process rc=StopTensorFlow.runProcess();
+		String mess="Stop tensor flow:"+rc;;
+	    TraceLog Trace = new TraceLog();
+		Trace.TraceLog(pgmId,mess);
+		TfProcess=rc;
+		retCode=0;
 
+	return retCode;
 }
 @SuppressWarnings("null")
 public static int UpdateCurrentShiftNorthOrientation(int value)
@@ -1497,8 +1519,56 @@ public static void InitRobotValues()
 	moveRetcodeList[10]="moveKoDueToWheelStopped";
 	moveRetcodeList[11]="moveKoDueToNotEnoughSpace";
 	moveRetcodeList[16]="moveWheelSpeedInconsistancy";
+	for (int i=0;i<=256;i++)
+	{
+		
+	}
+	retcodeList[moveEnd][0]="ok";
+	retcodeList[moveEnd][1]="moveRetcodeEncoderLeftLowLevel";
+	retcodeList[moveEnd][2]="moveRetcodeEncoderRightLowLevel";
+	retcodeList[moveEnd][3]="moveRetcodeEncoderLeftHighLevel";
+	retcodeList[moveEnd][4]="moveRetcodeEncoderRightHighLevel";
+	retcodeList[moveEnd][5]="moveUnderLimitation";
+	retcodeList[moveEnd][7]="moveKoDueToObstacle";
+	retcodeList[moveEnd][10]="moveKoDueToWheelStopped";
+	retcodeList[moveEnd][11]="moveKoDueToNotEnoughSpace";
+	retcodeList[moveEnd][16]="moveWheelSpeedInconsistancy";
+	retcodeList[robotInfoUpdated][0]="ok";
+	retcodeList[pingFBEnd][0]="ok";
+	retcodeList[robotNOUpdated][0]="ok";
+	retcodeList[northAlignEnd][0]="ok";
+	retcodeList[northAlignEnd][1]="ko!";
+	retcodeList[northAlignEnd][11]="moveKoDueToNotEnoughSpace";
+	retcodeList[servoAlignEnd][0]="ok";
+	retcodeList[robotUpdatedEnd][0]="ok";
+	for (int i=0;i<256;i++)
+	{
+		retcodeList[i][255]="timeout";
+		retcodeList[i][255]="timeout";
+	}
+	actionList[scanning]="scanning";
+	actionList[moving]="moving";
+	actionList[moveEnd]="moveEnd";
+	actionList[scanEnd]="scanEnd";
+	actionList[robotUpdatedEnd]="robotUpdatedEnd";
+	actionList[northAlignEnd]="northAlignEnd";
+	actionList[scanning]="scanning";
+	actionList[servoAlignEnd]="servoAlignEnd";
+	actionList[pingFBEnd]="pingFBEnd";
+	actionList[gyroRotating]="gyroRotating";
+	actionList[gyroRotateEnd]="gyroRotateEnd";	
+	actionList[moveAcrossPass]="moveAcrossPass";
+	actionList[moveAcrossPassEnded]="moveAcrossPassEnded";
+	actionList[requestBNOEnd]="requestBNOEnd";
+	actionList[robotNOUpdated]="robotNOUpdated";
+	actionList[respIRsensors]="respIRsensors";	
+
 	shiftEchoVsRotationCenter=ParametersSetting.GetParametersNumValue(shiftparameterid)/10;
 	ArduinoSimulator.InitSimulatorValues();
 	}
+public static int byteToUnsignedInt(byte b) {
+	int retValue=b & 0x000000ff;
+    return retValue ;
+  }
 }
 

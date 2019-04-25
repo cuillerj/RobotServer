@@ -9,6 +9,7 @@ public class EventManagement{
 
 	public static void AddPendingEvent(int reqCode,int reqTimeout,int reqSource,int reqDest)
 	{
+		reqCode=reqCode & 0x000000ff;
 		ClearEventTable (reqCode,reqSource,reqDest);
 		RobotMainServer.octaveRequestPending=true;
 		RobotMainServer.octavePendingRequest=reqCode;
@@ -31,6 +32,7 @@ public class EventManagement{
 	public static void ClearEventTable (int reqCode,int reqSource,int reqDest)
 	{
 		int i=0;
+		reqCode=reqCode & 0x000000ff;
 		for ( i=0;i<EventManagement.sizeTable;i++)
 		{
 			if (pendingRequestTable[i][1]==reqCode && pendingRequestTable[i][3]==reqSource 
@@ -48,6 +50,7 @@ public class EventManagement{
 		// TODO Auto-generated method stub
 		int i=0;
 		int reqPendingNumber=0;
+		reqCode=reqCode & 0x000000ff;
 		for ( i=0;i<EventManagement.sizeTable;i++)
 		{
 			
