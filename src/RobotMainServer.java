@@ -71,6 +71,7 @@ public class RobotMainServer
 	public static boolean octaveRequestPending=false;
 	public static int octavePendingRequest=0;
 	public static boolean interactive=false;
+	public static int frameDecodeLevel=2;
 	public static int simulation=0;
 	public static int batchTypeFlag=0;  // 0:no batch 1: real mode running  2 simulation mode running
 	public static int simulatedHardX=0;     // used in simulation corresponding to hard location to guess
@@ -201,6 +202,8 @@ public class RobotMainServer
 	public static byte setPID = (byte)0x95;
 	public static byte requestIRsensors = (byte)0x96;
 	public static int respIRsensors = (byte)0x96 & 0x000000ff;;
+	public static byte requestInternalFlags = (byte)0x97;
+	public static int respInternalFlags = (byte)0x97 & 0x000000ff;;
 	public static int obstacleHeading=0;
 	public static byte IRMap=0x00;
 	public static boolean pendingNarrowPathEchos=false;
@@ -410,6 +413,7 @@ public static int  LaunchBatch()
 	if (batchTypeFlag==0)
 	{	
 	initEventTable();
+	DecodeUDPFrame.InitTable();
 	StartTimeoutManagement();
 //enetreGraphiqueSonar ihm3 = new FenetreGraphiqueSonar();
 //	ihm2.SetInitialPosition();
@@ -440,6 +444,7 @@ public static int  LaunchSimu()
 	{	
 	SetSimulationMode(1);
 	initEventTable();
+	DecodeUDPFrame.InitTable();
 	StartTimeoutManagement();
 //	Fenetre ihm = new Fenetre();
 //	Fenetre2 ihm2 = new Fenetre2();
@@ -472,9 +477,9 @@ public static void initEventTable()
 	eventTimeoutTable[robotUpdatedEnd][1]=20;  // simulation mode
 	eventTimeoutTable[scanEnd][0]=1200; // normal mode
 	eventTimeoutTable[scanEnd][1]=100;  // simulation mode
-	eventTimeoutTable[moveEnd][0]=900; // normal mode
+	eventTimeoutTable[moveEnd][0]=600; // normal mode
 	eventTimeoutTable[moveEnd][1]=30;  // simulation mode
-	eventTimeoutTable[northAlignEnd][0]=1800; // normal mode
+	eventTimeoutTable[northAlignEnd][0]=3000; // normal mode
 	eventTimeoutTable[northAlignEnd][1]=30;  // simulation mode
 	eventTimeoutTable[servoAlignEnd][0]=100; // normal mode
 	eventTimeoutTable[servoAlignEnd][1]=10;  // simulation mode
@@ -748,6 +753,8 @@ return hardAlpha;
 public static int RefreshNorthOrientation()
 {
 	int action=robotNOUpdated;
+	int prevNorthOrientation=northOrientation;
+	northOrientation=999;
 	int timeout=eventTimeoutTable[action][simulation];
 	EventManagement.AddPendingEvent(action,timeout,eventOctave,eventArduino+simulation*actionSimulable[action][0]*actionSimulable[action][1]);
 //	RobotMainServer.octavePendingRequest=1;    // request info uptodate
@@ -760,7 +767,7 @@ public static int RefreshNorthOrientation()
 
 //	while(RobotMainServer.javaRequestStatusPending==true)
 	
-return northOrientation;
+return prevNorthOrientation;
 }
 public static int GetDeltaNORotation()
 {
@@ -929,6 +936,11 @@ octaveRequestPending=true;
 SendUDP snd = new SendUDP();
 snd.SendRequestVersion();
 	}
+public static void RequestInternalFlags()
+{
+SendUDP snd = new SendUDP();
+snd.RequestInternalFlags();
+	}
 public static void RobotAlignServo(int value)
 {             // request servomotor alignment from 0 to 180°
 int timeout=eventTimeoutTable[servoAlignEnd][simulation];
@@ -1032,6 +1044,7 @@ Fenetre2.RefreshHardPosition();
 public static void StopRobotServer()
 {
 	StopTensorFlow();
+
 	}
 public static void StartTimeoutManagement()
 {

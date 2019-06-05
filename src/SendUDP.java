@@ -1083,6 +1083,30 @@ public class SendUDP extends Thread{
 			   
 			   finally{}
 				}
+	public void RequestInternalFlags() {
+		// TODO Auto-generated method stub
+		try{
+			  String mess="request InternalFlags";
+			  TraceLog Trace = new TraceLog();
+			  Trace.TraceLog(pgmId,mess);
+//			      DatagramSocket clientSocket = new DatagramSocket();
+//			      InetAddress IPAddress = InetAddress.getByName(RobotMainServer.ipRobot);
+			      byte[] sendData = new byte[3];
+			      byte[] cmde = new byte[3];
+			      cmde[0]=0x63;
+			      cmde[1]=0x34;
+			      cmde[2]=RobotMainServer.requestInternalFlags;  // 
+			      sendData = cmde;
+			      sendData=SecurSendUdp(sendData);
+//			      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 8888);
+//			      clientSocket.send(sendPacket);
+//			      clientSocket.close();
+				}
+			   catch(Exception e)
+			   {}
+			   
+			   finally{}
+				}
 	public void SendRequestPID() {
 		// TODO Auto-generated method stub
 		try{
@@ -1595,7 +1619,7 @@ public class SendUDP extends Thread{
 		if (RobotMainServer.pendingAcqUdp==true)
 		{
 			try {
-				Thread.sleep(2000);
+				Thread.sleep(4000);
 				  String mess="sleep";
 				  TraceLog Trace = new TraceLog();
 				  Trace.TraceLog("SendUDP/CheckLastFrames",mess);

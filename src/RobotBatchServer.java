@@ -53,10 +53,12 @@ public class RobotBatchServer implements Runnable {
 //				ResultSet rs = null;
 				byte[] receiveData = new byte[1024];
 				byte[] sentence2=new byte[1024];
+				int dataLenght=0;
 		//		byte[] sendData = new byte[1024];
 				DatagramPacket receivePacket = new DatagramPacket(sentence2, sentence2.length);
 				try {
 					serverSocket.receive(receivePacket);
+					dataLenght=receivePacket.getLength();
 					if (RobotMainServer.ipRobot==null)
 					{
 						RobotMainServer.ipRobot = receivePacket.getAddress();		
@@ -528,6 +530,12 @@ public class RobotBatchServer implements Runnable {
 				}
 				if (sentence2[6]==0x65){                    // e  status info
 					EchoRobot.pendingEcho=0;
+					try {
+						DecodeUDPFrame.PrintUDPFrame(sentence2,dataLenght);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					if (RobotMainServer.javaRequestStatusPending==true)
 					{
  // reqCode,retCode,source, dest
@@ -549,8 +557,8 @@ public class RobotBatchServer implements Runnable {
 								SendUDP.ResendLastFrame();
 							}
 						}
+					}
 					if(RobotMainServer.octaveRequestPending==true && waitForEndOf==(sentence2[8] & 0x000000ff)) // end action missed
-
 					{
 						missedEventType=(sentence2[8] & 0x000000ff); 
 						missedEventRetcode=sentence2[27];
@@ -559,7 +567,7 @@ public class RobotBatchServer implements Runnable {
 		//				EventManagement.UpdateEvent(eventType,sentence2[27],RobotMainServer.eventOctave,
 		//						RobotMainServer.eventArduino+RobotMainServer.simulation*RobotMainServer.actionSimulable[eventType][0]*RobotMainServer.actionSimulable[eventType][1]);  // reqCode,retCode,source, dest							
 					}
-					}
+
 	//			    RobotMainServer.javaRequestStatusPending=false;
 	//				System.out.print("echo response: ");
 
@@ -857,7 +865,22 @@ public class RobotBatchServer implements Runnable {
 				
 				
 				if (sentence2[6]==0x70){  // power info
-
+					if (RobotMainServer.pendingAcqUdp==true)
+					{
+						if (sentence2[15]==SendUDP.countUdp)
+						{
+							RobotMainServer.pendingAcqUdp=false;
+							statusFrameCount=0;
+						}
+						else
+						{
+							statusFrameCount++;
+							if (statusFrameCount >3)
+							{
+								SendUDP.ResendLastFrame();
+							}
+						}
+					}
 					int power1=((byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80))*10;
 					int power2=((byte)(sentence2[8]&0x7F)-(byte)(sentence2[8]&0x80))*10;
 					int power3=((byte)(sentence2[10]&0x7F)-(byte)(sentence2[10]&0x80))*10;
@@ -882,16 +905,33 @@ public class RobotBatchServer implements Runnable {
 				
 				if (sentence2[6]==0x71 || sentence2[6]==0x72|| sentence2[6]==0x73 || sentence2[6]==0x74){  // encoder & motor values
 				EchoRobot.pendingEcho=0;
-				int nbValue=(byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80);
+
 				int ix=8;
 				if(sentence2[6]==0x71)
 				{
+
 					mess="encoder leftHigh leftLow RightHigh RightLow LefPWM rightPWM Ratio ";
 //					Trace.TraceLog(pgmId,mess);
 //					System.out.print("encoder leftHigh leftLow RightHigh RightLow LefPWM right PWM Ratio ");
 				}
 				if(sentence2[6]==0x72)
 				{
+					if (RobotMainServer.pendingAcqUdp==true)
+					{
+						if (sentence2[31]==SendUDP.countUdp)
+						{
+							RobotMainServer.pendingAcqUdp=false;
+							statusFrameCount=0;
+						}
+						else
+						{
+							statusFrameCount++;
+							if (statusFrameCount >3)
+							{
+								SendUDP.ResendLastFrame();
+							}
+						}
+					}
 					mess="encoder leftHigh leftMaxLevel leftLow leftMinLevel rightHigh rightMaxLevel rightLow rightMinLevel ";
 //					System.out.print("encoder leftHigh leftMaxLevel leftLow leftMinLevel rightHigh rightMaxLevel rightLow rightMinLevel ");
 				}
@@ -902,9 +942,26 @@ public class RobotBatchServer implements Runnable {
 				}
 				if(sentence2[6]==0x74)
 				{
+					if (RobotMainServer.pendingAcqUdp==true)
+					{
+						if (sentence2[13]==SendUDP.countUdp)
+						{
+							RobotMainServer.pendingAcqUdp=false;
+							statusFrameCount=0;
+						}
+						else
+						{
+							statusFrameCount++;
+							if (statusFrameCount >3)
+							{
+								SendUDP.ResendLastFrame();
+							}
+						}
+					}
 					mess="leftHoles RightHoles ";
 				}
 				boolean changeEncoderValues=false;
+				int nbValue=(byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80);
 				for (int i=1;i<=nbValue;i++)
 				{
 	//				int oct0=(byte)(sentence2[ix]&0x7F)-(byte)(sentence2[ix]&0x80); // manip car byte consideré signé
@@ -1088,7 +1145,28 @@ public class RobotBatchServer implements Runnable {
 				}
 				if(sentence2[6]==RobotMainServer.respBNOSubsytemStatus)
 				{
-
+					if (RobotMainServer.pendingAcqUdp==true)
+					{
+						if (sentence2[12]==SendUDP.countUdp)
+						{
+							RobotMainServer.pendingAcqUdp=false;
+							statusFrameCount=0;
+						}
+						else
+						{
+							statusFrameCount++;
+							if (statusFrameCount >3)
+							{
+								SendUDP.ResendLastFrame();
+							}
+						}
+					}
+					try {
+						DecodeUDPFrame.PrintUDPFrame(sentence2,dataLenght);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					int i=0;
 //					int idx=8;
 	//				(byte)(sentence2[7]&0x7F)-(byte)(sentence2[7]&0x80)
@@ -1186,6 +1264,32 @@ public class RobotBatchServer implements Runnable {
 					int subVersion=(sentence2[8] & 0x000000ff);
 					RobotMainServer.arduinoSubVersion=subVersion;
 					mess="Arduino version:" + version + "-"+subVersion;
+					Trace.TraceLog(pgmId,mess);
+				}
+				if ((sentence2[6]&0x7f)==(((byte)RobotMainServer.respInternalFlags)&0x7f)){  // version info
+					if (RobotMainServer.pendingAcqUdp==true)
+					{
+						if (sentence2[34]==SendUDP.countUdp)
+						{
+							RobotMainServer.pendingAcqUdp=false;
+							statusFrameCount=0;
+						}
+						else
+						{
+							statusFrameCount++;
+							if (statusFrameCount >3)
+							{
+								SendUDP.ResendLastFrame();
+							}
+						}
+					}
+					try {
+						DecodeUDPFrame.PrintUDPFrame(sentence2,dataLenght);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					mess="response InternalFlags" ;
 					Trace.TraceLog(pgmId,mess);
 				}
 				if (sentence2[6]==RobotMainServer.respPID){  // version info
@@ -1327,6 +1431,7 @@ public class RobotBatchServer implements Runnable {
 		        sb.insert(0, '0'); // pad with leading zero if needed
 		    }
 		    String hex = sb.toString();
+		    hex = hex.substring(hex.length() - 2, hex.length());
 		    return hex;
 		  }
 	  public void InsertSqlData(String sql)
